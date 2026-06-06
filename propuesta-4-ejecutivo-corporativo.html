@@ -28,7 +28,9 @@
       };
     </script>
       <link rel="stylesheet" href="./assets/adkin-mobile-ux.css" />
+    <link rel="stylesheet" href="./assets/adkin-premium.css" />
     <script defer src="./assets/adkin-mobile-ux.js"></script>
+    <script defer src="./assets/adkin-premium.js"></script>
   </head>
   <body class="bg-corp-light font-body text-corp-dark adkin-demo">
     <nav class="adkin-demo-switcher" data-adkin-demo-switcher aria-label="Comparar demos">
@@ -60,11 +62,12 @@
     <header class="sticky top-0 z-50 border-b border-corp-panel bg-white/95 backdrop-blur">
       <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <a href="#" class="font-heading text-lg font-semibold tracking-wide text-corp-navy sm:text-xl">URBAN CONNECT HOTEL</a>
-        <a href="#reservas" class="md:hidden rounded-lg bg-corp-blue px-3 py-1.5 text-xs font-semibold text-white">Reservar</a>
+        <a href="#reservas" class="adkin-hide-with-drawer md:hidden rounded-lg bg-corp-blue px-3 py-1.5 text-xs font-semibold text-white">Reservar</a>
         <nav class="hidden items-center gap-6 text-sm text-corp-gray md:flex">
           <a href="#habitaciones" class="transition hover:text-corp-blue">Habitaciones</a>
           <a href="#amenidades" class="transition hover:text-corp-blue">Amenidades</a>
           <a href="#testimonios" class="transition hover:text-corp-blue">Reseñas</a>
+          <a href="#contacto" class="transition hover:text-corp-blue">Contacto</a>
           <a href="#reservas" class="rounded-lg bg-corp-blue px-4 py-2 font-medium text-white transition hover:bg-corp-navy">Reservar</a>
         </nav>
       </div>
@@ -75,6 +78,7 @@
         <a href="#habitaciones" class="bg-slate-100 text-slate-800">Habitaciones</a>
         <a href="#amenidades" class="bg-slate-100 text-slate-800">Amenidades</a>
         <a href="#testimonios" class="bg-slate-100 text-slate-800">Reseñas</a>
+        <a href="#contacto" class="bg-slate-100 text-slate-800">Contacto</a>
         <a href="#reservas" class="bg-sky-700 text-white">Reservar</a>
       </div>
     </nav>
@@ -224,6 +228,58 @@
           </blockquote>
         </div>
       </section>
+
+      <section id="contacto" class="border-t border-corp-panel bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+          <p class="text-xs uppercase tracking-[0.18em] text-corp-gray">Contacto</p>
+          <h2 class="mt-2 font-heading text-3xl font-semibold text-corp-navy sm:text-4xl">Ubicación y consultas</h2>
+
+          <div class="mt-10 grid gap-10 lg:grid-cols-2 lg:items-start">
+            <div id="ubicacion">
+              <h3 class="font-heading text-xl font-semibold text-corp-navy">Cómo llegar</h3>
+              <address class="mt-3 not-italic text-sm leading-relaxed text-corp-gray">
+                Juana Manso 1127, Puerto Madero<br />
+                C1107 CABA, Argentina<br />
+                <a href="tel:+541143210987" class="font-medium text-corp-blue hover:underline">+54 11 4321-0987</a>
+              </address>
+              <div class="adkin-map mt-5 border-slate-200 bg-slate-50">
+                <iframe
+                  title="Mapa de ubicación Urban Connect Hotel"
+                  src="https://maps.google.com/maps?q=Puerto+Madero,+Buenos+Aires&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="font-heading text-xl font-semibold text-corp-navy">Escríbenos</h3>
+              <p class="mt-2 text-sm text-corp-gray">Cotizaciones corporativas, salas de reunión y estadías ejecutivas.</p>
+              <form class="adkin-contact-form mt-5 space-y-4" data-hotel="Urban Connect Hotel">
+                <div>
+                  <label for="contacto-nombre-4" class="text-corp-navy">Nombre completo</label>
+                  <input id="contacto-nombre-4" name="nombre" type="text" required autocomplete="name" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-corp-dark outline-none transition focus:border-corp-blue" />
+                </div>
+                <div>
+                  <label for="contacto-email-4" class="text-corp-navy">Email corporativo</label>
+                  <input id="contacto-email-4" name="email" type="email" required autocomplete="email" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-corp-dark outline-none transition focus:border-corp-blue" />
+                </div>
+                <div>
+                  <label for="contacto-tel-4" class="text-corp-navy">Teléfono</label>
+                  <input id="contacto-tel-4" name="telefono" type="tel" autocomplete="tel" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-corp-dark outline-none transition focus:border-corp-blue" />
+                </div>
+                <div>
+                  <label for="contacto-msg-4" class="text-corp-navy">Mensaje</label>
+                  <textarea id="contacto-msg-4" name="mensaje" rows="4" required class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-corp-dark outline-none transition focus:border-corp-blue"></textarea>
+                </div>
+                <button type="submit" class="w-full rounded-lg bg-corp-blue px-5 py-3 text-sm font-semibold text-white transition hover:bg-corp-navy">Enviar consulta</button>
+                <p class="adkin-contact-form__success border border-sky-200 bg-sky-50 text-sky-900" hidden role="status"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
     <div class="wa-floating">
       <p class="wa-floating__tooltip">Consulta disponibilidad YA</p>
@@ -232,7 +288,7 @@
         <a href="https://wa.me/5491112345678?text=Hola%2C%20quiero%20cotizar%20y%20reservar%20hoy%20una%20estad%C3%ADa%20corporativa%20en%20Urban%20Connect%20Hotel." target="_blank" rel="noopener noreferrer" aria-label="Chatea por WhatsApp para reservar ahora" class="wa-floating__btn">
           <svg viewBox="0 0 24 24" fill="currentColor" class="wa-floating__btn-icon h-6 w-6" aria-hidden="true"><path d="M19.05 4.94A9.8 9.8 0 0 0 12.06 2a9.95 9.95 0 0 0-8.64 14.88L2 22l5.26-1.38A9.95 9.95 0 0 0 12.06 22h.01a9.95 9.95 0 0 0 6.98-17.06Zm-6.98 15.38h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.28 8.28 0 1 1 7.02 3.87Zm4.54-6.24c-.25-.13-1.47-.72-1.7-.8-.22-.08-.38-.13-.54.13-.16.25-.62.8-.76.96-.14.17-.28.19-.53.06-.25-.13-1.04-.38-1.98-1.23-.73-.65-1.23-1.45-1.37-1.7-.14-.25-.01-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.16.04-.3-.02-.42-.06-.13-.54-1.3-.74-1.78-.2-.47-.4-.41-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.25-.84.82-.84 1.99s.86 2.31.98 2.47c.12.17 1.7 2.6 4.12 3.65.57.25 1.01.4 1.36.51.57.18 1.09.15 1.5.09.46-.07 1.47-.6 1.67-1.18.2-.58.2-1.08.14-1.18-.05-.1-.2-.16-.44-.28Z"/></svg>
           <span class="wa-floating__btn-text--long">¡Chatea y Reserva Hoy!</span>
-          <span class="wa-floating__btn-text--short">Reservar</span>
+          <span class="wa-floating__btn-text--short">WhatsApp</span>
         </a>
       </div>
     </div>

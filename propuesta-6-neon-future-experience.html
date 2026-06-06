@@ -45,7 +45,9 @@
       }
     </style>
       <link rel="stylesheet" href="./assets/adkin-mobile-ux.css" />
+    <link rel="stylesheet" href="./assets/adkin-premium.css" />
     <script defer src="./assets/adkin-mobile-ux.js"></script>
+    <script defer src="./assets/adkin-premium.js"></script>
   </head>
   <body class="bg-ink font-body text-white adkin-demo">
     <nav class="adkin-demo-switcher" data-adkin-demo-switcher aria-label="Comparar demos">
@@ -66,6 +68,7 @@
         <a href="#bento" class="bg-white/10 text-white">Galería</a>
         <a href="#habitaciones" class="bg-white/10 text-white">Suites</a>
         <a href="#testimonios" class="bg-white/10 text-white">Reviews</a>
+        <a href="#contacto" class="bg-white/10 text-white">Contacto</a>
         <a href="#reserva-widget" class="bg-violet-500 text-white">Reservar</a>
       </div>
     </nav>
@@ -77,11 +80,12 @@
       <header class="adkin-glass-nav rounded-2xl px-4 py-3 sm:py-4 glass shadow-glass">
         <div class="flex items-center justify-between">
           <span class="font-semibold tracking-[0.2em] text-sm">AVANT HOTEL</span>
-          <a href="#reserva-widget" class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 md:hidden">Reservar</a>
+          <a href="#reserva-widget" class="adkin-hide-with-drawer rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 md:hidden">Reservar</a>
           <nav class="hidden items-center gap-6 text-sm md:flex">
             <a href="#bento" class="text-white/90 transition hover:text-white">Galeria</a>
             <a href="#habitaciones" class="text-white/90 transition hover:text-white">Suites</a>
             <a href="#testimonios" class="text-white/90 transition hover:text-white">Reviews</a>
+            <a href="#contacto" class="text-white/90 transition hover:text-white">Contacto</a>
             <a href="#reserva-widget" class="rounded-full bg-white px-4 py-2 font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-softLift">Reservar</a>
           </nav>
         </div>
@@ -104,29 +108,40 @@
     </section>
 
     <section id="reserva-widget" class="adkin-reserva-overlap relative z-30 px-4">
-      <div class="mx-auto max-w-5xl rounded-3xl p-4 glass shadow-glass sm:p-6">
-        <div class="grid gap-3 md:grid-cols-5">
-          <div class="md:col-span-1">
-            <p class="text-xs uppercase tracking-[0.16em] text-white/75">Reserva Express</p>
-            <h2 class="mt-1 font-display text-3xl leading-none">Check your stay</h2>
+      <div class="mx-auto max-w-5xl rounded-3xl p-4 glass shadow-glass sm:p-5 lg:p-6">
+        <form class="adkin-booking-glass adkin-booking-glass--avant" action="#" method="get">
+          <div class="adkin-booking-glass__head">
+            <p class="adkin-booking-glass__eyebrow">Reserva Express</p>
+            <h2 class="adkin-booking-glass__title">Check your stay</h2>
           </div>
-          <input type="date" class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-300 md:col-span-1" />
-          <input type="date" class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-300 md:col-span-1" />
-          <select class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-300 md:col-span-1">
-            <option class="text-black">2 Huéspedes</option>
-            <option class="text-black">3 Huéspedes</option>
-            <option class="text-black">4 Huéspedes</option>
-          </select>
-          <button class="rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-500 px-4 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:shadow-softLift md:col-span-1">Ver disponibilidad</button>
-        </div>
+          <div class="adkin-booking-glass__fields">
+            <label class="adkin-booking-glass__field">
+              <span class="adkin-booking-glass__label">Entrada</span>
+              <input type="date" class="adkin-booking-glass__control" name="checkin" required />
+            </label>
+            <label class="adkin-booking-glass__field">
+              <span class="adkin-booking-glass__label">Salida</span>
+              <input type="date" class="adkin-booking-glass__control" name="checkout" required />
+            </label>
+            <label class="adkin-booking-glass__field adkin-booking-glass__field--guests">
+              <span class="adkin-booking-glass__label">Huéspedes</span>
+              <select class="adkin-booking-glass__control" name="guests">
+                <option value="2">2 Huéspedes</option>
+                <option value="3">3 Huéspedes</option>
+                <option value="4">4 Huéspedes</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="adkin-booking-glass__submit">Ver disponibilidad</button>
+        </form>
       </div>
     </section>
 
     <section id="bento" class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
       <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Amenidades & Galeria</p>
-      <h2 class="mt-2 max-w-2xl font-display text-3xl sm:text-5xl">Bento Living Experience</h2>
+      <h2 class="mt-2 max-w-2xl font-display text-3xl sm:text-5xl adkin-text-balanced">Bento Living Experience</h2>
 
-      <div class="adkin-bento mt-8 grid grid-cols-1 gap-4 sm:grid-cols-6 sm:auto-rows-[170px]">
+      <div class="adkin-bento mt-8 grid grid-cols-1 gap-4 sm:grid-cols-6">
         <article class="group relative overflow-hidden rounded-2xl sm:col-span-4 sm:row-span-2">
           <img src="https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?auto=format&fit=crop&w=1200&q=80" alt="Piscina con vista" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
@@ -136,13 +151,13 @@
           <img src="https://images.unsplash.com/photo-1549294413-26f195200c16?auto=format&fit=crop&w=900&q=80" alt="Cocteleria" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
           <p class="absolute bottom-3 left-3 rounded-full bg-black/45 px-3 py-1 text-xs">Sky Bar</p>
         </article>
-        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-2 sm:row-span-1">
-          <h3 class="font-display text-2xl">Wellness Club</h3>
-          <p class="mt-2 text-sm text-white/75">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-2 sm:row-span-1 adkin-copy-fit">
+          <h3 class="font-display text-xl sm:text-2xl leading-tight">Wellness Club</h3>
+          <p class="mt-2 text-sm leading-relaxed text-white/75">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
         </article>
-        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-3 sm:row-span-1">
-          <h3 class="font-display text-2xl">Smart Concierge 24/7</h3>
-          <p class="mt-2 text-sm text-white/75">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-3 sm:row-span-1 adkin-copy-fit">
+          <h3 class="font-display text-xl sm:text-2xl leading-tight">Smart Concierge 24/7</h3>
+          <p class="mt-2 text-sm leading-relaxed text-white/75">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
         </article>
         <article class="group relative overflow-hidden rounded-2xl sm:col-span-3 sm:row-span-1">
           <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1000&q=80" alt="Suite premium" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
@@ -168,9 +183,70 @@
     <section id="testimonios" class="mx-auto max-w-6xl px-4 pb-16">
       <h3 class="font-display text-3xl sm:text-4xl">Testimonios</h3>
       <div class="mt-6 grid gap-4 md:grid-cols-3">
-        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Diseño impecable."<cite class="mt-3 block font-semibold text-cyan-300">- Camila A.</cite></blockquote>
-        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."<cite class="mt-3 block font-semibold text-cyan-300">- Rodrigo M.</cite></blockquote>
-        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi."<cite class="mt-3 block font-semibold text-cyan-300">- Valentina P.</cite></blockquote>
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm leading-relaxed text-white/80 adkin-copy-fit">
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Diseño impecable."
+          <cite class="font-semibold text-cyan-300">— Camila A.</cite>
+        </blockquote>
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm leading-relaxed text-white/80 adkin-copy-fit">
+          "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          <cite class="font-semibold text-cyan-300">— Rodrigo M.</cite>
+        </blockquote>
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm leading-relaxed text-white/80 adkin-copy-fit">
+          "Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi."
+          <cite class="font-semibold text-cyan-300">— Valentina P.</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <section id="contacto" class="border-t border-white/10 bg-black/25">
+      <div class="mx-auto max-w-6xl px-4 py-14 sm:py-16">
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-300">Contacto</p>
+        <h3 class="mt-2 font-display text-3xl sm:text-4xl">Ubicación y consultas</h3>
+
+        <div class="mt-10 grid gap-10 lg:grid-cols-2 lg:items-start">
+          <div id="ubicacion">
+            <h4 class="font-display text-xl text-fuchsia-300">Cómo llegar</h4>
+            <address class="mt-3 not-italic text-sm leading-relaxed text-white/75">
+              Costa Rica 6063, Palermo<br />
+              C1414 CABA, Argentina<br />
+              <a href="tel:+541198765432" class="font-semibold text-cyan-300 hover:underline">+54 11 9876-5432</a>
+            </address>
+            <div class="adkin-map mt-5 border-white/15">
+              <iframe
+                title="Mapa de ubicación Avant Hotel"
+                src="https://maps.google.com/maps?q=Palermo,+Buenos+Aires,+Argentina&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>
+
+          <div class="rounded-3xl border border-white/10 bg-white/5 p-5 glass sm:p-6">
+            <h4 class="font-display text-xl text-fuchsia-300">Escríbenos</h4>
+            <p class="mt-2 text-sm text-white/70">Consultas de suites, eventos creativos o estadías de diseño.</p>
+            <form class="adkin-contact-form mt-5 space-y-4" data-hotel="Avant Hotel">
+              <div>
+                <label for="contacto-nombre-6" class="text-white/85">Nombre completo</label>
+                <input id="contacto-nombre-6" name="nombre" type="text" required autocomplete="name" class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white outline-none transition focus:border-cyan-300" />
+              </div>
+              <div>
+                <label for="contacto-email-6" class="text-white/85">Email</label>
+                <input id="contacto-email-6" name="email" type="email" required autocomplete="email" class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white outline-none transition focus:border-cyan-300" />
+              </div>
+              <div>
+                <label for="contacto-tel-6" class="text-white/85">Teléfono</label>
+                <input id="contacto-tel-6" name="telefono" type="tel" autocomplete="tel" class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white outline-none transition focus:border-cyan-300" />
+              </div>
+              <div>
+                <label for="contacto-msg-6" class="text-white/85">Mensaje</label>
+                <textarea id="contacto-msg-6" name="mensaje" rows="4" required class="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white outline-none transition focus:border-cyan-300"></textarea>
+              </div>
+              <button type="submit" class="w-full rounded-full bg-violet-500 px-5 py-3 text-sm font-bold text-white transition hover:brightness-110">Enviar consulta</button>
+              <p class="adkin-contact-form__success border border-cyan-400/30 bg-cyan-500/10 text-cyan-100" hidden role="status"></p>
+            </form>
+          </div>
+        </div>
       </div>
     </section>
     <div class="wa-floating">
@@ -180,7 +256,7 @@
         <a href="https://wa.me/5491112345678?text=Hola%2C%20quiero%20reservar%20hoy%20en%20Avant%20Hotel%20con%20oferta%20exclusiva." target="_blank" rel="noopener noreferrer" aria-label="Chatea por WhatsApp para reservar ahora" class="wa-floating__btn">
           <svg viewBox="0 0 24 24" fill="currentColor" class="wa-floating__btn-icon h-6 w-6" aria-hidden="true"><path d="M19.05 4.94A9.8 9.8 0 0 0 12.06 2a9.95 9.95 0 0 0-8.64 14.88L2 22l5.26-1.38A9.95 9.95 0 0 0 12.06 22h.01a9.95 9.95 0 0 0 6.98-17.06Zm-6.98 15.38h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.28 8.28 0 1 1 7.02 3.87Zm4.54-6.24c-.25-.13-1.47-.72-1.7-.8-.22-.08-.38-.13-.54.13-.16.25-.62.8-.76.96-.14.17-.28.19-.53.06-.25-.13-1.04-.38-1.98-1.23-.73-.65-1.23-1.45-1.37-1.7-.14-.25-.01-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.16.04-.3-.02-.42-.06-.13-.54-1.3-.74-1.78-.2-.47-.4-.41-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.25-.84.82-.84 1.99s.86 2.31.98 2.47c.12.17 1.7 2.6 4.12 3.65.57.25 1.01.4 1.36.51.57.18 1.09.15 1.5.09.46-.07 1.47-.6 1.67-1.18.2-.58.2-1.08.14-1.18-.05-.1-.2-.16-.44-.28Z"/></svg>
           <span class="wa-floating__btn-text--long">¡Chatea y Reserva Hoy!</span>
-          <span class="wa-floating__btn-text--short">Reservar</span>
+          <span class="wa-floating__btn-text--short">WhatsApp</span>
         </a>
       </div>
     </div>

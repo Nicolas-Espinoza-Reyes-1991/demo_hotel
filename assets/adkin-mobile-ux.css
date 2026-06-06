@@ -3,6 +3,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
 }
 
 html,
@@ -12,6 +13,11 @@ body {
 
 body.adkin-demo {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+body.adkin-drawer-open {
+  overflow: hidden;
+  touch-action: none;
 }
 
 /* Demo switcher between proposals */
@@ -52,7 +58,7 @@ body.adkin-demo {
   white-space: nowrap;
 }
 
-/* Hotel mobile quick nav */
+/* Hotel mobile quick nav — replaced by hamburger drawer on small screens */
 .adkin-mobile-nav {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.35);
@@ -83,16 +89,259 @@ body.adkin-demo {
   white-space: nowrap;
 }
 
+@media (max-width: 767px) {
+  body.adkin-has-hamburger .adkin-mobile-nav {
+    display: none;
+  }
+
+  body.adkin-has-hamburger .adkin-hide-with-drawer {
+    display: none !important;
+  }
+}
+
+/* Hamburger button */
+.adkin-hamburger {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.adkin-hamburger:active {
+  transform: scale(0.96);
+}
+
+.adkin-hamburger--light {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.adkin-hamburger__bar {
+  display: block;
+  width: 1.125rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: currentColor;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+.adkin-hamburger[aria-expanded="true"] .adkin-hamburger__bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.adkin-hamburger[aria-expanded="true"] .adkin-hamburger__bar:nth-child(2) {
+  opacity: 0;
+}
+
+.adkin-hamburger[aria-expanded="true"] .adkin-hamburger__bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (min-width: 768px) {
+  .adkin-hamburger,
+  .adkin-drawer,
+  .adkin-drawer-overlay {
+    display: none !important;
+  }
+}
+
+/* Mobile drawer */
+.adkin-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.adkin-drawer-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.adkin-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  width: min(18.5rem, 88vw);
+  height: 100%;
+  height: 100dvh;
+  padding: calc(1rem + env(safe-area-inset-top, 0px)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  background: #0a0a0a;
+  color: #f5f1e8;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.35);
+  transform: translateX(105%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.adkin-drawer.is-open {
+  transform: translateX(0);
+}
+
+.adkin-drawer--light {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: -12px 0 40px rgba(15, 23, 42, 0.12);
+}
+
+.adkin-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.adkin-drawer--light .adkin-drawer__head {
+  border-bottom-color: #e2e8f0;
+}
+
+.adkin-drawer__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.adkin-drawer__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: inherit;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.adkin-drawer--light .adkin-drawer__close {
+  border-color: #e2e8f0;
+}
+
+.adkin-drawer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.adkin-drawer__link {
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease, transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.adkin-drawer__link:active {
+  transform: scale(0.98);
+}
+
+.adkin-drawer__link--muted {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.adkin-drawer--light .adkin-drawer__link--muted {
+  background: #f1f5f9;
+}
+
+.adkin-drawer__link--cta {
+  margin-top: 0.75rem;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.adkin-drawer--dark .adkin-drawer__link--cta {
+  background: #c7a25c;
+  color: #0a0a0a;
+}
+
+.adkin-drawer--dark.adkin-drawer--riviera .adkin-drawer__link--cta {
+  background: #d946ef;
+  color: #fff;
+}
+
+.adkin-drawer--dark.adkin-drawer--avant .adkin-drawer__link--cta {
+  background: #8b5cf6;
+  color: #fff;
+}
+
+.adkin-drawer--light.adkin-drawer--eco .adkin-drawer__link--cta {
+  background: #166534;
+  color: #fff;
+}
+
+.adkin-drawer--light.adkin-drawer--family .adkin-drawer__link--cta {
+  background: #ea580c;
+  color: #fff;
+}
+
+.adkin-drawer--light.adkin-drawer--corp .adkin-drawer__link--cta {
+  background: #0369a1;
+  color: #fff;
+}
+
+.adkin-drawer__wa {
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+.adkin-drawer__wa a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3rem;
+  border-radius: 9999px;
+  background: #25d366;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 /* Touch-friendly form controls */
-.adkin-demo input,
-.adkin-demo select,
+.adkin-demo input:not(.adkin-booking-glass__control),
+.adkin-demo select:not(.adkin-booking-glass__control),
 .adkin-demo button,
 .adkin-demo textarea {
   min-height: 2.75rem;
 }
 
-.adkin-demo input[type="date"],
-.adkin-demo select {
+.adkin-demo input[type="date"]:not(.adkin-booking-glass__control),
+.adkin-demo select:not(.adkin-booking-glass__control) {
   font-size: 16px; /* prevents iOS zoom on focus */
 }
 
@@ -102,8 +351,8 @@ body.adkin-demo {
 }
 
 @media (min-width: 640px) {
-  .adkin-bento article.group {
-    min-height: 0;
+  .adkin-bento {
+    grid-auto-rows: minmax(10.625rem, auto);
   }
 }
 
@@ -160,6 +409,11 @@ body.adkin-demo {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+  max-width: calc(100vw - 1.5rem);
+}
+
+.wa-floating > .relative {
+  display: inline-flex;
 }
 
 .wa-floating__tooltip {
@@ -177,22 +431,37 @@ body.adkin-demo {
 
 .wa-floating__btn {
   position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
   border-radius: 9999px;
   background: #25d366;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.1rem;
   font-size: 0.8125rem;
   font-weight: 800;
   color: #fff;
-  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.45);
-  transition: transform 0.2s ease, filter 0.2s ease;
+  text-decoration: none;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.18),
+    0 10px 28px rgba(37, 211, 102, 0.42);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .wa-floating__btn:hover {
   transform: translateY(-2px);
   filter: brightness(1.05);
+}
+
+.wa-floating__btn-icon {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.wa-floating__btn-text--short {
+  display: none;
 }
 
 .wa-floating__pulse {
@@ -201,47 +470,85 @@ body.adkin-demo {
   inset: 0;
   border-radius: 9999px;
   background: #25d366;
-  opacity: 0.65;
-  animation: adkinWaPulse 1.7s ease-out infinite;
+  opacity: 0.55;
+  animation: adkinWaPulse 1.9s ease-out infinite;
 }
 
 @keyframes adkinWaPulse {
   0% {
-    transform: scale(0.92);
-    opacity: 0.75;
+    transform: scale(0.96);
+    opacity: 0.6;
   }
   70% {
-    transform: scale(1.35);
+    transform: scale(1.2);
     opacity: 0;
   }
   100% {
-    transform: scale(1.35);
+    transform: scale(1.2);
     opacity: 0;
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 767px) {
+  body.adkin-demo {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .wa-floating {
+    right: max(0.875rem, env(safe-area-inset-right, 0px));
+    bottom: max(0.875rem, env(safe-area-inset-bottom, 0px));
+  }
+
   .wa-floating__tooltip {
     display: none;
+  }
+
+  .wa-floating__btn {
+    min-height: 3rem;
+    padding: 0.65rem 1rem 0.65rem 0.8rem;
+    border: 2px solid rgba(255, 255, 255, 0.95);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow:
+      0 6px 18px rgba(0, 0, 0, 0.28),
+      0 10px 24px rgba(37, 211, 102, 0.38);
+  }
+
+  .wa-floating__btn:active {
+    transform: scale(0.98);
   }
 
   .wa-floating__btn-text--long {
     display: none;
   }
 
-  .wa-floating__btn {
-    width: 3.5rem;
-    height: 3.5rem;
-    justify-content: center;
-    padding: 0;
+  .wa-floating__btn-text--short {
+    display: inline;
   }
 
-  .wa-floating__btn-icon {
-    margin: 0;
+  .wa-floating__pulse {
+    opacity: 0.35;
+    animation: adkinWaPulseMobile 2.4s ease-out infinite;
+  }
+
+  @keyframes adkinWaPulseMobile {
+    0% {
+      transform: scale(1);
+      opacity: 0.45;
+    }
+    70% {
+      transform: scale(1.06);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1.06);
+      opacity: 0;
+    }
   }
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   .wa-floating__btn-text--short {
     display: none;
   }
@@ -252,8 +559,12 @@ body.adkin-demo {
     scroll-behavior: auto;
   }
 
-  .wa-floating__pulse {
+  .wa-floating__pulse,
+  .adkin-drawer,
+  .adkin-drawer-overlay,
+  .adkin-hamburger__bar {
     animation: none;
+    transition: none;
   }
 }
 
@@ -289,5 +600,133 @@ body.adkin-demo {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+  }
+}
+
+/* Map & contact blocks */
+.adkin-map {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+  aspect-ratio: 16 / 11;
+  min-height: 17.5rem;
+}
+
+.adkin-map iframe {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (min-width: 640px) {
+  .adkin-map {
+    aspect-ratio: 16 / 10;
+    min-height: 20rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .adkin-map {
+    min-height: 22.5rem;
+  }
+}
+
+.adkin-contact-form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.adkin-contact-form__success {
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.adkin-contact-form__success[hidden] {
+  display: none;
+}
+
+.adkin-contact-form button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Responsive polish — all demos */
+@media (max-width: 767px) {
+  .adkin-demo-switcher__label {
+    font-size: 0.6rem;
+    padding-top: 0.4rem;
+  }
+
+  .adkin-demo-switcher__track {
+    padding-bottom: 0.65rem;
+  }
+
+  body.adkin-demo header a[class*="font-"],
+  body.adkin-demo header span[class*="font-"],
+  body.adkin-demo header span[class*="tracking-"] {
+    max-width: 11.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.adkin-demo .adkin-glass-nav > div > :first-child {
+    max-width: 10.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  #contacto .grid,
+  section[id="contacto"] .grid {
+    gap: 2rem;
+  }
+
+  .adkin-contact-form textarea {
+    min-height: 7.5rem;
+  }
+
+  #reserva-widget .adkin-booking-glass__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #reserva-widget .adkin-booking-glass__field--guests {
+    grid-column: 1 / -1;
+  }
+
+  #reserva-widget .adkin-booking-glass__submit {
+    width: 100%;
+  }
+
+  .adkin-hero-classic > div:first-child h1 {
+    font-size: clamp(1.85rem, 8vw, 2.35rem);
+  }
+
+  .adkin-demo blockquote {
+    font-size: 0.875rem;
+  }
+
+  .adkin-demo footer {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .adkin-demo h1 {
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .adkin-demo section {
+    scroll-margin-top: 1rem;
   }
 }

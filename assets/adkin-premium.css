@@ -1,0 +1,869 @@
+/* Adkin IQ · Premium UX layer */
+
+/* ─── Global micro-interactions ─── */
+.adkin-demo a:not(.adkin-brand-badge):not(.adkin-brand-footer__cta),
+.adkin-demo button,
+.adkin-demo input,
+.adkin-demo select,
+.adkin-demo textarea {
+  transition: all 0.3s ease-in-out;
+}
+
+/* ─── Scroll reveal ─── */
+.adkin-reveal {
+  opacity: 0;
+  transform: translateY(1.75rem);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.adkin-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.adkin-reveal--d1 { transition-delay: 0.08s; }
+.adkin-reveal--d2 { transition-delay: 0.16s; }
+.adkin-reveal--d3 { transition-delay: 0.24s; }
+.adkin-reveal--d4 { transition-delay: 0.32s; }
+.adkin-reveal--d5 { transition-delay: 0.4s; }
+.adkin-reveal--d6 { transition-delay: 0.48s; }
+
+.adkin-reveal--scale {
+  transform: translateY(1.25rem) scale(0.96);
+}
+
+.adkin-reveal--scale.is-visible {
+  transform: translateY(0) scale(1);
+}
+
+.adkin-reveal--left {
+  transform: translateX(-1.25rem);
+  opacity: 0;
+}
+
+.adkin-reveal--left.is-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* ─── Room / card image zoom ─── */
+.adkin-img-zoom {
+  overflow: hidden;
+}
+
+.adkin-img-zoom img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adkin-room-card:hover .adkin-img-zoom img,
+.adkin-img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* ─── Section breathing room ─── */
+.adkin-section-luxe {
+  padding-top: clamp(4.5rem, 10vw, 7.5rem) !important;
+  padding-bottom: clamp(4.5rem, 10vw, 7.5rem) !important;
+}
+
+/* ─── Typography polish ─── */
+.adkin-demo .adkin-heading-luxe {
+  font-size: clamp(2.125rem, 4.5vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.adkin-demo .adkin-hero-classic h1,
+.adkin-demo .adkin-hero-premium h1 {
+  font-size: clamp(2.35rem, 6vw, 4.75rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+
+.adkin-demo .adkin-body-muted {
+  color: rgba(71, 85, 105, 0.92);
+  line-height: 1.75;
+}
+
+.adkin-demo.adkin-theme-dark .adkin-body-muted,
+body.adkin-theme-dark .adkin-body-muted {
+  color: rgba(203, 213, 225, 0.78);
+}
+
+/* ─── Soft depth on cards ─── */
+.adkin-room-card,
+.adkin-demo main blockquote,
+.adkin-demo #testimonios blockquote,
+.adkin-demo section[id="testimonios"] blockquote {
+  box-shadow: 0 22px 55px -18px rgba(15, 23, 42, 0.14);
+  transition:
+    box-shadow 0.35s ease-in-out,
+    transform 0.35s ease-in-out,
+    border-color 0.3s ease-in-out;
+}
+
+.adkin-demo.adkin-theme-dark .adkin-room-card,
+.adkin-demo.adkin-theme-dark main blockquote {
+  box-shadow: 0 26px 60px -16px rgba(0, 0, 0, 0.55);
+}
+
+.adkin-room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 65px -14px rgba(15, 23, 42, 0.2);
+}
+
+.adkin-demo.adkin-theme-dark .adkin-room-card:hover {
+  box-shadow: 0 32px 70px -12px rgba(0, 0, 0, 0.65);
+}
+
+/* Booking widget depth */
+.adkin-demo #reservas > div,
+.adkin-demo #reserva-widget > div {
+  box-shadow: 0 28px 70px -20px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── Floating Adkin IQ badge (glass) ─── */
+.adkin-brand-badge {
+  position: fixed;
+  left: max(0.875rem, env(safe-area-inset-left, 0px));
+  bottom: max(5.75rem, calc(0.875rem + env(safe-area-inset-bottom, 0px)));
+  z-index: 75;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.65rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.adkin-brand-badge:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.adkin-brand-badge__label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.adkin-brand-badge__name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #f8fafc 0%, #c7d2fe 45%, #f0abfc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.adkin-brand-badge--light {
+  border-color: rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 36px rgba(15, 23, 42, 0.1);
+}
+
+.adkin-brand-badge--light .adkin-brand-badge__label {
+  color: rgba(71, 85, 105, 0.85);
+}
+
+.adkin-brand-badge--light .adkin-brand-badge__name {
+  background: linear-gradient(135deg, #0f172a 0%, #2563eb 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@media (min-width: 768px) {
+  .adkin-brand-badge {
+    bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.1rem;
+  }
+}
+
+/* ─── Footer brand banner ─── */
+.adkin-brand-footer {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(circle at 12% 50%, rgba(99, 102, 241, 0.22), transparent 42%),
+    radial-gradient(circle at 88% 40%, rgba(217, 70, 239, 0.18), transparent 40%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+}
+
+.adkin-brand-footer--light {
+  border-top-color: rgba(15, 23, 42, 0.08);
+  background:
+    radial-gradient(circle at 10% 50%, rgba(59, 130, 246, 0.08), transparent 45%),
+    radial-gradient(circle at 90% 40%, rgba(168, 85, 247, 0.07), transparent 42%),
+    linear-gradient(180deg, #f8fafc, #eef2ff);
+}
+
+.adkin-brand-footer__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3rem) 1.25rem;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .adkin-brand-footer__inner {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+.adkin-brand-footer__eyebrow {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(165, 180, 252, 0.95);
+}
+
+.adkin-brand-footer--light .adkin-brand-footer__eyebrow {
+  color: rgba(79, 70, 229, 0.85);
+}
+
+.adkin-brand-footer__title {
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.45;
+  color: rgba(248, 250, 252, 0.92);
+}
+
+.adkin-brand-footer__title strong {
+  font-weight: 800;
+  background: linear-gradient(135deg, #e0e7ff, #f5d0fe, #a5f3fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.adkin-brand-footer--light .adkin-brand-footer__title {
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.adkin-brand-footer--light .adkin-brand-footer__title strong {
+  background: linear-gradient(135deg, #1e3a8a, #6d28d9, #0e7490);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.adkin-brand-footer__subtitle {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.adkin-brand-footer--light .adkin-brand-footer__subtitle {
+  color: rgba(71, 85, 105, 0.85);
+}
+
+.adkin-brand-footer__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.adkin-brand-footer__cta:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.adkin-brand-footer--light .adkin-brand-footer__cta {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  color: #0f172a;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .adkin-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .adkin-img-zoom img,
+  .adkin-room-card,
+  .adkin-brand-badge,
+  .adkin-brand-footer__cta {
+    transition: none;
+  }
+
+  .adkin-room-card:hover {
+    transform: none;
+  }
+
+  .adkin-hero-ambience::before,
+  .adkin-hero-ambience::after,
+  .adkin-hero-ambience img,
+  .adkin-anim-gradient,
+  .adkin-cta-shine,
+  .adkin-cta-shine::after,
+  .adkin-float-widget,
+  .adkin-eyebrow-live,
+  .adkin-badge-glow,
+  .adkin-brand-footer,
+  .adkin-booking-glass__submit,
+  .adkin-bento article.group,
+  .adkin-bento article:not(.group) {
+    animation: none !important;
+  }
+
+  .adkin-heading-accent::after {
+    width: 3.5rem;
+    transition: none;
+  }
+}
+
+/* ─── Premium booking widget (demos 5 & 6) ─── */
+.adkin-booking-glass {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .adkin-booking-glass {
+    grid-template-columns: minmax(9.5rem, 11rem) 1fr auto;
+    align-items: end;
+    gap: 1rem 1.15rem;
+  }
+}
+
+.adkin-booking-glass__head {
+  min-width: 0;
+}
+
+.adkin-booking-glass__eyebrow {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.3;
+}
+
+.adkin-booking-glass__title {
+  margin-top: 0.25rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.adkin-booking-glass__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem 0.65rem;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .adkin-booking-glass__fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .adkin-booking-glass__field--guests {
+    grid-column: auto;
+  }
+}
+
+.adkin-booking-glass__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.adkin-booking-glass__label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.2;
+}
+
+.adkin-booking-glass__control {
+  width: 100%;
+  min-height: 2.125rem !important;
+  height: 2.125rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  outline: none;
+  transition: all 0.25s ease-in-out;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.adkin-booking-glass__control:focus {
+  border-color: rgba(142, 215, 210, 0.65);
+  box-shadow: 0 0 0 3px rgba(142, 215, 210, 0.12);
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.adkin-booking-glass__control::-webkit-calendar-picker-indicator {
+  opacity: 0.65;
+  cursor: pointer;
+  filter: invert(1);
+}
+
+.adkin-booking-glass__control option {
+  color: #0f172a;
+  background: #fff;
+}
+
+.adkin-booking-glass__submit {
+  min-height: 2.125rem !important;
+  height: 2.125rem;
+  padding: 0 1.1rem;
+  border: none;
+  border-radius: 0.625rem;
+  background: linear-gradient(135deg, #ec4899, #d946ef);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(217, 70, 239, 0.28);
+}
+
+.adkin-booking-glass__submit:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.adkin-booking-glass--avant .adkin-booking-glass__control:focus {
+  border-color: rgba(103, 232, 249, 0.6);
+  box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.12);
+}
+
+.adkin-booking-glass--avant .adkin-booking-glass__submit {
+  background: linear-gradient(135deg, #d946ef, #7c3aed);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.28);
+}
+
+@media (max-width: 899px) {
+  .adkin-booking-glass__control,
+  .adkin-booking-glass__submit {
+    min-height: 2.5rem !important;
+    height: 2.5rem;
+    font-size: 0.875rem;
+  }
+
+  .adkin-booking-glass__control[type="date"] {
+    font-size: 16px;
+  }
+}
+
+/* ─── Text containment & module alignment ─── */
+.adkin-text-balanced {
+  text-wrap: balance;
+}
+
+.adkin-copy-fit {
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+}
+
+/* Bento grid — rows grow with text content */
+.adkin-bento {
+  align-items: stretch;
+}
+
+@media (min-width: 640px) {
+  .adkin-bento {
+    grid-auto-rows: minmax(10.625rem, auto);
+  }
+}
+
+.adkin-bento article.group {
+  min-height: 13rem;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .adkin-bento article.group {
+    min-height: 10.625rem;
+  }
+
+  .adkin-bento article.group[class*="row-span-2"] {
+    min-height: calc(21.25rem + 1rem);
+  }
+}
+
+.adkin-bento__text,
+.adkin-bento article:not(.group) {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  min-height: 10.625rem;
+  height: auto;
+  overflow: visible;
+}
+
+.adkin-bento__text h3,
+.adkin-bento article:not(.group) h3 {
+  flex-shrink: 0;
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem) !important;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+}
+
+.adkin-bento__text p,
+.adkin-bento article:not(.group) p {
+  flex: 1 1 auto;
+  margin-top: 0;
+  line-height: 1.55;
+  overflow-wrap: break-word;
+}
+
+.adkin-demo blockquote {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: break-word;
+}
+
+.adkin-demo blockquote cite {
+  margin-top: 0.85rem;
+  font-style: normal;
+  display: block;
+}
+
+/* Card text — keep copy inside containers */
+.adkin-demo section[id] .grid > article,
+.adkin-room-card {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.adkin-demo section[id] .grid > article p,
+.adkin-room-card p {
+  line-height: 1.6;
+  max-width: 100%;
+}
+
+.adkin-bento .adkin-heading-luxe {
+  font-size: clamp(1.125rem, 1.8vw, 1.5rem) !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.adkin-glass-nav > div {
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.adkin-hero-premium > * {
+  max-width: 100%;
+}
+
+.adkin-brand-footer__copy,
+.adkin-brand-footer__title,
+.adkin-brand-footer__subtitle {
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* ─── Motion layer (eye-catching but elegant) ─── */
+@keyframes adkinShimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes adkinGlowPulse {
+  0%,
+  100% {
+    box-shadow: 0 10px 28px rgba(217, 70, 239, 0.22);
+  }
+  50% {
+    box-shadow: 0 14px 38px rgba(217, 70, 239, 0.42);
+  }
+}
+
+@keyframes adkinGlowPulseLight {
+  0%,
+  100% {
+    box-shadow: 0 8px 22px rgba(199, 162, 92, 0.22);
+  }
+  50% {
+    box-shadow: 0 14px 34px rgba(199, 162, 92, 0.4);
+  }
+}
+
+@keyframes adkinFloatSoft {
+  0%,
+  100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes adkinKenBurns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.07); }
+}
+
+@keyframes adkinOrbDrift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate(14px, -10px) scale(1.06);
+    opacity: 0.72;
+  }
+}
+
+@keyframes adkinEyebrowGlow {
+  0%,
+  100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@keyframes adkinBadgeGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  50% {
+    box-shadow:
+      0 12px 40px rgba(99, 102, 241, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+}
+
+@keyframes adkinFooterShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+/* Hero ambient orbs + ken burns */
+.adkin-hero-ambience {
+  position: relative;
+}
+
+.adkin-hero-ambience::before,
+.adkin-hero-ambience::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(56px);
+  animation: adkinOrbDrift 9s ease-in-out infinite;
+}
+
+.adkin-hero-ambience::before {
+  top: 12%;
+  left: 6%;
+  width: min(42vw, 18rem);
+  height: min(42vw, 18rem);
+  background: rgba(217, 70, 239, 0.16);
+}
+
+.adkin-hero-ambience::after {
+  right: 8%;
+  bottom: 18%;
+  width: min(36vw, 14rem);
+  height: min(36vw, 14rem);
+  background: rgba(56, 189, 248, 0.14);
+  animation-delay: -4.5s;
+}
+
+.adkin-theme-light .adkin-hero-ambience::before {
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.adkin-theme-light .adkin-hero-ambience::after {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.adkin-hero-ambience > img.absolute,
+.adkin-hero-ambience > img[class*="inset"],
+.adkin-hero-ambience > .absolute.inset-0 > img,
+.adkin-hero-ambience > img.h-full.w-full.object-cover {
+  animation: adkinKenBurns 20s ease-in-out infinite alternate;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* Animated gradient headlines */
+.adkin-anim-gradient {
+  background-size: 220% auto !important;
+  animation: adkinShimmer 7s linear infinite;
+}
+
+/* Primary CTA shine */
+.adkin-cta-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.adkin-cta-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.45) 50%, transparent 65%);
+  transform: skewX(-18deg);
+  animation: adkinShineSweep 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes adkinShineSweep {
+  0% { left: -120%; }
+  18% { left: 140%; }
+  100% { left: 140%; }
+}
+
+.adkin-theme-dark .adkin-hero-classic .adkin-cta-shine:first-of-type,
+.adkin-theme-dark .adkin-hero-premium .adkin-cta-shine:first-of-type,
+.adkin-theme-dark #reservas .adkin-cta-shine {
+  animation: adkinGlowPulse 3.2s ease-in-out infinite;
+}
+
+.adkin-theme-light .adkin-hero-classic .adkin-cta-shine:first-of-type,
+.adkin-theme-light .adkin-hero-premium .adkin-cta-shine:first-of-type {
+  animation: adkinGlowPulseLight 3.2s ease-in-out infinite;
+}
+
+/* Floating booking widget */
+.adkin-float-widget {
+  animation: adkinFloatSoft 5.5s ease-in-out infinite;
+}
+
+.adkin-float-widget:hover {
+  animation-play-state: paused;
+}
+
+/* Eyebrow labels */
+.adkin-eyebrow-live {
+  animation: adkinEyebrowGlow 3s ease-in-out infinite;
+}
+
+/* Brand badge glow */
+.adkin-badge-glow {
+  animation: adkinBadgeGlow 4s ease-in-out infinite;
+}
+
+.adkin-badge-glow .adkin-brand-badge__name {
+  background-size: 220% auto;
+  animation: adkinShimmer 6s linear infinite;
+}
+
+/* Footer ambient shift */
+.adkin-brand-footer {
+  background-size: 200% 200%;
+  animation: adkinFooterShift 14s ease infinite;
+}
+
+/* Bento hover lift */
+.adkin-bento article.group,
+.adkin-bento article:not(.group) {
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease;
+}
+
+.adkin-bento article.group:hover,
+.adkin-bento article:not(.group):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 50px -18px rgba(0, 0, 0, 0.35);
+}
+
+/* Booking submit shimmer */
+.adkin-booking-glass__submit {
+  position: relative;
+  overflow: hidden;
+  background-size: 180% auto;
+  animation: adkinShimmer 8s linear infinite;
+}
+
+/* Section title underline draw */
+.adkin-heading-accent {
+  position: relative;
+  display: inline-block;
+}
+
+.adkin-heading-accent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.35rem;
+  width: 0;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(217, 70, 239, 0.85), rgba(56, 189, 248, 0.85));
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adkin-heading-accent.is-accent-visible::after {
+  width: 3.5rem;
+}
+
+.adkin-theme-light .adkin-heading-accent::after {
+  background: linear-gradient(90deg, rgba(22, 101, 52, 0.75), rgba(37, 99, 235, 0.75));
+}
