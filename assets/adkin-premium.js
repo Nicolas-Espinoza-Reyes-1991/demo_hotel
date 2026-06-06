@@ -235,7 +235,7 @@
     });
 
     document.querySelectorAll("main section p, section[id] > p, section[id] .grid > article p").forEach(function (paragraph) {
-      if (paragraph.closest(".adkin-brand-footer, .wa-floating, .adkin-demo-switcher, form, address, blockquote, .adkin-booking-glass")) return;
+      if (paragraph.closest(".adkin-brand-footer, .wa-floating, .adkin-demo-switcher, form, address, blockquote, .adkin-booking-glass, .adkin-hero-classic")) return;
       if (paragraph.className.indexOf("text-xs") !== -1 && paragraph.className.indexOf("uppercase") !== -1) return;
       if (paragraph.querySelector("strong, a")) return;
       paragraph.classList.add("adkin-body-muted");

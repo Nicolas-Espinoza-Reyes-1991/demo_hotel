@@ -603,6 +603,112 @@ body.adkin-drawer-open {
   }
 }
 
+/* Classic hero readability — light demos (2, 3, 4): scrim suave, sin caja visible */
+.adkin-theme-light main > section:has(.adkin-hero-classic) {
+  position: relative;
+}
+
+.adkin-theme-light main > section:has(.adkin-hero-classic)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    108deg,
+    rgba(15, 23, 42, 0.68) 0%,
+    rgba(15, 23, 42, 0.48) 38%,
+    rgba(15, 23, 42, 0.22) 62%,
+    rgba(15, 23, 42, 0.06) 100%
+  );
+}
+
+.adkin-theme-light main > section:has(.adkin-hero-classic) .adkin-hero-overlay {
+  z-index: 0;
+  opacity: 1;
+}
+
+.adkin-theme-light .adkin-hero-classic {
+  position: relative;
+  z-index: 2;
+}
+
+.adkin-theme-light .adkin-hero-classic > div:first-child {
+  position: relative;
+  max-width: 44rem;
+}
+
+/* Viñeta local muy sutil detrás del copy — sin borde ni panel */
+.adkin-theme-light .adkin-hero-classic > div:first-child::before {
+  content: "";
+  position: absolute;
+  inset: -1.75rem -1.25rem -1.75rem -0.75rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 115% at 12% 48%,
+    rgba(15, 23, 42, 0.28) 0%,
+    rgba(15, 23, 42, 0.1) 52%,
+    transparent 72%
+  );
+}
+
+.adkin-theme-light .adkin-hero-classic > div:first-child h1,
+.adkin-theme-light .adkin-hero-classic > div:first-child h1 span {
+  color: #fff !important;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.45),
+    0 6px 28px rgba(0, 0, 0, 0.32);
+}
+
+.adkin-theme-light .adkin-hero-classic > div:first-child > p:not(:first-child) {
+  color: rgba(255, 255, 255, 0.92) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.42);
+}
+
+.adkin-theme-light .adkin-hero-classic > div:first-child > p:first-of-type {
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.38);
+}
+
+.adkin-theme-light .adkin-hero-classic > div:first-child a[class*="border"] {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.adkin-theme-light .adkin-hero-ambience:has(.adkin-hero-classic) > img.absolute,
+.adkin-theme-light .adkin-hero-ambience:has(.adkin-hero-classic) > img.h-full {
+  animation: none;
+}
+
+/* Classic hero — scrim un poco más fuerte en móvil, sin caja */
+@media (max-width: 767px) {
+  .adkin-theme-light main > section:has(.adkin-hero-classic) {
+    min-height: auto;
+  }
+
+  .adkin-theme-light main > section:has(.adkin-hero-classic)::after {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.7) 0%,
+      rgba(15, 23, 42, 0.82) 48%,
+      rgba(15, 23, 42, 0.88) 100%
+    );
+  }
+
+  .adkin-theme-light .adkin-hero-classic > div:first-child::before {
+    inset: -1.25rem -0.5rem;
+    background: radial-gradient(
+      ellipse 110% 95% at 50% 35%,
+      rgba(15, 23, 42, 0.22) 0%,
+      transparent 68%
+    );
+  }
+
+  .adkin-theme-light .adkin-hero-ambience:has(.adkin-hero-classic) > img.absolute,
+  .adkin-theme-light .adkin-hero-ambience:has(.adkin-hero-classic) > img.h-full {
+    transform: scale(1.04);
+  }
+}
+
 /* Map & contact blocks */
 .adkin-map {
   position: relative;
