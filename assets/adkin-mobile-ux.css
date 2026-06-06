@@ -3,7 +3,7 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-  scroll-padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+  scroll-padding-top: calc(var(--adkin-mobile-top, 4.5rem) + 0.75rem + env(safe-area-inset-top, 0px));
 }
 
 html,
@@ -345,6 +345,20 @@ body.adkin-drawer-open {
   font-size: 16px; /* prevents iOS zoom on focus */
 }
 
+@media (max-width: 767px) {
+  .adkin-demo input:not([type="checkbox"]):not([type="radio"]):not(.adkin-booking-glass__control),
+  .adkin-demo select:not(.adkin-booking-glass__control),
+  .adkin-demo textarea {
+    font-size: 16px;
+  }
+
+  .adkin-demo a,
+  .adkin-demo button,
+  .adkin-demo [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
 /* Bento & image tiles on mobile */
 .adkin-bento article.group {
   min-height: 13rem;
@@ -375,6 +389,48 @@ body.adkin-drawer-open {
 
 .adkin-hero-premium {
   padding-top: 7.5rem;
+}
+
+@media (max-width: 767px) {
+  section:has(.adkin-hero-premium) {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - var(--adkin-mobile-top, 5rem)) !important;
+    min-height: calc(100dvh - var(--adkin-mobile-top, 5rem)) !important;
+  }
+
+  section:has(.adkin-hero-premium) .adkin-glass-nav {
+    top: max(0.65rem, env(safe-area-inset-top, 0px));
+    width: calc(100% - 1.25rem);
+  }
+
+  .adkin-hero-premium {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    padding-top: 5.25rem;
+    padding-bottom: 1.75rem !important;
+  }
+
+  .adkin-hero-premium h1 {
+    font-size: clamp(2rem, 9vw, 2.65rem) !important;
+    line-height: 1.02;
+  }
+
+  .adkin-hero-premium > p:not(:first-child) {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .adkin-reserva-overlap {
+    margin-top: 0 !important;
+    padding-top: 0.5rem;
+    scroll-margin-top: calc(var(--adkin-mobile-top, 4.5rem) + 0.75rem);
+  }
 }
 
 @media (min-width: 640px) {
@@ -594,8 +650,77 @@ body.adkin-drawer-open {
   }
 }
 
-/* Classic demos: hero + booking stack cleanly on mobile */
-@media (max-width: 1023px) {
+/* Classic demos: hero full-screen on mobile, booking form below fold */
+@media (max-width: 767px) {
+  body.adkin-demo {
+    --adkin-mobile-top: calc(env(safe-area-inset-top, 0px) + 9.25rem);
+  }
+
+  main > section:has(.adkin-hero-classic) {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .adkin-hero-classic {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    max-width: none;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .adkin-hero-classic > div:first-child {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--adkin-mobile-top, 9.25rem));
+    min-height: calc(100dvh - var(--adkin-mobile-top, 9.25rem));
+    padding: 1.25rem 1rem 1.75rem;
+    box-sizing: border-box;
+  }
+
+  .adkin-hero-classic > div:first-child > p:not(:first-child) {
+    margin-top: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .adkin-hero-classic > div:first-child .mt-8 {
+    margin-top: 1.25rem !important;
+  }
+
+  .adkin-hero-classic > div:first-child > .mt-8 a,
+  .adkin-hero-premium > .mt-8 a {
+    min-height: 2.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .adkin-hero-classic > aside,
+  .adkin-hero-classic > aside#reservas {
+    flex-shrink: 0;
+    padding: 1.5rem 1rem 2rem;
+    margin-top: 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    scroll-margin-top: calc(var(--adkin-mobile-top, 4.5rem) + 0.75rem);
+  }
+
+  .adkin-hero-classic aside form .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+
+  body.adkin-theme-light .adkin-hero-classic > aside,
+  body.adkin-theme-light .adkin-hero-classic > aside#reservas {
+    border-top-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
   .adkin-hero-classic {
     display: flex;
     flex-direction: column;
@@ -681,10 +806,6 @@ body.adkin-drawer-open {
 
 /* Classic hero — scrim un poco más fuerte en móvil, sin caja */
 @media (max-width: 767px) {
-  .adkin-theme-light main > section:has(.adkin-hero-classic) {
-    min-height: auto;
-  }
-
   .adkin-theme-light main > section:has(.adkin-hero-classic)::after {
     background: linear-gradient(
       180deg,
@@ -770,11 +891,16 @@ body.adkin-drawer-open {
 /* Responsive polish — all demos */
 @media (max-width: 767px) {
   .adkin-demo-switcher__label {
-    font-size: 0.6rem;
-    padding-top: 0.4rem;
+    display: none;
   }
 
   .adkin-demo-switcher__track {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  body.adkin-demo > header.sticky > div {
+    padding-top: 0.65rem;
     padding-bottom: 0.65rem;
   }
 
@@ -794,6 +920,48 @@ body.adkin-drawer-open {
     white-space: nowrap;
   }
 
+  .adkin-demo main > section[id],
+  .adkin-demo > section[id]:not(.adkin-demo-switcher) {
+    scroll-margin-top: calc(var(--adkin-mobile-top, 4.5rem) + 0.75rem);
+  }
+
+  .adkin-demo main > section[id],
+  .adkin-demo > section[id="bento"],
+  .adkin-demo > section[id="habitaciones"],
+  .adkin-demo > section[id="amenidades"],
+  .adkin-demo > section[id="testimonios"],
+  .adkin-demo > section[id="contacto"],
+  .adkin-demo > section[id="ubicacion"] {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .adkin-demo > section[id="reserva-widget"] {
+    padding-top: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .adkin-demo section[id="habitaciones"] .grid > article img,
+  .adkin-demo main > section[id="habitaciones"] .grid > article img {
+    height: 13.5rem;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .adkin-bento article.group {
+    min-height: 14.5rem;
+  }
+
+  .adkin-bento article.group img {
+    min-height: 14.5rem;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .adkin-booking-glass__fields {
+    grid-template-columns: 1fr !important;
+  }
+
   #contacto .grid,
   section[id="contacto"] .grid {
     gap: 2rem;
@@ -801,10 +969,6 @@ body.adkin-drawer-open {
 
   .adkin-contact-form textarea {
     min-height: 7.5rem;
-  }
-
-  #reserva-widget .adkin-booking-glass__fields {
-    grid-template-columns: 1fr 1fr;
   }
 
   #reserva-widget .adkin-booking-glass__field--guests {
@@ -821,10 +985,11 @@ body.adkin-drawer-open {
 
   .adkin-demo blockquote {
     font-size: 0.875rem;
+    padding: 1rem 1.1rem;
   }
 
   .adkin-demo footer {
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
   }
 
   .adkin-demo h1 {
@@ -833,6 +998,19 @@ body.adkin-drawer-open {
   }
 
   .adkin-demo section {
-    scroll-margin-top: 1rem;
+    scroll-margin-top: calc(var(--adkin-mobile-top, 4.5rem) + 0.75rem);
+  }
+}
+
+@media (max-width: 479px) {
+  .adkin-hero-classic > div:first-child > .mt-8,
+  .adkin-hero-premium > .mt-8 {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .adkin-hero-classic > div:first-child > .mt-8 a,
+  .adkin-hero-premium > .mt-8 a {
+    width: 100%;
   }
 }

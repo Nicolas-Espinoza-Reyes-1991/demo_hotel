@@ -13,6 +13,7 @@
   initMobileHamburger();
   initSmoothAnchorOffset();
   initContactForms();
+  initMobileViewport();
 
   function initMobileHamburger() {
     var sourceNav = document.querySelector(".adkin-mobile-nav");
@@ -187,10 +188,23 @@
         if (!target) return;
 
         event.preventDefault();
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        scrollToAnchorTarget(target);
         history.replaceState(null, "", id);
       });
     });
+  }
+
+  function getMobileScrollOffset() {
+    var rootStyles = getComputedStyle(document.documentElement);
+    var mobileTop = parseFloat(rootStyles.getPropertyValue("--adkin-mobile-top"));
+    if (!isNaN(mobileTop) && mobileTop > 0) return mobileTop + 12;
+    return 76;
+  }
+
+  function scrollToAnchorTarget(target) {
+    var offset = getMobileScrollOffset();
+    var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }
 
   function escapeHtml(value) {
@@ -229,5 +243,45 @@
         }
       });
     });
+  }
+
+  function initMobileViewport() {
+    if (!document.body.classList.contains("adkin-demo")) return;
+
+    var sync = function () {
+      if (!window.matchMedia("(max-width: 767px)").matches) {
+        document.documentElement.style.removeProperty("--adkin-mobile-top");
+        return;
+      }
+
+      var switcher = document.querySelector(".adkin-demo-switcher");
+      var header = document.querySelector("header.sticky") || document.querySelector("header");
+      var total = 0;
+
+      if (switcher) total += switcher.getBoundingClientRect().height;
+      if (header && header.classList.contains("sticky")) {
+        total += header.getBoundingClientRect().height;
+      }
+
+      document.documentElement.style.setProperty("--adkin-mobile-top", total + "px");
+    };
+
+    sync();
+    window.addEventListener("resize", sync);
+    window.addEventListener("orientationchange", function () {
+      window.setTimeout(sync, 120);
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(sync);
+    }
+
+    if (typeof ResizeObserver !== "undefined") {
+      var switcher = document.querySelector(".adkin-demo-switcher");
+      var header = document.querySelector("header.sticky");
+      var observer = new ResizeObserver(sync);
+      if (switcher) observer.observe(switcher);
+      if (header) observer.observe(header);
+    }
   }
 })();
