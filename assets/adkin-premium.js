@@ -248,12 +248,9 @@
     var targets = [];
 
     document.querySelectorAll("main > section, body.adkin-demo > section[id]").forEach(function (el) {
+      if (el.id === "contacto") return;
       if (el.querySelector(".adkin-hero-classic, .adkin-hero-premium")) return;
       if (el.querySelector(".adkin-glass-nav") && el.className.indexOf("min-h-") !== -1) return;
-      targets.push(el);
-    });
-
-    document.querySelectorAll("#contacto .grid > div").forEach(function (el) {
       targets.push(el);
     });
 

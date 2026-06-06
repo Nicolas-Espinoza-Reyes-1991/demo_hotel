@@ -550,6 +550,14 @@ body.adkin-drawer-open {
     padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
   }
 
+  .adkin-brand-badge {
+    display: none;
+  }
+
+  section[id="contacto"] {
+    padding-bottom: 3.5rem !important;
+  }
+
   .wa-floating {
     right: max(0.875rem, env(safe-area-inset-right, 0px));
     bottom: max(0.875rem, env(safe-area-inset-bottom, 0px));
@@ -838,7 +846,7 @@ body.adkin-drawer-open {
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.2);
-  aspect-ratio: 16 / 11;
+  aspect-ratio: 16 / 10;
   min-height: 17.5rem;
 }
 
@@ -849,6 +857,79 @@ body.adkin-drawer-open {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+@media (max-width: 767px) {
+  #contacto .grid,
+  section[id="contacto"] .grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  #contacto #ubicacion,
+  section[id="contacto"] #ubicacion {
+    width: 100%;
+    min-width: 0;
+  }
+
+  #contacto .grid > div:not(#ubicacion),
+  section[id="contacto"] .grid > div:not(#ubicacion) {
+    width: 100%;
+    min-width: 0;
+  }
+
+  section[id="contacto"] > div {
+    padding-top: 2rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+
+  .adkin-map {
+    aspect-ratio: auto;
+    height: 14.5rem;
+    min-height: 14.5rem;
+    max-height: 16.5rem;
+    margin-top: 1rem;
+  }
+
+  #contacto address,
+  section[id="contacto"] address {
+    margin-bottom: 0.25rem;
+    line-height: 1.6;
+  }
+
+  .adkin-contact-form {
+    width: 100%;
+  }
+
+  .adkin-contact-form > div {
+    width: 100%;
+  }
+
+  .adkin-contact-form input,
+  .adkin-contact-form select,
+  .adkin-contact-form textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .adkin-contact-form button[type="submit"] {
+    min-height: 3rem;
+    margin-top: 0.25rem;
+  }
+
+  section[id="contacto"] .grid > div:not(#ubicacion):not([class*="rounded"]) {
+    padding: 1.25rem;
+    border-radius: 1.15rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  body.adkin-theme-light section[id="contacto"] .grid > div:not(#ubicacion):not([class*="rounded"]) {
+    border-color: rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.92);
+  }
 }
 
 @media (min-width: 640px) {
@@ -964,11 +1045,11 @@ body.adkin-drawer-open {
 
   #contacto .grid,
   section[id="contacto"] .grid {
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
   .adkin-contact-form textarea {
-    min-height: 7.5rem;
+    min-height: 6.5rem;
   }
 
   #reserva-widget .adkin-booking-glass__field--guests {
