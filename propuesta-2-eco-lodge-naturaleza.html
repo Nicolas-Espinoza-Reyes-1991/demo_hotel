@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Propuesta 2 - Eco-Lodge Naturaleza | Adkin IQ Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              eco: {
+                forest: "#2F5D3A",
+                sage: "#6B8F71",
+                earth: "#A67C52",
+                sand: "#F3EFE6",
+                mist: "#DDE6D5",
+                deep: "#1F3A28"
+              }
+            },
+            fontFamily: {
+              heading: ["Poppins", "Segoe UI", "sans-serif"],
+              body: ["Inter", "Segoe UI", "sans-serif"]
+            }
+          }
+        }
+      };
+    </script>
+      <link rel="stylesheet" href="./assets/adkin-mobile-ux.css" />
+    <script defer src="./assets/adkin-mobile-ux.js"></script>
+  </head>
+  <body class="bg-eco-sand font-body text-eco-deep adkin-demo">
+    <nav class="adkin-demo-switcher" data-adkin-demo-switcher aria-label="Comparar demos">
+      <span class="adkin-demo-switcher__label">Comparar demos Adkin IQ</span>
+      <div class="adkin-demo-switcher__track mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <a href="./index.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Inicio demos
+        </a>
+        <a href="./propuesta-1-elegancia-boutique.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Demo 1
+        </a>
+        <a href="./propuesta-2-eco-lodge-naturaleza.html" class="shrink-0 rounded-full bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white" aria-current="page">
+          Demo 2 (Actual)
+        </a>
+        <a href="./propuesta-3-resort-familiar.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Demo 3
+        </a>
+        <a href="./propuesta-4-ejecutivo-corporativo.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Demo 4
+        </a>
+        <a href="./propuesta-5-sunset-lifestyle.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Demo 5
+        </a>
+        <a href="./propuesta-6-neon-future-experience.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
+          Demo 6
+        </a>
+      </div>
+    </nav>
+    <header class="sticky top-0 z-50 border-b border-eco-forest/20 bg-eco-sand/90 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="#" class="font-heading text-lg font-semibold tracking-wide text-eco-forest sm:text-xl">NATIVA ECO LODGE</a>
+        <a href="#reservas" class="md:hidden rounded-full bg-eco-forest px-3 py-1.5 text-xs font-semibold text-white">Reservar</a>
+        <nav class="hidden items-center gap-6 text-sm md:flex">
+          <a href="#habitaciones" class="transition hover:text-eco-forest">Habitaciones</a>
+          <a href="#amenidades" class="transition hover:text-eco-forest">Amenidades</a>
+          <a href="#testimonios" class="transition hover:text-eco-forest">Testimonios</a>
+          <a href="#reservas" class="rounded-full bg-eco-forest px-4 py-2 font-medium text-eco-sand transition hover:bg-eco-deep">Reservar</a>
+        </nav>
+      </div>
+    </header>
+
+    <nav class="adkin-mobile-nav adkin-mobile-nav--light md:hidden" aria-label="Navegación móvil del hotel">
+      <div class="adkin-mobile-nav__track">
+        <a href="#habitaciones" class="bg-emerald-50 text-emerald-900">Habitaciones</a>
+        <a href="#amenidades" class="bg-emerald-50 text-emerald-900">Amenidades</a>
+        <a href="#testimonios" class="bg-emerald-50 text-emerald-900">Testimonios</a>
+        <a href="#reservas" class="bg-emerald-700 text-white">Reservar</a>
+      </div>
+    </nav>
+
+    <main>
+      <section class="relative isolate overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1470246973918-29a93221c455?auto=format&fit=crop&w=1600&q=80"
+          alt="Eco lodge rodeado de naturaleza"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-eco-deep/50 via-eco-deep/65 to-eco-deep/80"></div>
+
+        <div class="adkin-hero-classic relative mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-24">
+          <div class="text-eco-sand lg:col-span-7">
+            <p class="mb-4 inline-block rounded-full bg-eco-mist/20 px-3 py-1 text-xs uppercase tracking-[0.18em] text-eco-mist">
+              Eco-Lodge / Naturaleza
+            </p>
+            <h1 class="font-heading text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
+              Respira calma,
+              <span class="text-eco-mist">conecta con lo esencial</span>
+            </h1>
+            <p class="mt-6 max-w-2xl text-sm leading-relaxed text-eco-mist sm:text-base">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vulputate mauris vel placerat tincidunt.
+              Descubre una experiencia inmersiva entre bosque, bienestar y descanso consciente.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="#reservas" class="rounded-full bg-eco-sage px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110">
+                Reservar estadía
+              </a>
+              <a href="#amenidades" class="rounded-full border border-eco-mist/60 px-6 py-3 text-sm font-medium text-eco-mist transition hover:bg-eco-mist/10">
+                Ver experiencia
+              </a>
+            </div>
+          </div>
+
+          <aside id="reservas" class="lg:col-span-5">
+            <div class="rounded-2xl border border-eco-mist/40 bg-eco-sand/95 p-5 shadow-xl sm:p-6">
+              <h2 class="font-heading text-2xl font-semibold text-eco-forest">Reserva tu escape natural</h2>
+              <p class="mt-1 text-sm text-eco-sage">Reserva directa con beneficios exclusivos.</p>
+
+              <form class="mt-5 space-y-4">
+                <div>
+                  <label for="checkin-eco" class="mb-1 block text-xs uppercase tracking-wider text-eco-sage">Check-in</label>
+                  <input id="checkin-eco" type="date" class="w-full rounded-lg border border-eco-sage/30 bg-white px-3 py-2 text-sm text-eco-deep outline-none ring-eco-forest/40 transition focus:ring" />
+                </div>
+                <div>
+                  <label for="checkout-eco" class="mb-1 block text-xs uppercase tracking-wider text-eco-sage">Check-out</label>
+                  <input id="checkout-eco" type="date" class="w-full rounded-lg border border-eco-sage/30 bg-white px-3 py-2 text-sm text-eco-deep outline-none ring-eco-forest/40 transition focus:ring" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label for="huespedes-eco" class="mb-1 block text-xs uppercase tracking-wider text-eco-sage">Huéspedes</label>
+                    <select id="huespedes-eco" class="w-full rounded-lg border border-eco-sage/30 bg-white px-3 py-2 text-sm text-eco-deep outline-none ring-eco-forest/40 transition focus:ring">
+                      <option>1 persona</option>
+                      <option>2 personas</option>
+                      <option>3 personas</option>
+                      <option>4 personas</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="plan-eco" class="mb-1 block text-xs uppercase tracking-wider text-eco-sage">Plan</label>
+                    <select id="plan-eco" class="w-full rounded-lg border border-eco-sage/30 bg-white px-3 py-2 text-sm text-eco-deep outline-none ring-eco-forest/40 transition focus:ring">
+                      <option>Eco Relax</option>
+                      <option>Wellness</option>
+                      <option>Aventura Suave</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="button" class="w-full rounded-full bg-eco-forest px-4 py-3 text-sm font-semibold text-white transition hover:bg-eco-deep">
+                  Ver disponibilidad
+                </button>
+              </form>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="habitaciones" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+        <p class="text-xs uppercase tracking-[0.18em] text-eco-sage">Habitaciones destacadas</p>
+        <h2 class="mt-2 font-heading text-3xl font-semibold text-eco-forest sm:text-4xl">Descanso en armonía con el entorno</h2>
+
+        <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <article class="overflow-hidden rounded-2xl border border-eco-sage/20 bg-white">
+            <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80" alt="Suite Bosque" class="h-56 w-full object-cover" />
+            <div class="p-5">
+              <h3 class="font-heading text-xl font-semibold text-eco-forest">Suite Bosque</h3>
+              <p class="mt-2 text-sm text-eco-sage">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspiciatis unde omnis.</p>
+              <p class="mt-4 text-sm font-medium text-eco-earth">Desde USD 210 / noche</p>
+            </div>
+          </article>
+
+          <article class="overflow-hidden rounded-2xl border border-eco-sage/20 bg-white">
+            <img src="https://images.unsplash.com/photo-1617104551722-3b2d51366490?auto=format&fit=crop&w=900&q=80" alt="Cabin Premium" class="h-56 w-full object-cover" />
+            <div class="p-5">
+              <h3 class="font-heading text-xl font-semibold text-eco-forest">Cabin Premium</h3>
+              <p class="mt-2 text-sm text-eco-sage">Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit sed quia.</p>
+              <p class="mt-4 text-sm font-medium text-eco-earth">Desde USD 260 / noche</p>
+            </div>
+          </article>
+
+          <article class="overflow-hidden rounded-2xl border border-eco-sage/20 bg-white md:col-span-2 lg:col-span-1">
+            <img src="https://images.unsplash.com/photo-1594125674956-61a9b49c8ecc?auto=format&fit=crop&w=900&q=80" alt="Loft Natural" class="h-56 w-full object-cover" />
+            <div class="p-5">
+              <h3 class="font-heading text-xl font-semibold text-eco-forest">Loft Natural</h3>
+              <p class="mt-2 text-sm text-eco-sage">Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</p>
+              <p class="mt-4 text-sm font-medium text-eco-earth">Desde USD 290 / noche</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="amenidades" class="bg-eco-mist/45">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8 lg:py-20">
+          <div>
+            <p class="text-xs uppercase tracking-[0.18em] text-eco-sage">Amenidades</p>
+            <h2 class="mt-2 font-heading text-3xl font-semibold text-eco-forest sm:text-4xl">Bienestar, naturaleza y desconexión</h2>
+            <ul class="mt-6 space-y-3 text-sm text-eco-deep/80">
+              <li>• Senderos guiados al amanecer</li>
+              <li>• Yoga al aire libre y spa holístico</li>
+              <li>• Gastronomía local de kilómetro cero</li>
+              <li>• Actividades de observación de flora y fauna</li>
+            </ul>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
+            alt="Amenidades eco lodge"
+            class="h-80 w-full rounded-2xl object-cover"
+          />
+        </div>
+      </section>
+
+      <section id="testimonios" class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+        <p class="text-xs uppercase tracking-[0.18em] text-eco-sage">Testimonios</p>
+        <h2 class="mt-2 font-heading text-3xl font-semibold text-eco-forest sm:text-4xl">Experiencias que inspiran</h2>
+        <div class="mt-8 grid gap-6 md:grid-cols-3">
+          <blockquote class="rounded-2xl border border-eco-sage/20 bg-white p-6 text-sm text-eco-deep/80">
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sentimos una paz increíble durante toda la estadía."
+            <cite class="mt-4 block font-medium text-eco-forest">- Paula G.</cite>
+          </blockquote>
+          <blockquote class="rounded-2xl border border-eco-sage/20 bg-white p-6 text-sm text-eco-deep/80">
+            "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
+            <cite class="mt-4 block font-medium text-eco-forest">- Martín G.</cite>
+          </blockquote>
+          <blockquote class="rounded-2xl border border-eco-sage/20 bg-white p-6 text-sm text-eco-deep/80">
+            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum."
+            <cite class="mt-4 block font-medium text-eco-forest">- Lucía G.</cite>
+          </blockquote>
+        </div>
+      </section>
+    </main>
+    <div class="wa-floating">
+      <p class="wa-floating__tooltip">Consulta disponibilidad YA</p>
+      <div class="relative">
+        <span class="wa-floating__pulse"></span>
+        <a href="https://wa.me/5491112345678?text=Hola%2C%20quiero%20informaci%C3%B3n%20y%20reservar%20hoy%20en%20Nativa%20Eco%20Lodge." target="_blank" rel="noopener noreferrer" aria-label="Chatea por WhatsApp para reservar ahora" class="wa-floating__btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="wa-floating__btn-icon h-6 w-6" aria-hidden="true"><path d="M19.05 4.94A9.8 9.8 0 0 0 12.06 2a9.95 9.95 0 0 0-8.64 14.88L2 22l5.26-1.38A9.95 9.95 0 0 0 12.06 22h.01a9.95 9.95 0 0 0 6.98-17.06Zm-6.98 15.38h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.28 8.28 0 1 1 7.02 3.87Zm4.54-6.24c-.25-.13-1.47-.72-1.7-.8-.22-.08-.38-.13-.54.13-.16.25-.62.8-.76.96-.14.17-.28.19-.53.06-.25-.13-1.04-.38-1.98-1.23-.73-.65-1.23-1.45-1.37-1.7-.14-.25-.01-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.16.04-.3-.02-.42-.06-.13-.54-1.3-.74-1.78-.2-.47-.4-.41-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.25-.84.82-.84 1.99s.86 2.31.98 2.47c.12.17 1.7 2.6 4.12 3.65.57.25 1.01.4 1.36.51.57.18 1.09.15 1.5.09.46-.07 1.47-.6 1.67-1.18.2-.58.2-1.08.14-1.18-.05-.1-.2-.16-.44-.28Z"/></svg>
+          <span class="wa-floating__btn-text--long">¡Chatea y Reserva Hoy!</span>
+          <span class="wa-floating__btn-text--short">Reservar</span>
+        </a>
+      </div>
+    </div>
+
+    <footer class="border-t border-eco-sage/20 bg-white">
+      <div class="mx-auto max-w-7xl px-4 py-6 text-center text-xs text-eco-sage sm:px-6 lg:px-8">
+        <p>Demo interactiva desarrollada por Adkin IQ</p>
+        <p class="mt-1 text-eco-forest">Propuesta 2 - Eco-Lodge / Naturaleza</p>
+      </div>
+    </footer>
+  </body>
+</html>

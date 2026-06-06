@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Propuesta 5 - Riviera Atelier | Adkin IQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Playfair Display", "serif"],
+              body: ["Inter", "sans-serif"]
+            },
+            colors: {
+              riviera: {
+                ink: "#111322",
+                rose: "#D96C8A",
+                cream: "#F4EDE6",
+                aqua: "#8ED7D2"
+              }
+            },
+            boxShadow: {
+              waStrong: "0 16px 34px rgba(37, 211, 102, 0.45)",
+              glass: "0 12px 38px rgba(0,0,0,0.24)"
+            },
+            keyframes: {
+              ringPulse: {
+                "0%": { transform: "scale(0.9)", opacity: "0.9" },
+                "70%": { transform: "scale(1.35)", opacity: "0" },
+                "100%": { transform: "scale(1.35)", opacity: "0" }
+              }
+            },
+            animation: {
+              ringPulse: "ringPulse 1.7s ease-out infinite"
+            }
+          }
+        }
+      };
+    </script>
+    <style>
+      .glass {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        backdrop-filter: blur(16px);
+      }
+    </style>
+      <link rel="stylesheet" href="./assets/adkin-mobile-ux.css" />
+    <script defer src="./assets/adkin-mobile-ux.js"></script>
+  </head>
+  <body class="bg-riviera-ink font-body text-white adkin-demo">
+    <nav class="adkin-demo-switcher" data-adkin-demo-switcher aria-label="Comparar demos">
+      <span class="adkin-demo-switcher__label">Comparar demos Adkin IQ</span>
+      <div class="adkin-demo-switcher__track mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <a href="./index.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Inicio demos</a>
+        <a href="./propuesta-1-elegancia-boutique.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Demo 1</a>
+        <a href="./propuesta-2-eco-lodge-naturaleza.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Demo 2</a>
+        <a href="./propuesta-3-resort-familiar.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Demo 3</a>
+        <a href="./propuesta-4-ejecutivo-corporativo.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Demo 4</a>
+        <a href="./propuesta-5-sunset-lifestyle.html" class="shrink-0 rounded-full bg-fuchsia-600 px-3 py-1.5 text-xs font-semibold text-white" aria-current="page">Demo 5 (Actual)</a>
+        <a href="./propuesta-6-neon-future-experience.html" class="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">Demo 6</a>
+      </div>
+    </nav>
+
+    <nav class="adkin-mobile-nav md:hidden" aria-label="Navegación móvil del hotel">
+      <div class="adkin-mobile-nav__track">
+        <a href="#bento" class="bg-white/10 text-white">Experiencias</a>
+        <a href="#habitaciones" class="bg-white/10 text-white">Habitaciones</a>
+        <a href="#testimonios" class="bg-white/10 text-white">Testimonios</a>
+        <a href="#reserva-widget" class="bg-fuchsia-500 text-white">Reservar</a>
+      </div>
+    </nav>
+
+    <section
+      class="relative isolate min-h-[85vh] overflow-hidden bg-cover bg-center"
+      style="background-image: url('https://images.unsplash.com/photo-1439130490301-25e322d88054?auto=format&fit=crop&w=2100&q=80');"
+    >
+      <img
+        src="https://images.unsplash.com/photo-1439130490301-25e322d88054?auto=format&fit=crop&w=2100&q=80"
+        alt="Hotel frente al mar al atardecer"
+        class="absolute inset-0 h-full w-full object-cover"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_18%_25%,rgba(217,108,138,0.35),transparent_40%),radial-gradient(circle_at_78%_20%,rgba(142,215,210,0.3),transparent_38%),linear-gradient(180deg,rgba(17,19,34,0.55),rgba(17,19,34,0.82))]"></div>
+
+      <header class="adkin-glass-nav rounded-2xl px-4 py-3 sm:py-4 glass shadow-glass">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold tracking-[0.12em] sm:tracking-[0.2em] sm:text-sm">RIVIERA ATELIER</span>
+          <a href="#reserva-widget" class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 md:hidden">Reservar</a>
+          <nav class="hidden items-center gap-6 text-sm md:flex">
+            <a href="#bento" class="text-white/90 transition hover:text-white">Experiencias</a>
+            <a href="#habitaciones" class="text-white/90 transition hover:text-white">Habitaciones</a>
+            <a href="#testimonios" class="text-white/90 transition hover:text-white">Testimonios</a>
+            <a href="#reserva-widget" class="rounded-full bg-white px-4 py-2 font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-lg">Reservar</a>
+          </nav>
+        </div>
+      </header>
+
+      <div class="adkin-hero-premium relative z-20 mx-auto flex max-w-6xl flex-col items-start px-4 pb-28 sm:pb-36">
+        <p class="mb-4 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em]">New Coastal Luxury</p>
+        <h1 class="max-w-4xl font-display text-[2.35rem] leading-[0.95] sm:text-7xl lg:text-8xl">
+          Escape Beyond
+          <span class="block bg-gradient-to-r from-rose-300 via-fuchsia-200 to-cyan-200 bg-clip-text text-transparent">The Ordinary</span>
+        </h1>
+        <p class="mt-6 max-w-xl text-sm text-white/85 sm:text-base">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur varius mi a justo iaculis, id iaculis velit ultrices. Un resort editorial creado para impactar y convertir.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#reserva-widget" class="rounded-full bg-white px-7 py-3 text-sm font-bold text-slate-900 transition hover:-translate-y-0.5 hover:shadow-lg">Reservar ahora</a>
+          <a href="#bento" class="rounded-full border border-white/70 px-7 py-3 text-sm font-semibold transition hover:bg-white/10">Explorar bento</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="reserva-widget" class="adkin-reserva-overlap relative z-30 px-4">
+      <div class="mx-auto max-w-5xl rounded-3xl p-4 glass shadow-glass sm:p-6">
+        <div class="grid gap-3 md:grid-cols-5">
+          <div class="md:col-span-1">
+            <p class="text-xs uppercase tracking-[0.16em] text-white/70">Reserva Premium</p>
+            <h2 class="mt-1 font-display text-3xl leading-none">Book the mood</h2>
+          </div>
+          <input type="date" class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-200 md:col-span-1" />
+          <input type="date" class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-200 md:col-span-1" />
+          <select class="rounded-xl border border-white/25 bg-black/20 px-3 py-3 text-sm text-white outline-none ring-1 ring-transparent transition focus:ring-cyan-200 md:col-span-1">
+            <option class="text-black">2 Huéspedes</option>
+            <option class="text-black">3 Huéspedes</option>
+            <option class="text-black">4 Huéspedes</option>
+          </select>
+          <button class="rounded-xl bg-gradient-to-r from-rose-500 to-fuchsia-500 px-4 py-3 text-sm font-bold transition hover:-translate-y-0.5 hover:shadow-lg md:col-span-1">Ver disponibilidad</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="bento" class="mx-auto max-w-6xl px-4 py-14 sm:py-20">
+      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-riviera-aqua">Bento Grid de Experiencias</p>
+      <h2 class="mt-2 max-w-3xl font-display text-3xl sm:text-5xl">Diseño asimétrico que cuenta una historia visual</h2>
+
+      <div class="adkin-bento mt-8 grid grid-cols-1 gap-4 sm:grid-cols-6 sm:auto-rows-[170px]">
+        <article class="group relative overflow-hidden rounded-2xl sm:col-span-3 sm:row-span-2">
+          <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80" alt="Infinity pool" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
+          <p class="absolute bottom-4 left-4 text-sm font-semibold">Infinity Pool & Ocean Rituals</p>
+        </article>
+
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-3 sm:row-span-1">
+          <h3 class="font-display text-2xl">Signature Gastronomy</h3>
+          <p class="mt-2 text-sm text-white/75">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Menú de autor y maridajes frente al mar.</p>
+        </article>
+
+        <article class="group relative overflow-hidden rounded-2xl sm:col-span-2 sm:row-span-1">
+          <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80" alt="Spa suite" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <p class="absolute bottom-3 left-3 rounded-full bg-black/45 px-3 py-1 text-xs">Spa Suites</p>
+        </article>
+
+        <article class="group relative overflow-hidden rounded-2xl sm:col-span-2 sm:row-span-1">
+          <img src="https://images.unsplash.com/photo-1616048056617-93b94a339009?auto=format&fit=crop&w=900&q=80" alt="Rooftop lounge" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+          <p class="absolute bottom-3 left-3 rounded-full bg-black/45 px-3 py-1 text-xs">Rooftop Lounge</p>
+        </article>
+
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5 sm:col-span-2 sm:row-span-1">
+          <h3 class="font-display text-2xl">Private Concierge</h3>
+          <p class="mt-2 text-sm text-white/75">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="habitaciones" class="mx-auto max-w-6xl px-4 pb-14">
+      <h3 class="font-display text-3xl sm:text-4xl">Habitaciones destacadas</h3>
+      <div class="mt-6 grid gap-4 md:grid-cols-2">
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:shadow-xl">
+          <p class="text-xs uppercase tracking-[0.15em] text-riviera-aqua">Atelier Suite</p>
+          <p class="mt-2 text-sm text-white/75">Lorem ipsum dolor sit amet consectetur adipiscing elit. Desde USD 360 / noche.</p>
+        </article>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-6 transition hover:-translate-y-1 hover:shadow-xl">
+          <p class="text-xs uppercase tracking-[0.15em] text-riviera-aqua">Horizon Loft</p>
+          <p class="mt-2 text-sm text-white/75">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat. Desde USD 430 / noche.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="testimonios" class="mx-auto max-w-6xl px-4 pb-16">
+      <h3 class="font-display text-3xl sm:text-4xl">Testimonios</h3>
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Es de las experiencias más memorables."<cite class="mt-3 block font-semibold text-riviera-aqua">- Paula R.</cite></blockquote>
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."<cite class="mt-3 block font-semibold text-riviera-aqua">- Nicolás M.</cite></blockquote>
+        <blockquote class="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">"Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi."<cite class="mt-3 block font-semibold text-riviera-aqua">- Andrea V.</cite></blockquote>
+      </div>
+    </section>
+    <div class="wa-floating">
+      <p class="wa-floating__tooltip">¡Obtén Oferta Exclusiva por WhatsApp!</p>
+      <div class="relative">
+        <span class="wa-floating__pulse"></span>
+        <a href="https://wa.me/5491112345678?text=Hola%2C%20quiero%20reservar%20hoy%20en%20Riviera%20Atelier%20Hotel." target="_blank" rel="noopener noreferrer" aria-label="Chatea por WhatsApp para reservar ahora" class="wa-floating__btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="wa-floating__btn-icon h-6 w-6" aria-hidden="true"><path d="M19.05 4.94A9.8 9.8 0 0 0 12.06 2a9.95 9.95 0 0 0-8.64 14.88L2 22l5.26-1.38A9.95 9.95 0 0 0 12.06 22h.01a9.95 9.95 0 0 0 6.98-17.06Zm-6.98 15.38h-.01a8.3 8.3 0 0 1-4.22-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.28 8.28 0 1 1 7.02 3.87Zm4.54-6.24c-.25-.13-1.47-.72-1.7-.8-.22-.08-.38-.13-.54.13-.16.25-.62.8-.76.96-.14.17-.28.19-.53.06-.25-.13-1.04-.38-1.98-1.23-.73-.65-1.23-1.45-1.37-1.7-.14-.25-.01-.38.11-.5.11-.11.25-.28.37-.42.12-.14.16-.24.25-.4.08-.16.04-.3-.02-.42-.06-.13-.54-1.3-.74-1.78-.2-.47-.4-.41-.54-.41h-.46c-.16 0-.42.06-.64.3-.22.25-.84.82-.84 1.99s.86 2.31.98 2.47c.12.17 1.7 2.6 4.12 3.65.57.25 1.01.4 1.36.51.57.18 1.09.15 1.5.09.46-.07 1.47-.6 1.67-1.18.2-.58.2-1.08.14-1.18-.05-.1-.2-.16-.44-.28Z"/></svg>
+          <span class="wa-floating__btn-text--long">¡Chatea y Reserva Hoy!</span>
+          <span class="wa-floating__btn-text--short">Reservar</span>
+        </a>
+      </div>
+    </div>
+
+    <footer class="border-t border-white/10 bg-black/30">
+      <div class="mx-auto max-w-6xl px-4 py-6 text-center text-xs text-white/70">Demo interactiva desarrollada por Adkin IQ</div>
+    </footer>
+  </body>
+</html>

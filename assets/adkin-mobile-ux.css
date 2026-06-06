@@ -1,0 +1,293 @@
+/* Adkin IQ · Mobile UX layer for hotel demos */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body.adkin-demo {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Demo switcher between proposals */
+.adkin-demo-switcher {
+  border-bottom: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.adkin-demo-switcher__label {
+  display: block;
+  padding: 0.5rem 1rem 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.adkin-demo-switcher__track {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 1rem 0.75rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.adkin-demo-switcher__track::-webkit-scrollbar {
+  display: none;
+}
+
+.adkin-demo-switcher__track a {
+  scroll-snap-align: start;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Hotel mobile quick nav */
+.adkin-mobile-nav {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.adkin-mobile-nav--light {
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom-color: #e2e8f0;
+}
+
+.adkin-mobile-nav__track {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 1rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.adkin-mobile-nav__track a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Touch-friendly form controls */
+.adkin-demo input,
+.adkin-demo select,
+.adkin-demo button,
+.adkin-demo textarea {
+  min-height: 2.75rem;
+}
+
+.adkin-demo input[type="date"],
+.adkin-demo select {
+  font-size: 16px; /* prevents iOS zoom on focus */
+}
+
+/* Bento & image tiles on mobile */
+.adkin-bento article.group {
+  min-height: 13rem;
+}
+
+@media (min-width: 640px) {
+  .adkin-bento article.group {
+    min-height: 0;
+  }
+}
+
+/* Premium hero glass nav: avoid overlap on small screens */
+.adkin-glass-nav {
+  position: absolute;
+  left: 50%;
+  top: 1rem;
+  z-index: 30;
+  width: calc(100% - 1.5rem);
+  max-width: 72rem;
+  transform: translateX(-50%);
+}
+
+@media (min-width: 640px) {
+  .adkin-glass-nav {
+    top: 1.5rem;
+  }
+}
+
+.adkin-hero-premium {
+  padding-top: 7.5rem;
+}
+
+@media (min-width: 640px) {
+  .adkin-hero-premium {
+    padding-top: 10rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .adkin-hero-premium {
+    padding-top: 11rem;
+  }
+}
+
+.adkin-reserva-overlap {
+  margin-top: -2.5rem;
+}
+
+@media (min-width: 640px) {
+  .adkin-reserva-overlap {
+    margin-top: -5rem;
+  }
+}
+
+/* WhatsApp floating CTA */
+.wa-floating {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.wa-floating__tooltip {
+  max-width: 13rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(134, 239, 172, 0.6);
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #166534;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.wa-floating__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 9999px;
+  background: #25d366;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.45);
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.wa-floating__btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.wa-floating__pulse {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #25d366;
+  opacity: 0.65;
+  animation: adkinWaPulse 1.7s ease-out infinite;
+}
+
+@keyframes adkinWaPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.75;
+  }
+  70% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .wa-floating__tooltip {
+    display: none;
+  }
+
+  .wa-floating__btn-text--long {
+    display: none;
+  }
+
+  .wa-floating__btn {
+    width: 3.5rem;
+    height: 3.5rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .wa-floating__btn-icon {
+    margin: 0;
+  }
+}
+
+@media (min-width: 640px) {
+  .wa-floating__btn-text--short {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .wa-floating__pulse {
+    animation: none;
+  }
+}
+
+/* Showroom presentation mode */
+.adkin-showroom-controls button,
+.adkin-showroom-controls a {
+  min-height: 2.75rem;
+}
+
+.adkin-showroom-iframe {
+  height: 62vh;
+  min-height: 420px;
+}
+
+@media (min-width: 640px) {
+  .adkin-showroom-iframe {
+    height: 78vh;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .adkin-showroom-status {
+    width: 100%;
+    margin-left: 0 !important;
+    margin-top: 0.35rem;
+  }
+}
+
+/* Classic demos: hero + booking stack cleanly on mobile */
+@media (max-width: 1023px) {
+  .adkin-hero-classic {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
