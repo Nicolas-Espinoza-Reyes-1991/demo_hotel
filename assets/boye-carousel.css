@@ -1,0 +1,235 @@
+/* ============================================================
+   Boye House — Carrusel de imágenes reutilizable (sin dependencias)
+   Variantes: data-variant="fade" | "slide" | "cards"
+   Accesible, táctil, autoplay con pausa en hover/foco.
+   Color de acento configurable: style="--boye-c-accent: #...."
+   ============================================================ */
+.boye-carousel {
+  position: relative;
+  --boye-c-accent: #d99a3d;
+}
+
+.boye-carousel__viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  box-shadow: 0 26px 70px rgba(20, 12, 8, 0.32);
+}
+
+/* slide & cards: scroll horizontal con snap */
+.boye-carousel[data-variant="slide"] .boye-carousel__viewport,
+.boye-carousel[data-variant="cards"] .boye-carousel__viewport {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  box-shadow: none;
+}
+
+.boye-carousel[data-variant="slide"] .boye-carousel__viewport::-webkit-scrollbar,
+.boye-carousel[data-variant="cards"] .boye-carousel__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.boye-carousel__track {
+  display: flex;
+  gap: 1rem;
+}
+
+.boye-carousel[data-variant="fade"] .boye-carousel__track {
+  display: block;
+  position: relative;
+}
+
+.boye-carousel__slide {
+  position: relative;
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  margin: 0;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.boye-carousel[data-variant="cards"] .boye-carousel__slide {
+  flex-basis: 84%;
+}
+
+@media (min-width: 640px) {
+  .boye-carousel[data-variant="cards"] .boye-carousel__slide {
+    flex-basis: 48%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .boye-carousel[data-variant="cards"] .boye-carousel__slide {
+    flex-basis: 31.6%;
+  }
+}
+
+/* fade: slides apilados con cross-fade */
+.boye-carousel[data-variant="fade"] .boye-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.85s ease, transform 6s ease;
+  pointer-events: none;
+}
+
+.boye-carousel[data-variant="fade"] .boye-carousel__slide.is-active {
+  position: relative;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.boye-carousel__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+  background: rgba(120, 90, 60, 0.12);
+}
+
+.boye-carousel[data-variant="cards"] .boye-carousel__img {
+  aspect-ratio: 4 / 5;
+}
+
+.boye-carousel--cinema .boye-carousel__img {
+  aspect-ratio: 21 / 9;
+}
+
+@media (max-width: 640px) {
+  .boye-carousel--cinema .boye-carousel__img {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Caption */
+.boye-carousel__cap {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 2.5rem 1.5rem 1.25rem;
+  background: linear-gradient(to top, rgba(20, 12, 8, 0.85), rgba(20, 12, 8, 0.12) 72%, transparent);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.boye-carousel__cap-kicker {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--boye-c-accent);
+}
+
+.boye-carousel__cap-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+/* Flechas */
+.boye-carousel__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 2.9rem;
+  height: 2.9rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #1c120d;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.boye-carousel__nav:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.boye-carousel__nav:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.boye-carousel__nav--prev {
+  left: 0.85rem;
+}
+
+.boye-carousel__nav--next {
+  right: 0.85rem;
+}
+
+.boye-carousel__nav svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Dots */
+.boye-carousel__dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.1rem;
+}
+
+.boye-carousel__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: rgba(150, 150, 150, 0.45);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.boye-carousel__dot.is-active {
+  width: 1.7rem;
+  background: var(--boye-c-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boye-carousel[data-variant="slide"] .boye-carousel__viewport,
+  .boye-carousel[data-variant="cards"] .boye-carousel__viewport {
+    scroll-behavior: auto;
+  }
+  .boye-carousel[data-variant="fade"] .boye-carousel__slide {
+    transition: opacity 0.4s ease;
+    transform: none;
+  }
+  .boye-carousel__progress-bar {
+    animation: none !important;
+  }
+}
+
+@keyframes boye-carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.boye-carousel__progress-bar {
+  display: block;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--boye-c-accent, #214837);
+  animation: boye-carousel-progress linear forwards;
+}

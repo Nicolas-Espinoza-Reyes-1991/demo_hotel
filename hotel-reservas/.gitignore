@@ -1,0 +1,17 @@
+/node_modules
+/.next
+/out
+/build
+.env
+.env.production
+.env*.local
+/backups
+/prisma/dev.db
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

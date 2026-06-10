@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Boye House · Futrono | Hotel Boutique Sur de Chile</title>
+    <meta name="description" content="Hotel Boye House  hotel boutique en Futrono, Región de Los Ríos. Habitaciones cálidas, tinajas, desayuno campestre y descanso frente al Lago Ranco. Reserva online." />
+    <meta name="theme-color" content="#1e3d32" />
+    <meta name="author" content="Hotel Boye House" />
+    <link rel="icon" type="image/png" href="./assets/logo-bh.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Hotel Boye House" />
+    <meta property="og:title" content="Hotel Boye House · Futrono" />
+    <meta property="og:description" content="Hotel boutique tipo casona en el sur de Chile. Calma, madera nativa y Lago Ranco." />
+    <meta property="og:image" content="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.07.34.jpeg?v=20260609-1" />
+    <meta property="og:locale" content="es_CL" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/boye-carousel.css" />
+    <link rel="stylesheet" href="./assets/casona-demo.css" />
+  </head>
+  <body class="casona-demo">
+    <header class="casona-header" id="casona-header">
+      <div class="casona-header__inner">
+        <a href="#inicio" class="casona-logo"><img src="./assets/logo-bh.png" alt="Hotel Boye House" />HOTEL BOYE HOUSE</a>
+        <button
+          type="button"
+          class="casona-nav-toggle"
+          id="casona-nav-toggle"
+          aria-expanded="false"
+          aria-controls="casona-nav-panel"
+          aria-label="Abrir menú"
+        >
+          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+        </button>
+        <nav class="casona-nav" id="casona-nav-panel" aria-label="Navegación principal">
+          <a href="#habitaciones">Habitaciones</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#experiencia">Experiencia</a>
+          <a href="#nosotros">Boye House</a>
+          <a href="#contacto">Contacto</a>
+          <a href="http://localhost:3000/" class="casona-nav__cta">Reservar ahora</a>
+        </nav>
+        <a href="http://localhost:3000/" class="casona-btn casona-btn--primary casona-header__cta-desktop">Reservar ahora</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1. Hero -->
+      <section class="casona-hero" id="inicio" aria-label="Bienvenida">
+        <div class="casona-hero__media" aria-hidden="true">
+          <div class="casona-hero__slides" data-autoplay="3000">
+            <img
+              class="casona-hero__slide is-active"
+              src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.26.jpeg"
+              alt=""
+              fetchpriority="high"
+              decoding="async"
+            />
+            <img
+              class="casona-hero__slide"
+              src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.07.34.png"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              class="casona-hero__slide"
+              src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.18.22.jpeg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        </div>
+        <div class="casona-hero__overlay" aria-hidden="true"></div>
+        <div class="casona-hero__content">
+          <p class="casona-hero__eyebrow">Futrono · Región de Los Ríos</p>
+          <h1 class="casona-hero__title">Un refugio de calma en el sur</h1>
+          <p class="casona-hero__lead">
+            Casona boutique entre bosque nativo y Lago Ranco. Descanso honesto, madera cálida y una hospitalidad que invita a quedarse.
+          </p>
+          <div class="casona-hero__actions">
+            <a href="http://localhost:3000/" class="casona-btn casona-btn--primary">Reservar ahora</a>
+            <a href="#habitaciones" class="casona-btn casona-btn--ghost casona-btn--hero-ghost">Ver habitaciones</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Habitaciones -->
+      <section class="casona-section" id="habitaciones" aria-labelledby="habitaciones-title">
+        <div class="casona-section__inner">
+          <p class="casona-section__eyebrow">Alojamiento</p>
+          <h2 class="casona-section__title" id="habitaciones-title">Nuestras habitaciones</h2>
+          <p class="casona-section__lead">
+            Espacios amplios, luz natural y detalles en madera. Cada habitación está pensada para descansar en silencio.
+          </p>
+
+          <div class="casona-room-grid" id="casona-room-grid" aria-label="Listado de habitaciones"></div>
+          <p class="casona-room-feedback" id="casona-room-feedback" role="status" aria-live="polite">
+            Cargando habitaciones...
+          </p>
+          <div class="casona-room-actions">
+            <button type="button" class="casona-btn casona-btn--ghost casona-room-more" id="casona-room-more" hidden>
+              Ver más habitaciones
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Servicios -->
+      <section class="casona-section casona-section--compact-top" id="servicios" aria-labelledby="servicios-title">
+        <div class="casona-section__inner">
+          <p class="casona-section__eyebrow">Comodidades</p>
+          <h2 class="casona-section__title" id="servicios-title">Nuestros servicios</h2>
+          <p class="casona-section__lead">Todo lo esencial para una estadía cómoda, sin excesos ni ruido visual.</p>
+
+          <div class="casona-services">
+            <article class="casona-service casona-service--visual">
+              <div class="casona-service__photo">
+                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.18.32.jpeg" alt="Fachada de madera de Hotel Boye House con jardín y flores" loading="lazy" />
+              </div>
+              <div class="casona-service__body">
+                <h3 class="casona-service__title">Tinajas calientes</h3>
+                <p class="casona-service__text">Relájate al aire libre con agua termal en un entorno natural y reservado.</p>
+              </div>
+            </article>
+            <article class="casona-service casona-service--visual">
+              <div class="casona-service__photo">
+                <img src="./fotos_web/servicios/WhatsApp Image 2026-06-08 at 11.02.42.jpeg" alt="Desayuno con fruta fresca servida en la casa" loading="lazy" />
+              </div>
+              <div class="casona-service__body">
+                <h3 class="casona-service__title">Desayuno campestre</h3>
+                <p class="casona-service__text">Productos locales, pan artesanal y café recién preparado cada mañana.</p>
+              </div>
+            </article>
+            <article class="casona-service casona-service--visual">
+              <div class="casona-service__photo">
+                <img src="./fotos_web/servicios/WhatsApp Image 2026-06-08 at 11.33.45.jpeg" alt="Plato de cocina sureña con hierbas frescas" loading="lazy" />
+              </div>
+              <div class="casona-service__body">
+                <h3 class="casona-service__title">Gastronomía local</h3>
+                <p class="casona-service__text">Sabores del sur con ingredientes de temporada y preparación artesanal.</p>
+              </div>
+            </article>
+            <article class="casona-service casona-service--visual">
+              <div class="casona-service__photo">
+                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.14.jpeg" alt="Bar y salón común Boye House con vista al bosque" loading="lazy" />
+              </div>
+              <div class="casona-service__body">
+                <h3 class="casona-service__title">Salón y bar</h3>
+                <p class="casona-service__text">Espacios comunes en madera nativa para compartir, conversar y descansar.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="casona-momentos" aria-label="Detalles de la experiencia en Hotel Boye House">
+            <figure class="casona-momentos__item">
+              <img src="./fotos_web/servicios/WhatsApp Image 2026-06-08 at 11.11.46.jpeg" alt="Mesa de bienvenida con vino espumante y tabla de quesos" loading="lazy" />
+            </figure>
+            <figure class="casona-momentos__item">
+              <img src="./fotos_web/servicios/WhatsApp Image 2026-06-08 at 11.19.19.jpeg" alt="Tetera artesanal y pan recién horneado" loading="lazy" />
+            </figure>
+            <figure class="casona-momentos__item">
+              <img src="./fotos_web/servicios/WhatsApp Image 2026-06-08 at 11.34.00.jpeg" alt="Bebida artesanal servida en el comedor" loading="lazy" />
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Experiencia y entorno -->
+      <section class="casona-section casona-experience" id="experiencia" aria-labelledby="experiencia-title">
+        <div class="casona-section__inner">
+          <p class="casona-section__eyebrow">Descubre Futrono</p>
+          <h2 class="casona-section__title" id="experiencia-title">Experiencia y entorno</h2>
+          <p class="casona-section__lead">
+            Hotel Boye House es el punto de partida ideal para explorar el sur lacustre con calma y autenticidad.
+          </p>
+
+          <div class="casona-ambiente" aria-label="Galería del entorno y la arquitectura">
+            <figure class="casona-ambiente__item casona-ambiente__item--hero">
+              <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.11.04.jpeg" alt="Interior de madera con ventanales y luz natural" loading="lazy" />
+              <figcaption>Interiores en madera</figcaption>
+            </figure>
+            <figure class="casona-ambiente__item">
+              <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.18.32.jpeg" alt="Fachada de madera con tejuelas y jardín" loading="lazy" />
+              <figcaption>Arquitectura sureña</figcaption>
+            </figure>
+            <figure class="casona-ambiente__item">
+              <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.07.34.png" alt="Panorámica del hotel con vista al Lago Ranco" loading="lazy" />
+              <figcaption>Vista al Lago Ranco</figcaption>
+            </figure>
+          </div>
+
+          <div class="casona-experience__grid">
+            <div class="casona-activities">
+              <article class="casona-activity">
+                <span class="casona-activity__num">01</span>
+                <div>
+                  <h3 class="casona-activity__title">Navegación en Lago Ranco</h3>
+                  <p class="casona-activity__text">Kayak, pesca recreativa y atardeceres sobre aguas tranquilas a minutos de la casona.</p>
+                </div>
+              </article>
+              <article class="casona-activity">
+                <span class="casona-activity__num">02</span>
+                <div>
+                  <h3 class="casona-activity__title">Senderos y bosque nativo</h3>
+                  <p class="casona-activity__text">Caminatas suaves entre coihues y arrayanes. Aire puro y silencio en estado puro.</p>
+                </div>
+              </article>
+              <article class="casona-activity">
+                <span class="casona-activity__num">03</span>
+                <div>
+                  <h3 class="casona-activity__title">Gastronomía local</h3>
+                  <p class="casona-activity__text">Restaurantes de Futrono con productos del lago y la tierra. Recomendaciones de la casa incluidas.</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="casona-quotes">
+              <blockquote class="casona-quote">
+                <p>"Un lugar para desconectar de verdad. La casona tiene alma sureña y una calma que se siente desde la llegada."</p>
+                <cite> Camila R., Santiago</cite>
+              </blockquote>
+              <blockquote class="casona-quote">
+                <p>"Las tinajas al atardecer y el desayuno campestre fueron lo mejor de nuestra escapada al sur."</p>
+                <cite> Andrés &amp; Paula, Valdivia</cite>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Quiénes somos -->
+      <section class="casona-section" id="nosotros" aria-labelledby="nosotros-title">
+        <div class="casona-section__inner">
+          <div class="casona-about__grid">
+            <div class="casona-about__img">
+              <img
+                src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.05.09.jpeg"
+                alt="Salón principal de Hotel Boye House con madera nativa y escalera artesanal"
+                loading="lazy"
+              />
+            </div>
+            <div class="casona-about__text">
+              <p class="casona-section__eyebrow">Quiénes somos</p>
+              <h2 class="casona-section__title" id="nosotros-title">Hotel Boye House</h2>
+              <p>
+                Nacimos de la idea de recuperar la hospitalidad del sur: sencilla, cercana y honesta. Una casona de madera frente al paisaje lacustre, donde cada detalle desde las tejuelas hasta el salón Boye House invita a bajar el ritmo.
+              </p>
+              <p>
+                Creemos en espacios limpios, materiales nobles y una atención que se siente humana. Sin pretensiones: solo calma, buena comida y la naturaleza de Los Ríos como compañía constante.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 6. Footer -->
+    <footer class="casona-footer" id="contacto">
+      <div class="casona-section__inner casona-footer__shell">
+        <div class="casona-footer__main">
+          <div class="casona-footer__info">
+            <div class="casona-footer__col-head">
+              <h2 class="casona-footer__title">Hotel Boye House · Futrono</h2>
+              <span class="casona-footer__col-head-spacer" aria-hidden="true"></span>
+            </div>
+            <div class="casona-footer__col-body">
+            <ul class="casona-footer__contact-list">
+              <li class="casona-footer__contact-item">
+                <span class="casona-footer__contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 21s7-4.6 7-11a7 7 0 1 0-14 0c0 6.4 7 11 7 11z"></path>
+                    <circle cx="12" cy="10" r="2.5"></circle>
+                  </svg>
+                </span>
+                <div>
+                  <span class="casona-footer__contact-label">Dirección</span>
+                  <p>Almirante Barroso 243<br />5180000 Futrono, Los Ríos, Chile</p>
+                </div>
+              </li>
+              <li class="casona-footer__contact-item">
+                <span class="casona-footer__contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 4h4l2 5-2.2 1.4a11 11 0 0 0 5.8 5.8L16 14l5 2v4a2 2 0 0 1-2.2 2A16 16 0 0 1 3 6.2 2 2 0 0 1 5 4z"></path>
+                  </svg>
+                </span>
+                <div>
+                  <span class="casona-footer__contact-label">Teléfono</span>
+                  <p><a href="tel:+56632000000">+56 63 200 0000</a></p>
+                </div>
+              </li>
+              <li class="casona-footer__contact-item">
+                <span class="casona-footer__contact-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                    <path d="m3 7 9 6 9-6"></path>
+                  </svg>
+                </span>
+                <div>
+                  <span class="casona-footer__contact-label">Email</span>
+                  <p><a href="mailto:reservas@hotelboyehouse.cl">reservas@hotelboyehouse.cl</a></p>
+                </div>
+              </li>
+            </ul>
+            <div class="casona-social" aria-label="Redes sociales">
+              <p class="casona-social__label">Síguenos</p>
+              <div class="casona-social__links">
+                <a
+                  href="https://www.instagram.com/"
+                  class="casona-social__link casona-social__link--instagram"
+                  aria-label="Instagram de Hotel Boye House"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.334 3.608 1.308.974.975 1.246 2.242 1.308 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.334 2.633-1.308 3.608-.975.974-2.242 1.246-3.608 1.308-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.334-3.608-1.308-.974-.975-1.246-2.242-1.308-3.608C2.175 15.747 2.163 15.367 2.163 12s.012-3.584.07-4.85c.062-1.366.334-2.633 1.308-3.608.975-.974 2.242-1.246 3.608-1.308C8.416 2.175 8.796 2.163 12 2.163zm0 1.62c-3.15 0-3.52.012-4.755.069-1.04.047-1.605.218-1.98.363-.498.193-.853.423-1.226.796-.373.373-.603.728-.796 1.226-.145.375-.316.94-.363 1.98-.057 1.235-.069 1.605-.069 4.755s.012 3.52.069 4.755c.047 1.04.218 1.605.363 1.98.193.498.423.853.796 1.226.373.373.728.603 1.226.796.375.145.94.316 1.98.363 1.235.057 1.605.069 4.755.069s3.52-.012 4.755-.069c1.04-.047 1.605-.218 1.98-.363.498-.193.853-.423 1.226-.796.373-.373.603-.728.796-1.226.145-.375.316-.94.363-1.98.057-1.235.069-1.605.069-4.755s-.012-3.52-.069-4.755c-.047-1.04-.218-1.605-.363-1.98-.193-.498-.423-.853-.796-1.226-.373-.373-.728-.603-1.226-.796-.375-.145-.94-.316-1.98-.363-1.235-.057-1.605-.069-4.755-.069zm0 3.838a4.379 4.379 0 1 0 0 8.758 4.379 4.379 0 0 0 0-8.758zm0 7.223a2.844 2.844 0 1 1 0-5.688 2.844 2.844 0 0 1 0 5.688zm5.338-9.205a1.024 1.024 0 1 0 0 2.048 1.024 1.024 0 0 0 0-2.048z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.facebook.com/"
+                  class="casona-social__link casona-social__link--facebook"
+                  aria-label="Facebook de Hotel Boye House"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M13.5 3.5H16V0h-2.7C9.8 0 8 1.8 8 5v2.5H5.5V11H8v13h3.5V11h3l.5-3.5h-3.5V5.2c0-1 .3-1.7 1.8-1.7z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  href="https://wa.me/15556563871?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20Hotel%20Boye%20House."
+                  class="casona-social__link casona-social__link--whatsapp"
+                  aria-label="WhatsApp de Hotel Boye House"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"
+                    />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            </div>
+          </div>
+          <div class="casona-footer__map-col">
+            <div class="casona-footer__col-head">
+              <h3 class="casona-footer__map-title">Ubicación</h3>
+              <span class="casona-footer__col-head-spacer" aria-hidden="true"></span>
+            </div>
+            <div class="casona-footer__col-body casona-footer__col-body--map">
+            <div class="casona-footer__map">
+              <iframe
+                title="Mapa de Hotel Boye House Futrono"
+                src="https://maps.google.com/maps?q=Almirante+Barroso+243,+Futrono,+Los+Rios,+Chile&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen
+              ></iframe>
+            </div>
+            </div>
+          </div>
+
+          <div class="casona-footer__form-col">
+            <div class="casona-footer__col-head">
+              <h3 class="casona-footer__form-title" id="contacto-form-title">Escríbenos</h3>
+              <p class="casona-footer__form-lead">Te respondemos en 24–48 horas.</p>
+            </div>
+            <div class="casona-footer__col-body casona-footer__col-body--form">
+            <div class="casona-footer__form-card">
+              <form class="casona-contact-form" id="casona-contact-form" novalidate>
+                <div class="casona-contact-form__row casona-contact-form__row--split">
+                  <label class="casona-contact-form__field">
+                    <span>Nombre</span>
+                    <input type="text" name="name" autocomplete="name" required maxlength="120" />
+                  </label>
+                  <label class="casona-contact-form__field">
+                    <span>Email</span>
+                    <input type="email" name="email" autocomplete="email" required maxlength="120" />
+                  </label>
+                </div>
+                <div class="casona-contact-form__row casona-contact-form__row--split">
+                  <label class="casona-contact-form__field">
+                    <span>Teléfono <em>(opcional)</em></span>
+                    <input type="tel" name="phone" autocomplete="tel" maxlength="30" />
+                  </label>
+                  <label class="casona-contact-form__field">
+                    <span>Asunto</span>
+                    <select name="subject" required>
+                      <option value="consulta">Consulta general</option>
+                      <option value="reserva">Consulta de reserva</option>
+                      <option value="eventos">Eventos y grupos</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                  </label>
+                </div>
+                <label class="casona-contact-form__field">
+                  <span>Mensaje</span>
+                  <textarea name="message" rows="3" required minlength="10" maxlength="2000" placeholder="¿En qué podemos ayudarte?"></textarea>
+                </label>
+                <label class="casona-contact-form__honeypot" aria-hidden="true">
+                  <span>Website</span>
+                  <input type="text" name="website" tabindex="-1" autocomplete="off" />
+                </label>
+                <div class="casona-contact-form__actions">
+                  <button type="submit" class="casona-btn casona-btn--primary casona-contact-form__submit">
+                    Enviar mensaje
+                  </button>
+                  <p class="casona-contact-form__feedback" id="casona-contact-feedback" role="status" aria-live="polite" hidden></p>
+                </div>
+              </form>
+            </div>
+            </div>
+          </div>
+        </div>
+        <div class="casona-footer__bottom">
+          <p>© 2026 Hotel Boye House · Futrono. Todos los derechos reservados.</p>
+          <p class="casona-footer__credit">
+            Desarrollado por
+            <a href="https://www.adkiniq.cl" target="_blank" rel="noopener noreferrer"><strong>Adkin IQ</strong></a>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <div class="casona-fab" id="casona-fab">
+      <div class="casona-fab__menu" id="casona-fab-menu" role="menu" aria-label="Acciones rápidas" hidden>
+        <a
+          href="http://localhost:3000/"
+          class="casona-fab__action casona-fab__action--reserve"
+          id="casona-fab-reserve"
+          role="menuitem"
+        >
+          <span class="casona-fab__action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              <path d="M16 2v4M8 2v4M3 10h18"></path>
+            </svg>
+          </span>
+          <span class="casona-fab__action-label">Reservar ahora</span>
+        </a>
+        <a
+          href="https://wa.me/15556563871?text=Hola%2C%20me%20interesa%20reservar%20en%20Hotel%20Boye%20House.%20%C2%BFPueden%20ayudarme%3F"
+          class="casona-fab__action casona-fab__action--wa"
+          id="casona-fab-wa"
+          role="menuitem"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span class="casona-fab__action-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"></path>
+            </svg>
+          </span>
+          <span class="casona-fab__action-label">WhatsApp</span>
+        </a>
+      </div>
+      <button
+        type="button"
+        class="casona-fab__toggle"
+        id="casona-fab-toggle"
+        aria-expanded="false"
+        aria-controls="casona-fab-menu"
+        aria-label="Abrir reservas y contacto"
+      >
+        <span class="casona-fab__toggle-ring" aria-hidden="true"></span>
+        <span class="casona-fab__toggle-icon casona-fab__toggle-icon--open" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+        </span>
+        <span class="casona-fab__toggle-icon casona-fab__toggle-icon--close" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </span>
+        <span class="casona-fab__toggle-label">Reservar</span>
+      </button>
+    </div>
+
+    <script>
+      (function () {
+        var header = document.getElementById("casona-header");
+        var toggle = document.getElementById("casona-nav-toggle");
+        var panel = document.getElementById("casona-nav-panel");
+
+        if (header) {
+          window.addEventListener(
+            "scroll",
+            function () {
+              header.classList.toggle("is-scrolled", window.scrollY > 24);
+            },
+            { passive: true }
+          );
+        }
+
+        if (toggle && panel) {
+          function closeNav() {
+            document.body.classList.remove("casona-nav-open");
+            toggle.setAttribute("aria-expanded", "false");
+            toggle.setAttribute("aria-label", "Abrir menú");
+          }
+
+          toggle.addEventListener("click", function () {
+            var open = document.body.classList.toggle("casona-nav-open");
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            toggle.setAttribute("aria-label", open ? "Cerrar menú" : "Abrir menú");
+          });
+
+          panel.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", closeNav);
+          });
+
+          window.addEventListener("resize", function () {
+            if (window.innerWidth >= 768) closeNav();
+          });
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var fab = document.getElementById("casona-fab");
+        var fabToggle = document.getElementById("casona-fab-toggle");
+        var fabMenu = document.getElementById("casona-fab-menu");
+        var fabReserve = document.getElementById("casona-fab-reserve");
+
+        function getReservasUrl() {
+          return window.location.port === "3000" ? "/" : "http://localhost:3000/";
+        }
+
+        if (fabReserve) fabReserve.href = getReservasUrl();
+
+        if (!fab || !fabToggle || !fabMenu) return;
+
+        function setFabOpen(open) {
+          fab.classList.toggle("is-open", open);
+          fabToggle.setAttribute("aria-expanded", open ? "true" : "false");
+          fabToggle.setAttribute("aria-label", open ? "Cerrar menú de reservas" : "Abrir reservas y contacto");
+          fabMenu.hidden = !open;
+        }
+
+        fabToggle.addEventListener("click", function () {
+          setFabOpen(!fab.classList.contains("is-open"));
+        });
+
+        fabMenu.querySelectorAll("a").forEach(function (link) {
+          link.addEventListener("click", function () {
+            setFabOpen(false);
+          });
+        });
+
+        document.addEventListener("click", function (event) {
+          if (!fab.contains(event.target)) setFabOpen(false);
+        });
+
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") setFabOpen(false);
+        });
+      })();
+    </script>
+    <script>
+      (function () {
+        var form = document.getElementById("casona-contact-form");
+        var feedback = document.getElementById("casona-contact-feedback");
+        if (!form || !feedback) return;
+
+        function getApiBase() {
+          return window.location.port === "3000" ? "" : "http://localhost:3000";
+        }
+
+        function setFeedback(message, type) {
+          feedback.hidden = false;
+          feedback.textContent = message;
+          feedback.className =
+            "casona-contact-form__feedback" +
+            (type === "success"
+              ? " is-success"
+              : type === "error"
+                ? " is-error"
+                : "");
+        }
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var submitBtn = form.querySelector('button[type="submit"]');
+          var formData = new FormData(form);
+          var payload = {
+            name: String(formData.get("name") || "").trim(),
+            email: String(formData.get("email") || "").trim(),
+            phone: String(formData.get("phone") || "").trim(),
+            subject: String(formData.get("subject") || "consulta"),
+            message: String(formData.get("message") || "").trim(),
+            website: String(formData.get("website") || "").trim(),
+          };
+
+          if (!payload.name || !payload.email || payload.message.length < 10) {
+            setFeedback("Completa nombre, email y un mensaje de al menos 10 caracteres.", "error");
+            return;
+          }
+
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Enviando...";
+          }
+          setFeedback("Enviando tu mensaje...", null);
+
+          fetch(getApiBase() + "/api/public/contact", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+            .then(function (response) {
+              return response.json().then(function (body) {
+                return { ok: response.ok, body: body };
+              });
+            })
+            .then(function (result) {
+              if (!result.ok) {
+                throw new Error(result.body.error || "No se pudo enviar el mensaje.");
+              }
+              form.reset();
+              setFeedback(
+                result.body.message || "Mensaje enviado correctamente. Te responderemos pronto.",
+                "success"
+              );
+            })
+            .catch(function (error) {
+              setFeedback(
+                error.message ||
+                  "No fue posible enviar el mensaje. Verifica que el sistema de reservas esté activo.",
+                "error"
+              );
+            })
+            .finally(function () {
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Enviar mensaje";
+              }
+            });
+        });
+      })();
+    </script>
+    <script>
+      (function () {
+        var slidesRoot = document.querySelector(".casona-hero__slides");
+        if (!slidesRoot) return;
+
+        var slides = Array.prototype.slice.call(
+          slidesRoot.querySelectorAll(".casona-hero__slide")
+        );
+        var delay = parseInt(slidesRoot.getAttribute("data-autoplay") || "3000", 10);
+        if (slides.length < 2 || !delay) return;
+
+        var index = 0;
+        var timer = null;
+
+        function show(nextIndex) {
+          index = ((nextIndex % slides.length) + slides.length) % slides.length;
+          slides.forEach(function (slide, si) {
+            var active = si === index;
+            slide.classList.toggle("is-active", active);
+            slide.setAttribute("aria-hidden", active ? "false" : "true");
+          });
+        }
+
+        function startAutoplay() {
+          if (timer) window.clearInterval(timer);
+          timer = window.setInterval(function () {
+            show(index + 1);
+          }, delay);
+        }
+
+        show(0);
+        startAutoplay();
+      })();
+    </script>
+    <script>
+      (function () {
+        var grid = document.getElementById("casona-room-grid");
+        var feedback = document.getElementById("casona-room-feedback");
+        var moreBtn = document.getElementById("casona-room-more");
+        if (!grid || !feedback || !moreBtn) return;
+
+        var VISIBLE_STEP = 12;
+        var visibleCount = VISIBLE_STEP;
+        var rooms = [];
+        var fallbackImages = [
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.07.58.jpeg",
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.06.02.jpeg",
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.21.10.jpeg",
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.10.16.jpeg",
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.09.02.jpeg",
+          "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.09.37.jpeg",
+        ];
+
+        function getApiBase() {
+          return window.location.port === "3000" ? "" : "http://localhost:3000";
+        }
+
+        function getBedLabel(room) {
+          var customBedType = String(room.bedType || "").trim();
+          if (customBedType) return customBedType;
+
+          if (Array.isArray(room.beds) && room.beds.length > 0) {
+            var bedsText = room.beds
+              .map(function (item) {
+                var qty = Number(item && item.count);
+                var size = String((item && item.size) || "").toUpperCase();
+                var sizeLabel = size === "SINGLE" ? "1 plaza" : size === "DOUBLE" ? "2 plazas" : size === "KING" ? "King" : "cama";
+                return (qty > 1 ? qty + " " : "") + sizeLabel;
+              })
+              .filter(Boolean)
+              .join(" + ");
+            if (bedsText) return bedsText;
+          }
+
+          return "Sin dato de cama";
+        }
+
+        function getBathLabel(room) {
+          var customBathroomDetail = String(room.bathroomDetail || "").trim();
+          if (customBathroomDetail) return customBathroomDetail;
+
+          if (Array.isArray(room.bathrooms) && room.bathrooms.length > 0) {
+            var bathroomsText = room.bathrooms
+              .map(function (item) {
+                var qty = Number(item && item.count);
+                var type = String((item && item.type) || "").toUpperCase();
+                var typeLabel = type === "SHARED" ? "baño compartido" : "baño propio";
+                if (qty > 1) {
+                  return qty + " " + (type === "SHARED" ? "baños compartidos" : "baños propios");
+                }
+                return typeLabel;
+              })
+              .filter(Boolean)
+              .join(" + ");
+            if (bathroomsText) return bathroomsText;
+          }
+
+          return "Sin dato de baño";
+        }
+
+        function getImage(room, index) {
+          var rawImageUrl = String(room.imageUrl || "").trim();
+          if (rawImageUrl && !rawImageUrl.includes("images.unsplash.com")) {
+            if (/^https?:\/\//i.test(rawImageUrl)) {
+              return rawImageUrl;
+            }
+
+            if (rawImageUrl.startsWith("/")) {
+              return getApiBase() + rawImageUrl;
+            }
+
+            return getApiBase() + "/" + rawImageUrl.replace(/^\.?\//, "");
+          }
+          var roomCode = String(room.code || "");
+          var codeNumber = parseInt(roomCode.replace(/\D/g, ""), 10);
+          var fallbackIndex = Number.isFinite(codeNumber)
+            ? codeNumber % fallbackImages.length
+            : index % fallbackImages.length;
+          return fallbackImages[fallbackIndex];
+        }
+
+        function iconGuest() {
+          return '<svg viewBox="0 0 24 24"><circle cx="12" cy="7.2" r="3.2"></circle><path d="M5.5 19.2c.5-3.4 2.8-5.3 6.5-5.3s6 1.9 6.5 5.3"></path></svg>';
+        }
+
+        function iconBed() {
+          return '<svg viewBox="0 0 24 24"><path d="M3.5 10.8h17"></path><path d="M5 10.8V8.7a1.7 1.7 0 0 1 1.7-1.7h3.1a1.7 1.7 0 0 1 1.7 1.7v2"></path><path d="M13.3 10.8V9.1a1.6 1.6 0 0 1 1.6-1.6h2.5A1.6 1.6 0 0 1 19 9.1v1.7"></path><path d="M3.5 10.8v5.6"></path><path d="M20.5 10.8v5.6"></path></svg>';
+        }
+
+        function iconBath() {
+          return '<svg viewBox="0 0 24 24"><path d="M4 13.2h16"></path><path d="M5.4 13.2v1.6a4.6 4.6 0 0 0 4.6 4.6h4a4.6 4.6 0 0 0 4.6-4.6v-1.6"></path><path d="M8.1 13.2V9.5a2.4 2.4 0 0 1 2.4-2.4h2.2"></path><circle cx="13.9" cy="7.1" r="1"></circle></svg>';
+        }
+
+        function buildAmenities(amenities) {
+          if (!Array.isArray(amenities)) return [];
+          return amenities
+            .map(function (item) {
+              return String(item || "").trim();
+            })
+            .filter(Boolean);
+        }
+
+        function createMetaItem(iconSvg, text) {
+          var li = document.createElement("li");
+          var icon = document.createElement("span");
+          icon.className = "casona-icon-slot";
+          icon.setAttribute("aria-hidden", "true");
+          icon.innerHTML = iconSvg;
+          var label = document.createElement("span");
+          label.textContent = text;
+          li.appendChild(icon);
+          li.appendChild(label);
+          return li;
+        }
+
+        function setMoreButton(visible, label) {
+          moreBtn.hidden = !visible;
+          moreBtn.style.display = visible ? "inline-flex" : "none";
+          moreBtn.setAttribute("aria-hidden", visible ? "false" : "true");
+          if (label) {
+            moreBtn.textContent = label;
+          }
+        }
+
+        function renderRooms() {
+          grid.innerHTML = "";
+          var visibleRooms = rooms.slice(0, visibleCount);
+          visibleRooms.forEach(function (room, index) {
+            var card = document.createElement("article");
+            card.className = "casona-room-card";
+
+            var media = document.createElement("div");
+            media.className = "casona-room-card__media";
+
+            var image = document.createElement("img");
+            image.loading = "lazy";
+            image.src = getImage(room, index);
+            image.alt = room.name || "Habitación";
+            image.onerror = function () {
+              this.src = fallbackImages[index % fallbackImages.length];
+            };
+            media.appendChild(image);
+
+            var body = document.createElement("div");
+            body.className = "casona-room-card__body";
+
+            var title = document.createElement("h3");
+            title.className = "casona-room-card__title";
+            title.textContent = room.name || ("Habitación " + room.code);
+
+            var meta = document.createElement("ul");
+            meta.className = "casona-room-card__meta";
+            meta.setAttribute("aria-label", "Características");
+            meta.appendChild(createMetaItem(iconGuest(), (room.maxGuests || 1) + " huéspedes"));
+            meta.appendChild(createMetaItem(iconBed(), getBedLabel(room)));
+            meta.appendChild(createMetaItem(iconBath(), getBathLabel(room)));
+
+            var amenities = buildAmenities(room.amenities);
+            if (amenities.length > 0) {
+              var amenitiesWrap = document.createElement("div");
+              amenitiesWrap.className = "casona-room-card__amenities";
+              amenities.forEach(function (item) {
+                var chip = document.createElement("span");
+                chip.className = "casona-room-chip";
+                chip.textContent = item;
+                amenitiesWrap.appendChild(chip);
+              });
+              body.appendChild(amenitiesWrap);
+            }
+
+            var link = document.createElement("a");
+            link.href = "http://localhost:3000/";
+            link.className = "casona-room-card__link";
+            link.textContent = "Ver detalles →";
+
+            body.appendChild(title);
+            body.appendChild(meta);
+            body.appendChild(link);
+            card.appendChild(media);
+            card.appendChild(body);
+            grid.appendChild(card);
+          });
+
+          if (rooms.length === 0) {
+            feedback.textContent = "No hay habitaciones disponibles para mostrar.";
+            setMoreButton(false);
+            return;
+          }
+
+          var remaining = rooms.length - visibleRooms.length;
+          if (remaining > 0) {
+            feedback.textContent = "Mostrando " + visibleRooms.length + " de " + rooms.length + " habitaciones.";
+            setMoreButton(true, "Ver más habitaciones (" + remaining + ")");
+          } else {
+            feedback.textContent = "Mostrando " + rooms.length + " habitaciones.";
+            setMoreButton(false);
+          }
+        }
+
+        moreBtn.addEventListener("click", function () {
+          visibleCount = Math.min(visibleCount + VISIBLE_STEP, rooms.length);
+          renderRooms();
+        });
+
+        fetch(getApiBase() + "/api/public/rooms")
+          .then(function (response) {
+            if (!response.ok) throw new Error("No se pudo cargar habitaciones.");
+            return response.json();
+          })
+          .then(function (payload) {
+            rooms = Array.isArray(payload && payload.rooms) ? payload.rooms : [];
+            visibleCount = Math.min(VISIBLE_STEP, rooms.length || VISIBLE_STEP);
+            renderRooms();
+          })
+          .catch(function () {
+            feedback.textContent = "No fue posible cargar habitaciones desde el sistema. Verifica que el módulo de reservas esté activo en puerto 3000.";
+            setMoreButton(false);
+          });
+      })();
+    </script>
+  </body>
+</html>
+

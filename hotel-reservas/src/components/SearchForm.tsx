@@ -1,0 +1,119 @@
+"use client";
+
+import { addDays, format } from "date-fns";
+import { es } from "date-fns/locale";
+import { useState } from "react";
+
+export type SearchParams = {
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+};
+
+export function SearchForm({
+  onSearch,
+  loading,
+}: {
+  onSearch: (params: SearchParams) => void;
+  loading?: boolean;
+}) {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
+
+  const [checkIn, setCheckIn] = useState(today);
+  const [checkOut, setCheckOut] = useState(tomorrow);
+  const [guests, setGuests] = useState(2);
+  const [error, setError] = useState<string | null>(null);
+
+  function nextDay(value: string): string {
+    return format(addDays(new Date(`${value}T12:00:00`), 1), "yyyy-MM-dd");
+  }
+
+  function handleCheckInChange(value: string) {
+    setCheckIn(value);
+    setError(null);
+    if (!checkOut || checkOut <= value) {
+      setCheckOut(nextDay(value));
+    }
+  }
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (checkOut <= checkIn) {
+      setError("La fecha de salida debe ser posterior a la entrada.");
+      return;
+    }
+    setError(null);
+    onSearch({ checkIn, checkOut, guests });
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="glass-panel-elevated grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-4"
+    >
+      <label className="block space-y-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">Entrada</span>
+        <input
+          type="date"
+          value={checkIn}
+          min={today}
+          onChange={(e) => handleCheckInChange(e.target.value)}
+          className="input-field"
+          required
+        />
+      </label>
+
+      <label className="block space-y-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">Salida</span>
+        <input
+          type="date"
+          value={checkOut}
+          min={checkIn ? nextDay(checkIn) : tomorrow}
+          onChange={(e) => {
+            setCheckOut(e.target.value);
+            setError(null);
+          }}
+          className="input-field"
+          required
+        />
+      </label>
+
+      <label className="block space-y-1.5">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">Huéspedes</span>
+        <select
+          value={guests}
+          onChange={(e) => setGuests(Number(e.target.value))}
+          className="input-field"
+        >
+          {Array.from({ length: 10 }, (_, index) => index + 1).map((n) => (
+            <option key={n} value={n}>
+              {n} {n === 1 ? "huésped" : "huéspedes"}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <div className="flex items-end sm:col-span-2 lg:col-span-1">
+        <button type="submit" disabled={loading} className="btn-primary w-full">
+          {loading ? "Buscando..." : "Buscar disponibilidad"}
+        </button>
+      </div>
+
+      {error && <p className="alert-error text-sm sm:col-span-2 lg:col-span-4">{error}</p>}
+
+      {checkIn && checkOut && (
+        <p className="text-xs text-brand-500 sm:col-span-2 lg:col-span-4">
+          Buscando estadía del{" "}
+          <strong className="text-highlight">
+            {format(new Date(checkIn + "T12:00:00"), "d MMM yyyy", { locale: es })}
+          </strong>{" "}
+          al{" "}
+          <strong className="text-highlight">
+            {format(new Date(checkOut + "T12:00:00"), "d MMM yyyy", { locale: es })}
+          </strong>
+        </p>
+      )}
+    </form>
+  );
+}

@@ -1,0 +1,2207 @@
+:root {
+  --casona-forest: #1e3d32;
+  --casona-forest-soft: #2a5244;
+  --casona-earth: #8b6f4e;
+  --casona-stone: #6b6560;
+  --casona-stone-light: #938b84;
+  --casona-cream: #faf8f4;
+  --casona-paper: #ffffff;
+  --casona-line: rgba(30, 61, 50, 0.1);
+  --casona-shadow-soft: 0 14px 36px rgba(30, 61, 50, 0.08);
+  --casona-shadow-medium: 0 18px 48px rgba(30, 61, 50, 0.12);
+  --casona-shadow-strong: 0 24px 56px rgba(30, 61, 50, 0.16);
+  --casona-max: 72rem;
+  --casona-gutter: clamp(1rem, 4vw, 1.75rem);
+  --casona-header-h: 4.25rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--casona-header-h) + 0.5rem);
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+body.casona-demo {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--casona-cream);
+  color: #2c2825;
+  font-family: "Inter", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+body.casona-demo img:not(.casona-hero__slide):not(.casona-momentos__item img):not(.casona-service__photo img):not(.casona-about__img img):not(.casona-carousel__photo) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.casona-display {
+  font-family: "Playfair Display", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+/* Header minimal */
+.casona-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 248, 244, 0.3);
+  backdrop-filter: blur(14px) saturate(1.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+  border-bottom: 1px solid rgba(30, 61, 50, 0.1);
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.casona-header.is-scrolled {
+  background: rgba(250, 248, 244, 0.86);
+  border-bottom-color: rgba(30, 61, 50, 0.14);
+  box-shadow: 0 10px 28px rgba(30, 61, 50, 0.1);
+}
+
+.casona-header__inner {
+  max-width: var(--casona-max);
+  margin-inline: auto;
+  padding: 0.85rem var(--casona-gutter);
+  min-height: var(--casona-header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.casona-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.22rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #152a22;
+  text-decoration: none;
+  text-shadow: 0 1px 10px rgba(250, 248, 244, 0.9);
+}
+
+.casona-logo img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 1px solid rgba(30, 61, 50, 0.2);
+  box-shadow: 0 4px 12px rgba(30, 61, 50, 0.18);
+}
+
+.casona-nav {
+  display: none;
+  align-items: center;
+  gap: 1.75rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1a3329;
+}
+
+.casona-nav__cta {
+  display: none;
+}
+
+.casona-nav-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-left: auto;
+  margin-right: 0.35rem;
+  padding: 0;
+  border: 1px solid rgba(30, 61, 50, 0.18);
+  border-radius: 0.65rem;
+  background: rgba(250, 248, 244, 0.55);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+}
+
+.casona-nav-toggle__bar {
+  display: block;
+  width: 1.1rem;
+  height: 2px;
+  margin-inline: auto;
+  border-radius: 999px;
+  background: var(--casona-forest);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+body.casona-nav-open .casona-nav-toggle__bar:nth-child(1) {
+  transform: translateY(5px) rotate(45deg);
+}
+
+body.casona-nav-open .casona-nav-toggle__bar:nth-child(2) {
+  opacity: 0;
+}
+
+body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+@media (max-width: 767px) {
+  .casona-nav {
+    position: fixed;
+    inset: var(--casona-header-h) 0 0 0;
+    z-index: 40;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 1rem var(--casona-gutter) 1.5rem;
+    background: rgba(250, 248, 244, 0.98);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--casona-line);
+    transform: translateY(-110%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    overflow-y: auto;
+  }
+
+  body.casona-nav-open .casona-nav {
+    display: flex;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  body.casona-nav-open {
+    overflow: hidden;
+  }
+
+  .casona-nav a:not(.casona-nav__cta) {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--casona-line);
+    font-size: 1rem;
+  }
+
+  .casona-nav__cta {
+    display: inline-flex;
+    justify-content: center;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 999px;
+    background: var(--casona-forest);
+    color: var(--casona-cream) !important;
+    border: none;
+  }
+}
+.casona-nav a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+  text-shadow: 0 1px 6px rgba(250, 248, 244, 0.7);
+  transition: color 0.2s ease;
+}
+
+.casona-nav a:hover {
+  color: var(--casona-forest);
+}
+
+.casona-header__cta-desktop {
+  display: none;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 10px 26px rgba(30, 61, 50, 0.28);
+}
+
+.casona-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease;
+}
+
+.casona-btn--primary {
+  background: var(--casona-forest);
+  color: var(--casona-cream);
+  box-shadow: var(--casona-shadow-medium);
+}
+
+.casona-btn--primary:hover {
+  background: var(--casona-forest-soft);
+  transform: translateY(-1px);
+  box-shadow: var(--casona-shadow-strong);
+}
+
+.casona-btn--ghost {
+  border: 1px solid var(--casona-line);
+  color: var(--casona-forest);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.casona-btn--ghost:hover {
+  background: var(--casona-paper);
+}
+
+.casona-btn--hero-ghost {
+  border-color: rgba(255, 255, 255, 0.35);
+  color: var(--casona-cream);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(4px);
+}
+
+.casona-btn--hero-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.casona-section[id] {
+  scroll-margin-top: calc(var(--casona-header-h) + 0.5rem);
+}
+.casona-demo a:focus-visible,
+.casona-demo button:focus-visible {
+  outline: 2px solid var(--casona-earth);
+  outline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+  .casona-nav {
+    display: flex;
+  }
+  .casona-nav-toggle {
+    display: none;
+  }
+  .casona-header__cta-desktop {
+    display: inline-flex;
+  }
+}
+
+/* Carrusel clásico — imagen grande, flechas, dots, autoplay 3s */
+.casona-carousel--classic {
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+.casona-carousel__frame {
+  position: relative;
+  width: min(100%, 56rem);
+  margin-inline: auto;
+}
+
+.casona-carousel__viewport {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  aspect-ratio: 16 / 8.6;
+  max-height: min(54vh, 430px);
+  background: #e8e4dc;
+  box-shadow: var(--casona-shadow-medium);
+}
+
+@media (min-width: 768px) {
+  .casona-carousel__viewport {
+    aspect-ratio: 16 / 8.1;
+    max-height: min(52vh, 410px);
+    border-radius: 1.25rem;
+  }
+}
+
+.casona-carousel--classic .boye-carousel__track {
+  height: 100%;
+}
+
+.casona-carousel--classic .boye-carousel__slide {
+  margin: 0;
+  border-radius: 0;
+  height: 100%;
+  background: #e8e4dc;
+}
+
+.casona-carousel--classic .boye-carousel__slide img,
+.casona-carousel--classic .casona-carousel__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  aspect-ratio: unset;
+}
+
+.casona-carousel--classic[data-variant="fade"] .boye-carousel__track {
+  position: relative;
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Evita colapso de altura cuando los slides son absolute */
+.casona-carousel--classic[data-variant="fade"] .boye-carousel__track::before {
+  content: "";
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 8.6;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .casona-carousel--classic[data-variant="fade"] .boye-carousel__track::before {
+    aspect-ratio: 16 / 8.1;
+  }
+}
+
+.casona-carousel--classic[data-variant="fade"] .boye-carousel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: none;
+  transition: opacity 0.65s ease;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.casona-carousel--classic[data-variant="fade"] .boye-carousel__slide.is-active {
+  position: absolute;
+  opacity: 1;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* Flechas laterales (estilo wireframe) */
+.casona-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  width: 2.55rem;
+  height: 2.55rem;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--casona-forest);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.casona-carousel__arrow svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.casona-carousel__arrow:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.06);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+}
+
+.casona-carousel--classic .boye-carousel__nav--prev {
+  left: 0.85rem;
+}
+
+.casona-carousel--classic .boye-carousel__nav--next {
+  right: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .casona-carousel__arrow {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+  .casona-carousel--classic .boye-carousel__nav--prev {
+    left: 1.25rem;
+  }
+  .casona-carousel--classic .boye-carousel__nav--next {
+    right: 1.25rem;
+  }
+}
+
+/* Dots centrados abajo */
+.casona-carousel__dots-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 5;
+  transform: translateX(-50%);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(20, 35, 28, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.casona-carousel--classic .boye-carousel__dots {
+  margin-top: 0;
+  gap: 0.45rem;
+}
+
+.casona-carousel--classic .boye-carousel__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.casona-carousel--classic .boye-carousel__dot.is-active {
+  width: 0.5rem;
+  background: #fff;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.casona-carousel__caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 2.35rem 1.25rem 3rem;
+  background: linear-gradient(to top, rgba(20, 35, 28, 0.66) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.casona-carousel__name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+  color: var(--casona-cream);
+}
+
+.casona-carousel__meta {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(250, 248, 244, 0.8);
+}
+
+.casona-rooms-cta {
+  margin-top: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+}
+
+.casona-section--compact-top {
+  padding-top: clamp(2.5rem, 6vw, 3.5rem);
+}
+
+/* Habitaciones grid minimal */
+.casona-room-grid {
+  margin-top: clamp(1.8rem, 4vw, 2.5rem);
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .casona-room-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.15rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .casona-room-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.2rem;
+  }
+}
+
+.casona-room-card {
+  background: var(--casona-paper);
+  border: 1px solid var(--casona-line);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 12px 30px rgba(30, 61, 50, 0.06);
+}
+
+.casona-room-card__media {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e8e4dc;
+}
+
+.casona-room-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease;
+}
+
+.casona-room-card:hover .casona-room-card__media img {
+  transform: scale(1.05);
+}
+
+.casona-room-card__body {
+  padding: 1rem 1rem 1.05rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.casona-room-card__title {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.22rem;
+  line-height: 1.2;
+  color: var(--casona-forest);
+}
+
+.casona-room-card__meta {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  color: var(--casona-stone);
+  font-size: 0.86rem;
+}
+
+.casona-room-card__meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.casona-room-card__amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.casona-room-chip {
+  border-radius: 999px;
+  border: 1px solid rgba(30, 61, 50, 0.18);
+  background: rgba(30, 61, 50, 0.06);
+  padding: 0.16rem 0.5rem;
+  font-size: 0.71rem;
+  font-weight: 600;
+  color: var(--casona-forest);
+  line-height: 1.2;
+}
+
+.casona-icon-slot {
+  width: 1.05rem;
+  height: 1.05rem;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 61, 50, 0.22);
+  background: rgba(30, 61, 50, 0.05);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.casona-icon-slot svg {
+  width: 0.7rem;
+  height: 0.7rem;
+  stroke: var(--casona-forest);
+  stroke-width: 1.9;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.casona-room-card__link {
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--casona-forest);
+  text-decoration: none;
+}
+
+.casona-room-card__link:hover {
+  color: var(--casona-forest-soft);
+}
+
+.casona-room-feedback {
+  margin: 0.95rem 0 0;
+  font-size: 0.84rem;
+  color: var(--casona-stone);
+}
+
+.casona-room-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: center;
+}
+
+.casona-room-more {
+  min-height: 2.4rem;
+  border-color: rgba(30, 61, 50, 0.2);
+  background: rgba(250, 248, 244, 0.55);
+  font-weight: 600;
+}
+/* Hero full viewport */
+.casona-hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.casona-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.casona-hero__slides {
+  position: absolute;
+  inset: 0;
+}
+
+.casona-hero__slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+  will-change: opacity;
+}
+
+.casona-hero__slide.is-active {
+  opacity: 1;
+}
+
+.casona-hero__slide:nth-child(1) {
+  object-position: center 42%;
+}
+
+.casona-hero__slide:nth-child(2) {
+  object-position: center center;
+}
+
+.casona-hero__slide:nth-child(3) {
+  object-position: center 38%;
+}
+
+.casona-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(12, 24, 20, 0.9) 0%,
+    rgba(20, 35, 28, 0.68) 38%,
+    rgba(20, 35, 28, 0.38) 62%,
+    rgba(20, 35, 28, 0.18) 100%
+  );
+}
+
+@media (max-width: 767px) {
+  .casona-hero__overlay {
+    background: linear-gradient(
+      to top,
+      rgba(12, 24, 20, 0.78) 0%,
+      rgba(20, 35, 28, 0.56) 38%,
+      rgba(20, 35, 28, 0.28) 64%,
+      rgba(20, 35, 28, 0.12) 100%
+    );
+  }
+
+  .casona-header {
+    backdrop-filter: blur(10px) saturate(1.05);
+    -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  }
+
+  .casona-header.is-scrolled {
+    box-shadow: 0 8px 20px rgba(30, 61, 50, 0.08);
+  }
+
+  .casona-nav-toggle {
+    backdrop-filter: blur(6px);
+  }
+
+  .casona-carousel__viewport,
+  .casona-about__img,
+  .casona-quote {
+    box-shadow: 0 12px 28px rgba(30, 61, 50, 0.08);
+  }
+
+  .casona-btn--primary {
+    box-shadow: 0 10px 24px rgba(30, 61, 50, 0.2);
+  }
+
+  .casona-service,
+  .casona-room,
+  .casona-momentos__item img,
+  .casona-service__photo img,
+  .casona-room__img-wrap img {
+    transition-duration: 0.2s;
+  }
+}
+
+.casona-hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--casona-max);
+  margin-inline: auto;
+  padding: calc(var(--casona-header-h) + 2rem) var(--casona-gutter) clamp(2.75rem, 9vw, 4.5rem);
+}
+
+.casona-hero__eyebrow {
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 244, 0.92);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+}
+
+.casona-hero__title {
+  margin-top: 1rem;
+  max-width: 11ch;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(2.85rem, 10vw, 5.25rem);
+  line-height: 1.04;
+  font-weight: 600;
+  color: var(--casona-cream);
+  text-shadow: 0 3px 28px rgba(0, 0, 0, 0.5);
+}
+
+.casona-hero__lead {
+  margin-top: 1.35rem;
+  max-width: 38rem;
+  font-size: clamp(1.12rem, 2.8vw, 1.5rem);
+  line-height: 1.58;
+  font-weight: 500;
+  color: rgba(250, 248, 244, 0.95);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
+
+.casona-hero__actions {
+  margin-top: clamp(2rem, 5vw, 2.85rem);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.casona-hero__actions .casona-btn {
+  flex: 1 1 auto;
+  min-width: min(100%, 12.5rem);
+  padding: clamp(1rem, 2.8vw, 1.2rem) clamp(1.85rem, 4.5vw, 2.5rem);
+  font-size: clamp(1rem, 2.4vw, 1.125rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.casona-hero__actions .casona-btn--primary {
+  background: var(--casona-cream);
+  color: var(--casona-forest);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.casona-hero__actions .casona-btn--primary:hover {
+  background: #ffffff;
+  color: var(--casona-forest);
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.42),
+    0 0 0 2px rgba(255, 255, 255, 0.28);
+}
+
+.casona-hero__actions .casona-btn--hero-ghost {
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  color: var(--casona-cream);
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.casona-hero__actions .casona-btn--hero-ghost:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.75);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+}
+
+@media (min-width: 480px) {
+  .casona-hero__actions .casona-btn {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .casona-hero__title {
+    max-width: 12ch;
+  }
+
+  .casona-hero__actions .casona-btn--primary {
+    min-width: 14.5rem;
+  }
+}
+
+/* Sections — generous whitespace */
+.casona-section {
+  padding-block: clamp(3.25rem, 8vw, 5.5rem);
+  padding-inline: var(--casona-gutter);
+}
+.casona-section__inner {
+  max-width: var(--casona-max);
+  margin-inline: auto;
+}
+
+.casona-section__eyebrow {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--casona-earth);
+}
+
+.casona-section__title {
+  margin-top: 0.65rem;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.85rem, 4vw, 2.65rem);
+  line-height: 1.15;
+  color: var(--casona-forest);
+}
+
+.casona-section__lead {
+  margin-top: 0.95rem;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.72;
+  color: var(--casona-stone);
+}
+
+/* Room cards in carousel */
+.casona-room {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--casona-paper);
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--casona-line);
+  box-shadow: 0 20px 50px rgba(30, 61, 50, 0.08);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+
+.casona-room:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 28px 60px rgba(30, 61, 50, 0.12);
+}
+
+.casona-room__img-wrap {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.casona-room__img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.casona-room:hover .casona-room__img-wrap img {
+  transform: scale(1.04);
+}
+
+.casona-room__body {
+  padding: 1.5rem 1.35rem 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.casona-room__name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--casona-forest);
+}
+
+.casona-room__desc {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--casona-stone);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.casona-room__meta {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--casona-earth);
+}
+
+.casona-room__meta::before {
+  content: "";
+  display: block;
+  width: 1.75rem;
+  height: 2px;
+  margin-bottom: 0.65rem;
+  background: var(--casona-earth);
+  opacity: 0.45;
+}
+
+/* Services grid */
+.casona-services {
+  display: grid;
+  gap: 1rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+@media (min-width: 640px) {
+  .casona-services {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .casona-services {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.casona-service {
+  padding: clamp(1.35rem, 3vw, 2rem) clamp(1.15rem, 3vw, 1.5rem);
+  background: var(--casona-paper);
+  border: 1px solid var(--casona-line);
+  border-radius: 1rem;
+  text-align: center;
+  transition: border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
+}
+
+.casona-service--visual {
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+}
+
+.casona-service__photo {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #e8e4dc;
+}
+
+.casona-service__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.55s ease;
+}
+
+.casona-service--visual:hover .casona-service__photo img {
+  transform: scale(1.04);
+}
+
+.casona-service__body {
+  padding: 1.25rem 1.35rem 1.5rem;
+  min-height: 7.1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.casona-service--visual .casona-service__title {
+  margin-top: 0;
+}
+
+.casona-service:hover {
+  border-color: rgba(30, 61, 50, 0.2);
+  box-shadow: var(--casona-shadow-soft);
+  transform: translateY(-2px);
+}
+
+.casona-service__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: rgba(30, 61, 50, 0.06);
+  color: var(--casona-forest);
+}
+
+.casona-service__title {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--casona-forest);
+}
+
+.casona-service--visual .casona-service__text {
+  margin-top: 0.45rem;
+}
+.casona-service__text {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--casona-stone);
+}
+
+.casona-momentos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: clamp(2rem, 5vw, 2.75rem);
+}
+
+.casona-momentos__item {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  aspect-ratio: 1;
+  border: 1px solid var(--casona-line);
+  background: #e8e4dc;
+}
+
+.casona-momentos__item img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transition: transform 0.5s ease;
+}
+
+.casona-momentos__item:nth-child(2) img {
+  object-position: center 55%;
+}
+
+.casona-momentos__item:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 639px) {
+  .casona-momentos {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: min(72vw, 16rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .casona-momentos::-webkit-scrollbar {
+    display: none;
+  }
+
+  .casona-momentos__item {
+    scroll-snap-align: start;
+  }
+}
+/* Experience + testimonials */
+.casona-experience {
+  background: var(--casona-paper);
+  border-block: 1px solid var(--casona-line);
+}
+
+.casona-ambiente {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+.casona-ambiente__item {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+  min-height: 11rem;
+}
+
+.casona-ambiente__item img {
+  width: 100%;
+  height: 100%;
+  min-height: 11rem;
+  object-fit: cover;
+}
+
+.casona-ambiente__item figcaption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: 2.5rem 1rem 0.85rem;
+  background: linear-gradient(to top, rgba(20, 35, 28, 0.72), transparent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 244, 0.92);
+}
+
+@media (min-width: 768px) {
+  .casona-ambiente {
+    grid-template-columns: 1.4fr 1fr;
+    grid-template-rows: repeat(2, minmax(0, clamp(11rem, 22vw, 15rem)));
+    gap: 0.85rem;
+  }
+
+  .casona-ambiente__item--hero {
+    grid-row: span 2;
+    min-height: 0;
+  }
+
+  .casona-ambiente__item--hero img {
+    min-height: 0;
+  }
+
+  .casona-ambiente__item {
+    min-height: 0;
+    height: 100%;
+  }
+
+  .casona-ambiente__item img {
+    min-height: 0;
+    height: 100%;
+  }
+}
+.casona-experience__grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+@media (min-width: 1024px) {
+  .casona-experience__grid {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
+    align-items: start;
+  }
+}
+
+.casona-activities {
+  display: grid;
+  gap: 1rem;
+}
+
+.casona-activity {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--casona-line);
+}
+
+.casona-activity:last-child {
+  border-bottom: none;
+}
+
+.casona-activity__num {
+  flex: none;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--casona-earth);
+  opacity: 0.6;
+}
+
+.casona-activity__title {
+  font-weight: 600;
+  color: var(--casona-forest);
+  font-size: 0.95rem;
+}
+
+.casona-activity__text {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--casona-stone);
+}
+
+.casona-quotes {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.casona-quote {
+  padding: 1.75rem;
+  background: var(--casona-cream);
+  border-radius: 1rem;
+  border: 1px solid var(--casona-line);
+  box-shadow: 0 10px 28px rgba(30, 61, 50, 0.05);
+}
+
+.casona-quote p {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--casona-forest);
+  font-style: italic;
+}
+
+.casona-quote cite {
+  display: block;
+  margin-top: 1rem;
+  font-style: normal;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--casona-earth);
+}
+
+/* About */
+.casona-about__grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .casona-about__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(3rem, 6vw, 4.5rem);
+  }
+}
+.casona-about__img {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  box-shadow: var(--casona-shadow-medium);
+  background: #e8e4dc;
+}
+
+.casona-about__img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+}
+
+.casona-about__img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.casona-about__text p {
+  margin-top: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--casona-stone);
+}
+
+.casona-about__text p:first-child {
+  margin-top: 0;
+}
+
+/* Footer */
+.casona-footer {
+  padding-block: clamp(2rem, 3.5vw, 2.75rem) calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  padding-inline: var(--casona-gutter);
+  background: var(--casona-forest);
+  color: rgba(250, 248, 244, 0.85);
+}
+
+.casona-footer .casona-section__inner {
+  max-width: var(--casona-max);
+  margin-inline: auto;
+}
+
+.casona-footer__shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.casona-footer a:not(.casona-social__link) {
+  color: rgba(250, 248, 244, 0.92);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.casona-footer a:not(.casona-social__link):hover {
+  color: #fff;
+}
+
+.casona-footer__main {
+  display: grid;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .casona-footer__main {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.5rem;
+    row-gap: 1.25rem;
+  }
+
+  .casona-footer__form-col {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .casona-footer__main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 1.75rem;
+    row-gap: 0;
+  }
+
+  .casona-footer__form-col {
+    grid-column: auto;
+  }
+}
+
+.casona-footer__info,
+.casona-footer__map-col,
+.casona-footer__form-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.casona-footer__col-head {
+  flex: 0 0 auto;
+  margin-bottom: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.casona-footer__col-head-spacer {
+  display: block;
+  margin-top: 0.2rem;
+  min-height: 1.05rem;
+}
+
+.casona-footer__col-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.casona-footer__col-body--map,
+.casona-footer__col-body--form {
+  min-height: 12.5rem;
+}
+
+.casona-footer__title,
+.casona-footer__map-title,
+.casona-footer__form-title {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--casona-cream);
+}
+
+.casona-footer__contact-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.casona-footer__contact-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.casona-footer__contact-icon {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.5rem;
+  color: var(--casona-cream);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.casona-footer__contact-icon svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.casona-footer__contact-label {
+  display: block;
+  margin-bottom: 0.1rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 244, 0.5);
+}
+
+.casona-footer__contact-item p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(250, 248, 244, 0.88);
+}
+
+.casona-footer__form-lead {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(250, 248, 244, 0.62);
+}
+
+.casona-footer__map {
+  flex: 1 1 auto;
+  height: 100%;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-height: 10.5rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+}
+
+.casona-footer__map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 10.5rem;
+  border: 0;
+}
+
+.casona-footer__form-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.casona-footer__form-card .casona-contact-form {
+  flex: 1 1 auto;
+}
+
+.casona-contact-form {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.casona-contact-form__row--split {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.casona-contact-form__field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.casona-contact-form__field > span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 244, 0.65);
+}
+
+.casona-contact-form__field em {
+  font-style: normal;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.75;
+}
+
+.casona-contact-form__field input,
+.casona-contact-form__field select,
+.casona-contact-form__field textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.55rem;
+  padding: 0.52rem 0.65rem;
+  font-size: 0.86rem;
+  color: #1a3329;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.casona-contact-form__field textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  max-height: 7rem;
+}
+
+.casona-contact-form__field input:focus-visible,
+.casona-contact-form__field select:focus-visible,
+.casona-contact-form__field textarea:focus-visible {
+  outline: none;
+  border-color: rgba(139, 111, 78, 0.75);
+  box-shadow:
+    0 0 0 3px rgba(139, 111, 78, 0.28),
+    0 10px 28px rgba(0, 0, 0, 0.14);
+  background: #fff;
+}
+
+.casona-contact-form__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.casona-contact-form__actions {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.1rem;
+}
+
+.casona-contact-form__submit {
+  justify-self: start;
+  width: min(100%, 11.5rem);
+  min-height: 2.45rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(135deg, #faf8f4 0%, #ffffff 100%);
+  color: var(--casona-forest);
+}
+
+.casona-contact-form__submit:hover {
+  background: #fff;
+  color: var(--casona-forest);
+}
+
+.casona-contact-form__submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+.casona-contact-form__feedback {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 0.65rem;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.casona-contact-form__feedback.is-success {
+  color: #d9f7e8;
+  background: rgba(16, 120, 78, 0.22);
+  border: 1px solid rgba(120, 220, 170, 0.35);
+}
+
+.casona-contact-form__feedback.is-error {
+  color: #ffe4e4;
+  background: rgba(160, 40, 40, 0.22);
+  border: 1px solid rgba(255, 140, 140, 0.35);
+}
+
+.casona-social {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+
+.casona-social__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(250, 248, 244, 0.5);
+}
+
+.casona-social__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.casona-social__link {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.casona-social__link svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.casona-social__link::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.casona-social__link:hover {
+  color: #fff;
+  transform: translateY(-3px) scale(1.04);
+  filter: brightness(1.06);
+}
+
+.casona-social__link:focus-visible {
+  outline: 2px solid rgba(250, 248, 244, 0.85);
+  outline-offset: 3px;
+}
+
+.casona-social__link--instagram {
+  background:
+    radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+}
+
+.casona-social__link--instagram::after {
+  box-shadow: 0 0 0 3px rgba(253, 89, 73, 0.28), 0 14px 28px rgba(214, 36, 159, 0.35);
+}
+
+.casona-social__link--instagram:hover::after {
+  opacity: 1;
+}
+
+.casona-social__link--facebook {
+  background: linear-gradient(145deg, #2d88ff 0%, #1877f2 55%, #0f5dc4 100%);
+}
+
+.casona-social__link--facebook::after {
+  box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.28), 0 14px 28px rgba(24, 119, 242, 0.35);
+}
+
+.casona-social__link--facebook:hover::after {
+  opacity: 1;
+}
+
+.casona-social__link--whatsapp {
+  background: linear-gradient(145deg, #3ddf78 0%, #25d366 55%, #1da851 100%);
+}
+
+.casona-social__link--whatsapp::after {
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.28), 0 14px 28px rgba(37, 211, 102, 0.35);
+}
+
+.casona-social__link--whatsapp:hover::after {
+  opacity: 1;
+}
+
+.casona-footer__bottom {
+  display: grid;
+  gap: 0.35rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(250, 248, 244, 0.68);
+}
+
+@media (min-width: 640px) {
+  .casona-footer__bottom {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    text-align: left;
+  }
+
+  .casona-footer__credit {
+    text-align: right;
+  }
+}
+
+.casona-footer__bottom p {
+  margin: 0;
+}
+
+.casona-footer__credit {
+  margin: 0;
+}
+
+.casona-footer__credit a {
+  color: rgba(250, 248, 244, 0.78);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.casona-footer__credit a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.casona-footer__credit strong {
+  font-weight: 600;
+}
+
+.casona-footer__bottom strong {
+  color: rgba(250, 248, 244, 0.85);
+}
+
+@media (max-width: 479px) {
+  .casona-header__inner {
+    padding-block: 0.75rem;
+  }
+
+  .casona-logo {
+    font-size: 1.08rem;
+    letter-spacing: 0.07em;
+  }
+
+  .casona-nav-toggle {
+    width: 2.6rem;
+    height: 2.6rem;
+    margin-right: 0.15rem;
+  }
+
+  .casona-hero__content {
+    padding-top: calc(var(--casona-header-h) + 1.5rem);
+    padding-bottom: clamp(2.2rem, 8vw, 3rem);
+  }
+
+  .casona-hero__eyebrow {
+    letter-spacing: 0.19em;
+    font-size: 0.72rem;
+  }
+
+  .casona-hero__title {
+    margin-top: 0.75rem;
+    font-size: clamp(2.35rem, 11.5vw, 3.2rem);
+    line-height: 1.06;
+    max-width: 9.8ch;
+  }
+
+  .casona-hero__lead {
+    margin-top: 1rem;
+    font-size: clamp(0.98rem, 4.1vw, 1.08rem);
+    line-height: 1.52;
+    max-width: 32rem;
+  }
+
+  .casona-hero__actions {
+    margin-top: 1.45rem;
+    gap: 0.6rem;
+  }
+
+  .casona-hero__actions .casona-btn {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.85rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .casona-section {
+    padding-block: clamp(2.45rem, 8.5vw, 3.2rem);
+  }
+
+  .casona-section__title {
+    font-size: clamp(1.55rem, 7.5vw, 2rem);
+    line-height: 1.18;
+  }
+
+  .casona-section__lead {
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .casona-service__body {
+    min-height: 0;
+    padding: 1.05rem 1.1rem 1.3rem;
+  }
+
+  .casona-activity {
+    padding-block: 1rem;
+    gap: 0.85rem;
+  }
+
+  .casona-activity__num {
+    font-size: 1.3rem;
+  }
+
+  .casona-about__text p {
+    font-size: 0.95rem;
+    line-height: 1.68;
+  }
+
+  .casona-footer {
+    padding-top: 1.75rem;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .casona-footer__shell {
+    gap: 1.15rem;
+  }
+
+  .casona-footer__main {
+    gap: 1.15rem;
+  }
+
+  .casona-footer__col-head {
+    min-height: auto;
+    margin-bottom: 0.55rem;
+  }
+
+  .casona-footer__col-body--map,
+  .casona-footer__col-body--form {
+    min-height: 0;
+  }
+
+  .casona-footer__map {
+    min-height: 10rem;
+  }
+
+  .casona-social {
+    margin-top: 0.65rem;
+    padding-top: 0;
+  }
+
+  .casona-contact-form__row--split {
+    grid-template-columns: 1fr;
+  }
+
+  .casona-contact-form__submit {
+    width: 100%;
+  }
+
+  .casona-footer__bottom {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .casona-footer__credit {
+    text-align: center;
+  }
+
+  .casona-carousel--classic .boye-carousel__nav--prev {
+    left: 0.5rem;
+  }
+
+  .casona-carousel--classic .boye-carousel__nav--next {
+    right: 0.5rem;
+  }
+
+  .casona-carousel__arrow {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  .casona-carousel__caption {
+    padding: 2rem 1rem 2.75rem;
+  }
+
+  .casona-quote {
+    padding: 1.25rem;
+  }
+}
+
+/* Botón flotante — reservas y contacto */
+.casona-fab {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: max(1.15rem, env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.casona-fab > * {
+  pointer-events: auto;
+}
+
+.casona-fab__menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.casona-fab__menu[hidden] {
+  display: none;
+}
+
+.casona-fab:not(.is-open) .casona-fab__menu {
+  display: none;
+}
+
+.casona-fab.is-open .casona-fab__menu {
+  display: flex;
+  animation: casona-fab-menu-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes casona-fab-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.casona-fab__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.72rem 1rem 0.72rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  color: var(--casona-forest);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(30, 61, 50, 0.12);
+  box-shadow:
+    0 12px 32px rgba(30, 61, 50, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+  white-space: nowrap;
+}
+
+.casona-fab__action:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 40px rgba(30, 61, 50, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.75) inset;
+}
+
+.casona-fab__action--reserve {
+  background: linear-gradient(135deg, #faf8f4 0%, #ffffff 55%, #f3efe8 100%);
+}
+
+.casona-fab__action--wa {
+  color: #fff;
+  background: linear-gradient(135deg, #25d366 0%, #1ebe57 100%);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 12px 28px rgba(37, 211, 102, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.casona-fab__action--wa:hover {
+  box-shadow:
+    0 16px 36px rgba(37, 211, 102, 0.42),
+    0 0 0 1px rgba(255, 255, 255, 0.28) inset;
+}
+
+.casona-fab__action-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex-shrink: 0;
+}
+
+.casona-fab__action-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.casona-fab__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 3.65rem;
+  min-height: 3.65rem;
+  padding: 0 1.15rem 0 0.95rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--casona-cream);
+  background: linear-gradient(145deg, var(--casona-forest) 0%, #163328 48%, var(--casona-forest-soft) 100%);
+  box-shadow:
+    0 18px 42px rgba(30, 61, 50, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.12) inset,
+    0 0 0 3px rgba(139, 111, 78, 0.22);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    padding 0.25s ease;
+}
+
+.casona-fab__toggle:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 22px 50px rgba(30, 61, 50, 0.44),
+    0 0 0 1px rgba(255, 255, 255, 0.18) inset,
+    0 0 0 3px rgba(139, 111, 78, 0.35);
+}
+
+.casona-fab__toggle:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.casona-fab.is-open .casona-fab__toggle {
+  padding-inline: 0.95rem;
+  background: linear-gradient(145deg, #2a5244 0%, var(--casona-forest) 100%);
+}
+
+.casona-fab__toggle-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  border: 2px solid rgba(139, 111, 78, 0.45);
+  opacity: 0.75;
+  animation: casona-fab-pulse 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.casona-fab.is-open .casona-fab__toggle-ring {
+  animation: none;
+  opacity: 0;
+}
+
+@keyframes casona-fab-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.14);
+    opacity: 0;
+  }
+}
+
+.casona-fab__toggle-icon {
+  display: inline-flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.casona-fab__toggle-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.casona-fab__toggle-icon--close {
+  display: none;
+}
+
+.casona-fab.is-open .casona-fab__toggle-icon--open {
+  display: none;
+}
+
+.casona-fab.is-open .casona-fab__toggle-icon--close {
+  display: inline-flex;
+}
+
+.casona-fab__toggle-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 479px) {
+  .casona-fab__toggle {
+    min-width: 3.55rem;
+    padding-inline: 0.9rem;
+  }
+
+  .casona-fab__toggle-label {
+    display: none;
+  }
+
+  .casona-fab__action {
+    font-size: 0.8125rem;
+    padding: 0.65rem 0.9rem 0.65rem 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .casona-fab {
+    right: max(1.35rem, env(safe-area-inset-right, 0px));
+    bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .casona-fab__toggle {
+    min-height: 3.85rem;
+    padding-inline: 1.35rem 1.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .casona-hero__slide {
+    transition: opacity 0.35s ease;
+  }
+
+  .casona-room,
+  .casona-room__img-wrap img,
+  .casona-btn--primary,
+  .casona-fab__toggle,
+  .casona-fab__action {
+    transition: none;
+  }
+
+  .casona-fab__toggle-ring,
+  .casona-fab.is-open .casona-fab__menu {
+    animation: none;
+  }
+}
