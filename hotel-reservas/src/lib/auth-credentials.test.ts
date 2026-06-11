@@ -34,4 +34,17 @@ describe("verifyAdminCredentials", () => {
     vi.stubEnv("ADMIN_PASSWORD_HASH", "");
     expect(await verifyAdminCredentials("admin", "anything")).toBe(false);
   });
+
+  it("ignora ADMIN_PASSWORD_HASH placeholder y usa ADMIN_PASSWORD", async () => {
+    vi.stubEnv("ADMIN_USERNAME", "admin");
+    vi.stubEnv("ADMIN_PASSWORD", "boye2026!");
+    vi.stubEnv("ADMIN_PASSWORD_HASH", "CAMBIAR_HASH");
+    expect(await verifyAdminCredentials("admin", "boye2026!")).toBe(true);
+  });
+
+  it("tolera espacios en variables de entorno", async () => {
+    vi.stubEnv("ADMIN_USERNAME", " admin ");
+    vi.stubEnv("ADMIN_PASSWORD", " secret123 ");
+    expect(await verifyAdminCredentials("admin", "secret123")).toBe(true);
+  });
 });
