@@ -37,7 +37,8 @@ nano .env.production   # Completar TODAS las variables
 
 | Variable | Descripción |
 |----------|-------------|
-| `APP_URL` | URL pública HTTPS, ej. `https://reservas.tuhotel.com` |
+| `APP_URL` | URL pública HTTPS, ej. `https://reservas.adkiniq.cl` |
+| `NEXT_PUBLIC_WEBSITE_URL` | Landing del hotel, ej. `https://hotel.adkiniq.cl` |
 | `AUTH_SECRET` | 32+ chars aleatorios |
 | `ADMIN_PASSWORD` | Contraseña admin fuerte |
 | `CRON_SECRET` | Secreto para `/api/cron/expire-holds` |
@@ -74,10 +75,10 @@ docker compose exec app npx prisma db seed
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name reservas.tuhotel.com;
+    server_name reservas.adkiniq.cl;
 
-    ssl_certificate     /etc/letsencrypt/live/reservas.tuhotel.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/reservas.tuhotel.com/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/reservas.adkiniq.cl/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/reservas.adkiniq.cl/privkey.pem;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -90,7 +91,9 @@ server {
 }
 ```
 
-Actualizar `APP_URL=https://reservas.tuhotel.com` y reiniciar: `docker compose up -d`.
+Actualizar `APP_URL=https://reservas.adkiniq.cl` y `NEXT_PUBLIC_WEBSITE_URL=https://hotel.adkiniq.cl`, luego `docker compose up -d --build`.
+
+Landing estática en `hotel.adkiniq.cl` (Nginx `root` apuntando a la carpeta del repo con `propuesta-7-casona-futrono.html`).
 
 ### 7. Cron — expirar reservas impagadas
 
@@ -122,14 +125,14 @@ Backups en `backups/*.sql`.
 
 En el panel de MP configurar:
 
-- **URL:** `https://reservas.tuhotel.com/api/webhooks/mercadopago`
+- **URL:** `https://reservas.adkiniq.cl/api/webhooks/mercadopago`
 - **Eventos:** `payment`
 - Copiar el **secreto** a `MERCADOPAGO_WEBHOOK_SECRET`
 
 ### 10. Verificación post-deploy
 
 ```bash
-curl https://reservas.tuhotel.com/api/health
+curl https://reservas.adkiniq.cl/api/health
 # → {"status":"ok",...}
 ```
 
