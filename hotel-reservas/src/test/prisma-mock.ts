@@ -72,7 +72,7 @@ export function mockTransaction(
   db: MockDbClient,
   handler: (tx: MockDbClient) => Promise<unknown>
 ) {
-  db.$transaction.mockImplementation(async (callback: (tx: MockDbClient) => Promise<unknown>, options?: Prisma.TransactionOptions) => {
+  db.$transaction.mockImplementation(async (callback: (tx: MockDbClient) => Promise<unknown>, options?: { isolationLevel?: string }) => {
     expect(options?.isolationLevel).toBe("Serializable");
     return callback(db);
   });

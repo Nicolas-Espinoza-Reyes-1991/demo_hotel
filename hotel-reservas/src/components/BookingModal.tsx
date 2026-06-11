@@ -182,6 +182,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
   if (!open || !room || !search) return null;
 
+  const activeRoom = room;
+  const activeSearch = search;
+
   const maxBirthDate = (() => {
     const date = new Date();
     date.setDate(date.getDate() - 1);
@@ -203,8 +206,8 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
   function validateGuestLocally(): Record<string, string> {
     const errors: Record<string, string> = {};
-    if (guestsCount < 1 || guestsCount > room.maxGuests) {
-      errors.guestsCount = `Esta habitación admite máximo ${room.maxGuests} huéspedes.`;
+    if (guestsCount < 1 || guestsCount > activeRoom.maxGuests) {
+      errors.guestsCount = `Esta habitación admite máximo ${activeRoom.maxGuests} huéspedes.`;
     }
     if (fullName.trim().length < 2) errors.fullName = "Nombre demasiado corto.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = "Email inválido.";
@@ -460,15 +463,15 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                 onChange={(e) => handleGuestsCountChange(Number(e.target.value))}
                 className="input-field"
               >
-                {Array.from({ length: room.maxGuests }, (_, index) => index + 1).map((count) => (
+                {Array.from({ length: activeRoom.maxGuests }, (_, index) => index + 1).map((count) => (
                   <option key={count} value={count}>
                     {count} {count === 1 ? "huésped" : "huéspedes"}
                   </option>
                 ))}
               </select>
               <p className="text-xs text-brand-500">
-                Capacidad máxima de {room.name}: {room.maxGuests}{" "}
-                {room.maxGuests === 1 ? "huésped" : "huéspedes"}.
+                Capacidad máxima de {activeRoom.name}: {activeRoom.maxGuests}{" "}
+                {activeRoom.maxGuests === 1 ? "huésped" : "huéspedes"}.
               </p>
               <FieldError message={fieldErrors.guestsCount} />
             </label>
