@@ -91,4 +91,4 @@ if (existsSync(target) && force) {
 
 writeFileSync(target, ENV_CONTENT, "utf8");
 console.log(`[env] Listo: ${target}`);
-console.log("[env] Siguiente: docker compose --env-file .env.production up -d --build");
+console.log("[env] Siguiente: docker-compose up -d --build");

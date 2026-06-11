@@ -1,19 +1,14 @@
-# Requiere .env.production en el servidor (no está en Git):
-# docker compose --env-file .env.production up -d --build
+# Requiere .env.production (generar: sh scripts/bootstrap-production-env.sh --force)
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     env_file:
       - .env.production
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-hotel_reservas}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -24,12 +19,9 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "3000:3000"
     env_file:
       - .env.production
-    environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-hotel_reservas}?schema=public
-      NODE_ENV: production
     depends_on:
       db:
         condition: service_healthy
