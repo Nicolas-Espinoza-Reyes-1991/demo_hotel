@@ -4,6 +4,7 @@
 /build
 .env
 .env.production
+deploy/env.production
 .env*.local
 /backups
 /prisma/dev.db
