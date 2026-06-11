@@ -37,10 +37,18 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   }
 }
 
+function useSecureSessionCookies(): boolean {
+  const forced = process.env.SESSION_COOKIE_SECURE?.trim().toLowerCase();
+  if (forced === "true") return true;
+  if (forced === "false") return false;
+  const appUrl = process.env.APP_URL?.trim() ?? "";
+  return appUrl.startsWith("https://");
+}
+
 export function getSessionCookieOptions() {
   return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: useSecureSessionCookies(),
     sameSite: "lax" as const,
     path: "/",
     maxAge: SESSION_MAX_AGE,

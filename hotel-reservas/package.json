@@ -21,7 +21,7 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "docker:dev": "docker compose -f docker-compose.dev.yml up -d",
-    "docker:prod": "docker compose up -d --build",
+    "docker:prod": "docker compose --env-file deploy/env.production up -d --build",
     "backup:db": "node scripts/backup-db.mjs",
     "cron:expire": "node scripts/cron-expire-holds.mjs",
     "postinstall": "prisma generate"

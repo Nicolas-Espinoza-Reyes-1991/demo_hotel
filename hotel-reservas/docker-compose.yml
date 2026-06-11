@@ -1,7 +1,10 @@
+# Variables: docker compose --env-file deploy/env.production up -d --build
 services:
   db:
     image: postgres:16-alpine
     restart: unless-stopped
+    env_file:
+      - deploy/env.production
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -22,7 +25,7 @@ services:
     ports:
       - "${APP_PORT:-3000}:3000"
     env_file:
-      - .env.production
+      - deploy/env.production
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-hotel_reservas}?schema=public
       NODE_ENV: production

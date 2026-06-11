@@ -26,11 +26,9 @@ sudo usermod -aG docker $USER
 ### 2. Clonar y configurar
 
 ```bash
-git clone <tu-repo> /opt/hotel-reservas
-cd /opt/hotel-reservas/hotel-reservas
-
-cp .env.production.example .env.production
-nano .env.production   # Completar TODAS las variables
+git clone <tu-repo> /var/www/demo_hotel
+cd /var/www/demo_hotel/hotel-reservas
+# Variables en deploy/env.production (versionado en Git)
 ```
 
 ### 3. Variables obligatorias (`.env.production`)
@@ -57,7 +55,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ### 4. Levantar producción
 
 ```bash
-docker compose up -d --build
+docker compose --env-file deploy/env.production up -d --build
 ```
 
 El contenedor aplica migraciones automáticamente (`prisma migrate deploy`) al iniciar.
@@ -91,7 +89,7 @@ server {
 }
 ```
 
-Actualizar `APP_URL=https://reservas.adkiniq.cl` y `NEXT_PUBLIC_WEBSITE_URL=https://hotel.adkiniq.cl`, luego `docker compose up -d --build`.
+Actualizar `APP_URL=https://reservas.adkiniq.cl` y `NEXT_PUBLIC_WEBSITE_URL=https://hotel.adkiniq.cl`, luego `docker compose --env-file deploy/env.production up -d --build`.
 
 Landing estática en `hotel.adkiniq.cl` (Nginx `root` apuntando a la carpeta del repo con `propuesta-7-casona-futrono.html`).
 
@@ -199,7 +197,7 @@ npm run dev:clean
 |---------|-----|
 | `npm run db:setup` | Postgres local + migrate + seed |
 | `npm run db:migrate:deploy` | Aplicar migraciones (prod) |
-| `npm run docker:prod` | `docker compose up -d --build` |
+| `npm run docker:prod` | Levanta producción con `deploy/env.production` |
 | `npm run backup:db` | Backup SQL de PostgreSQL |
 | `npm run cron:expire` | Expirar reservas impagadas |
 

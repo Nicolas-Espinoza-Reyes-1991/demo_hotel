@@ -8,32 +8,25 @@
 | `https://hotel.adkiniq.cl` | Landing del hotel (`propuesta-7-casona-futrono.html`) |
 | `https://reservas.adkiniq.cl` | Motor de reservas + admin (Docker) |
 
-## En el VPS — actualizar `.env.production`
+## En el VPS — deploy con Git
 
 ```bash
-cd /ruta/hotel-reservas
-cp .env.production.example .env.production   # si aún no existe
-nano .env.production
+cd /var/www/demo_hotel
+git pull origin main
+cd hotel-reservas
+docker compose --env-file deploy/env.production down
+docker compose --env-file deploy/env.production up -d --build
 ```
 
-Completar **solo** los valores `CAMBIAR_*` (contraseñas, secretos, Mercado Pago, Resend, banco, WhatsApp).
+Variables de producción en **`hotel-reservas/deploy/env.production`** (van en el repo).  
+Editá ahí solo los `CAMBIAR_*` (Resend, Mercado Pago, banco) y volvé a hacer `git pull` en el servidor.
 
-Luego:
+Si cambiaste `POSTGRES_PASSWORD` y la BD ya existía con otra clave:
 
 ```bash
-docker compose up -d --build
+docker compose --env-file deploy/env.production down -v
+docker compose --env-file deploy/env.production up -d --build
 ```
-
-## Subir landing actualizada
-
-Desde tu PC (carpeta del repo):
-
-```bash
-rsync -avz --exclude node_modules --exclude .git \
-  ./ usuario@IP_VPS:/opt/demo_para_hotel/
-```
-
-O `git pull` en el VPS si el repo está clonado ahí.
 
 Nginx `hotel.adkiniq.cl` debe tener `root` en esa carpeta (donde está `propuesta-7-casona-futrono.html` y `assets/adkiniq-env.js`).
 

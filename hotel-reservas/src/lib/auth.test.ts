@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createSessionToken, verifySessionToken } from "./auth";
+import { createSessionToken, getSessionCookieOptions, verifySessionToken } from "./auth";
 
 const AUTH_SECRET = "test-secret-minimum-32-characters-long!!";
 
@@ -35,5 +35,16 @@ describe("auth JWT sessions", () => {
       .sign(new TextEncoder().encode(AUTH_SECRET));
 
     expect(await verifySessionToken(badToken)).toBeNull();
+  });
+
+  it("cookie secure solo con APP_URL https o SESSION_COOKIE_SECURE", () => {
+    vi.stubEnv("APP_URL", "http://178.104.214.147:3000");
+    expect(getSessionCookieOptions().secure).toBe(false);
+
+    vi.stubEnv("APP_URL", "https://reservas.adkiniq.cl");
+    expect(getSessionCookieOptions().secure).toBe(true);
+
+    vi.stubEnv("SESSION_COOKIE_SECURE", "false");
+    expect(getSessionCookieOptions().secure).toBe(false);
   });
 });
