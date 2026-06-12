@@ -6,7 +6,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
 import { paymentStatusLabel, type ReservationScope } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
-import { apiPath } from "@/lib/api-path";
+import { apiPath, publicAssetUrl } from "@/lib/api-path";
 
 type ReservationRow = {
   id: string;
@@ -601,7 +601,7 @@ export function AdminRoomsPanel() {
     }
 
     const currentImageUrl = form.imageUrl.trim();
-    setImagePreviewUrl(currentImageUrl || null);
+    setImagePreviewUrl(currentImageUrl ? publicAssetUrl(currentImageUrl) : null);
   }, [selectedImageFile, form.imageUrl]);
 
   function openCreateForm() {

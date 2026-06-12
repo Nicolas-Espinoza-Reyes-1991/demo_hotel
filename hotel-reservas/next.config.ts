@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   ...(basePath ? { basePath } : {}),
   images: {
+    ...(basePath ? { unoptimized: true as const } : {}),
     remotePatterns: [
       {
         protocol: "https",

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
+import { apiPath } from "@/lib/api-path";
 import "./globals.css";
 
 const inter = Inter({
@@ -38,9 +39,14 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const bgReception = `url('${apiPath("/bg-reception.png")}')`;
+
   return (
     <html lang="es">
-      <body className={`${inter.variable} ${playfair.variable} min-h-dvh`}>
+      <body
+        className={`${inter.variable} ${playfair.variable} min-h-dvh`}
+        style={{ ["--bg-reception-url" as string]: bgReception }}
+      >
         <div className="flex min-h-dvh flex-col">
           <div className="flex-1">{children}</div>
           <SiteFooter />

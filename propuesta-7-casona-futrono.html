@@ -776,6 +776,15 @@
           return "Sin dato de baño";
         }
 
+        function encodeAssetPath(url) {
+          return url
+            .split("/")
+            .map(function (segment) {
+              return segment ? encodeURIComponent(decodeURIComponent(segment)) : segment;
+            })
+            .join("/");
+        }
+
         function getImage(room, index) {
           var rawImageUrl = String(room.imageUrl || "").trim();
           if (rawImageUrl && !rawImageUrl.includes("images.unsplash.com")) {
@@ -784,10 +793,10 @@
             }
 
             if (rawImageUrl.startsWith("/")) {
-              return getApiBase() + rawImageUrl;
+              return encodeAssetPath(getApiBase() + rawImageUrl);
             }
 
-            return getApiBase() + "/" + rawImageUrl.replace(/^\.?\//, "");
+            return encodeAssetPath(getApiBase() + "/" + rawImageUrl.replace(/^\.?\//, ""));
           }
           var roomCode = String(room.code || "");
           var codeNumber = parseInt(roomCode.replace(/\D/g, ""), 10);

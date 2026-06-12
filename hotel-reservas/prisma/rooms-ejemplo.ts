@@ -1,14 +1,15 @@
 import { RoomStatus, RoomType } from "@prisma/client";
 
+/** Imágenes en public/habitaciones/ (disponibles en Docker). */
 const ROOM_IMAGES = [
-  "/boye-fotos/ba8ee39b02658535.jpg",
-  "/boye-fotos/hotel-boye-house-futrono-20231007174912018200.jpg",
-  "/boye-fotos/hotel.jpg",
-  "/boye-fotos/hotel3.jpg",
-  "/boye-fotos/D_NQ_NP_698934-MLC110858871989_042026-O-hotel-boutique-frente-al-lago-ranco-futrono.webp",
-  "/boye-fotos/hotel-boye-house-futrono-20231007174904880100.jpg",
-  "/boye-fotos/D_NQ_NP_681730-MLC110858871999_042026-O-hotel-boutique-frente-al-lago-ranco-futrono.webp",
-  "/boye-fotos/51068992_143137900025069_8274135151487746048_n.jpg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.07.58.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.06.02.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.21.10.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.10.16.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.09.02.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.09.37.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.08.49.jpeg",
+  "/habitaciones/WhatsApp Image 2026-06-08 at 11.05.24.jpeg",
 ] as const;
 
 /** 8 habitaciones demo: Ejemplo 1 … Ejemplo 8 (precios en CLP). */

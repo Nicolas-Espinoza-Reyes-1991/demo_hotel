@@ -48,7 +48,7 @@
     background-image:
       linear-gradient(160deg, rgba(246, 239, 228, 0.52) 0%, rgba(239, 225, 208, 0.42) 48%, rgba(214, 184, 148, 0.34) 100%),
       radial-gradient(circle at top left, rgba(217, 154, 61, 0.12), transparent 32rem),
-      url("/bg-reception.png");
+      var(--bg-reception-url, url("/bg-reception.png"));
     background-size: auto, auto, cover;
     background-position: center center;
     background-repeat: no-repeat;

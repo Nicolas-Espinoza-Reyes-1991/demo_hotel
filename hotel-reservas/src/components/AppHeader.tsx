@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
-import { apiPath } from "@/lib/api-path";
+import { apiPath, publicAssetUrl } from "@/lib/api-path";
 import { getWebsiteUrl } from "@/lib/website";
 import { showDemoUi } from "@/lib/app-ui";
 
@@ -178,7 +178,7 @@ export function AppHeader() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
             <img
-              src={apiPath("/logo-bh.png")}
+              src={publicAssetUrl("/logo-bh.png") ?? apiPath("/logo-bh.png")}
               alt="Hotel Boye House"
               width={36}
               height={36}

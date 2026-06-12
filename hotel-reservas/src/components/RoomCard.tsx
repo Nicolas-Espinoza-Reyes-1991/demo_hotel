@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
+import { publicAssetUrl } from "@/lib/api-path";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { cn } from "@/lib/utils";
 
@@ -69,12 +70,12 @@ const BOYE_ROOM_IMAGES = [
 
 function getRoomImage(room: RoomCardData): string | null {
   if (room.imageUrl && !room.imageUrl.includes("images.unsplash.com")) {
-    return room.imageUrl;
+    return publicAssetUrl(room.imageUrl);
   }
 
   const codeNumber = Number(room.code.replace(/\D/g, ""));
   const index = Number.isFinite(codeNumber) ? codeNumber % BOYE_ROOM_IMAGES.length : 0;
-  return BOYE_ROOM_IMAGES[index];
+  return publicAssetUrl(BOYE_ROOM_IMAGES[index]);
 }
 
 export function RoomCard({
@@ -89,7 +90,10 @@ export function RoomCard({
   animationDelay?: number;
 }) {
   const displayImageUrl = getRoomImage(room);
-  const fallbackImage = BOYE_ROOM_IMAGES[Number(room.code.replace(/\D/g, "")) % BOYE_ROOM_IMAGES.length];
+  const fallbackImage =
+    publicAssetUrl(
+      BOYE_ROOM_IMAGES[Number(room.code.replace(/\D/g, "")) % BOYE_ROOM_IMAGES.length]
+    ) ?? "";
 
   return (
     <article
@@ -108,7 +112,7 @@ export function RoomCard({
             className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
             onError={(event) => {
               const target = event.currentTarget;
-              if (target.src.endsWith(fallbackImage)) return;
+              if (!fallbackImage || target.src === fallbackImage) return;
               target.src = fallbackImage;
             }}
           />

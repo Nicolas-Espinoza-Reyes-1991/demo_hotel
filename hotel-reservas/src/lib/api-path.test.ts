@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { apiPath } from "./api-path";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { apiPath, publicAssetUrl } from "./api-path";
 
 describe("apiPath", () => {
   afterEach(() => {
@@ -15,5 +15,16 @@ describe("apiPath", () => {
     vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/reservas");
     expect(apiPath("/api/auth/login")).toBe("/reservas/api/auth/login");
     expect(apiPath("/logo-bh.png")).toBe("/reservas/logo-bh.png");
+  });
+
+  it("publicAssetUrl codifica espacios en rutas locales", () => {
+    vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/reservas");
+    expect(publicAssetUrl("/habitaciones/foto habitacion.jpeg")).toBe(
+      "/reservas/habitaciones/foto%20habitacion.jpeg"
+    );
+  });
+
+  it("publicAssetUrl deja URLs absolutas intactas", () => {
+    expect(publicAssetUrl("https://cdn.example.com/a.jpg")).toBe("https://cdn.example.com/a.jpg");
   });
 });
