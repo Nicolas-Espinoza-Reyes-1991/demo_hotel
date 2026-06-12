@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { MobilePeriodList } from "@/components/admin/AdminCalendarMobile";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { paymentStatusLabel } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
 
@@ -686,6 +688,7 @@ function ReservationBar({
 
 export function AdminCalendar() {
   const now = new Date();
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
@@ -760,6 +763,12 @@ export function AdminCalendar() {
   useEffect(() => {
     loadCalendar();
   }, [loadCalendar]);
+
+  useEffect(() => {
+    if (isMobile && viewMode === "month") {
+      setViewMode("week");
+    }
+  }, [isMobile, viewMode]);
 
   useEffect(() => {
     setPinnedReservationId(null);
@@ -954,28 +963,33 @@ export function AdminCalendar() {
             </p>
             <h2 className="mt-1 text-2xl font-bold capitalize text-brand-100">{periodLabel}</h2>
             <p className="mt-1 text-sm text-brand-500">
-              Vista completa en pantalla · clic en una reserva para ver detalle y copiar código
+              {isMobile
+                ? "Vista móvil en lista · tocá una reserva para ver detalle y copiar código"
+                : "Vista completa en pantalla · clic en una reserva para ver detalle y copiar código"}
             </p>
           </div>
 
           <div className="admin-toolbar flex flex-wrap items-center gap-2">
             <div className="flex overflow-hidden rounded-xl border border-brand-700">
-              <button
-                type="button"
-                onClick={() => setViewMode("month")}
-                className={cn(
-                  "min-h-10 px-3 text-xs font-semibold transition",
-                  viewMode === "month" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
-                )}
-              >
-                Mes
-              </button>
+              {!isMobile && (
+                <button
+                  type="button"
+                  onClick={() => setViewMode("month")}
+                  className={cn(
+                    "min-h-10 px-3 text-xs font-semibold transition",
+                    viewMode === "month" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
+                  )}
+                >
+                  Mes
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => setViewMode("week")}
                 className={cn(
-                  "min-h-10 border-l border-brand-700 px-3 text-xs font-semibold transition",
-                  viewMode === "week" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
+                  "min-h-10 px-3 text-xs font-semibold transition",
+                  !isMobile && "border-l border-brand-700",
+                  viewMode === "week" || isMobile ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
                 )}
               >
                 Semana
@@ -1047,7 +1061,7 @@ export function AdminCalendar() {
         </div>
 
         {stats && (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-xl border border-brand-700 bg-white/65 px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Habitaciones</p>
               <p className="mt-0.5 text-2xl font-bold text-brand-100">{data.rooms.length}</p>
@@ -1083,7 +1097,7 @@ export function AdminCalendar() {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-brand-700 bg-white/68 px-4 py-3 text-xs text-brand-500">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto rounded-xl border border-brand-700 bg-white/68 px-4 py-3 text-xs text-brand-500 md:flex-wrap">
         <span className="font-semibold text-brand-100">Leyenda</span>
         <span className="inline-flex items-center gap-2">
           <LegendSwatch variant="paid" /> Pagado
@@ -1108,7 +1122,49 @@ export function AdminCalendar() {
         </span>
       </div>
 
-      <div ref={containerRef} className="w-full overflow-visible rounded-2xl border border-brand-700 bg-white/72 shadow-md backdrop-blur-[1px]">
+      {isMobile && (
+        <div className="space-y-3 md:hidden">
+          <div className="rounded-2xl border border-brand-700 bg-white/72 p-4 shadow-sm">
+            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-500">
+              Buscar reservas
+            </label>
+            <input
+              value={periodSearch}
+              onChange={(event) => setPeriodSearch(event.target.value)}
+              className="input-field"
+              placeholder="Huésped, habitación, código..."
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              name="search-mobile-period"
+            />
+            <p className="mt-2 text-xs text-brand-500">{periodReservations.length} en este período</p>
+          </div>
+
+          {periodReservations.length === 0 ? (
+            <div className="rounded-2xl border border-brand-700 bg-white/72 px-4 py-10 text-center text-sm text-brand-500">
+              No hay reservas en este período con el filtro actual.
+            </div>
+          ) : (
+            <MobilePeriodList
+              rows={periodPageRows}
+              roomCodeById={roomCodeById}
+              formatShortDate={formatShortDate}
+              getPaymentBadge={calendarPaymentBadge}
+              periodPage={periodPage}
+              periodTotalPages={periodTotalPages}
+              onPrevPage={() => setPeriodPage((prev) => Math.max(1, prev - 1))}
+              onNextPage={() => setPeriodPage((prev) => Math.min(periodTotalPages, prev + 1))}
+            />
+          )}
+        </div>
+      )}
+
+      <div
+        ref={containerRef}
+        className="hidden w-full overflow-visible rounded-2xl border border-brand-700 bg-white/72 shadow-md backdrop-blur-[1px] md:block"
+      >
         <div className="w-full">
           <div className="flex w-full border-b border-brand-700 bg-brand-800/65">
             <div
@@ -1230,7 +1286,7 @@ export function AdminCalendar() {
         </div>
       </div>
 
-      <div className="glass-panel overflow-hidden">
+      <div className="glass-panel hidden overflow-hidden md:block">
         <div className="border-b border-brand-700 px-4 py-3">
           <h3 className="text-sm font-bold text-brand-100">Lista del período</h3>
           <p className="mt-0.5 text-xs text-brand-500">
