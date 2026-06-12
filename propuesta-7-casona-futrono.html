@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/boye-carousel.css" />
-    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260612" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260613" />
     <script src="./assets/adkiniq-env.js"></script>
   </head>
   <body class="casona-demo">
@@ -920,6 +920,17 @@
           renderRooms();
         });
 
+        var WHATSAPP_RESERVA =
+          "https://wa.me/15556563871?text=Hola%2C%20me%20interesa%20reservar%20en%20Hotel%20Boye%20House.%20%C2%BFPueden%20ayudarme%3F";
+
+        function setRoomErrorWhatsApp() {
+          feedback.innerHTML =
+            'No fue posible cargar habitaciones desde el sistema de reservas. Intenta más tarde o ' +
+            '<a href="' +
+            WHATSAPP_RESERVA +
+            '" target="_blank" rel="noopener noreferrer">reserva directamente por WhatsApp</a>.';
+        }
+
         fetch(getApiBase() + "/api/public/rooms")
           .then(function (response) {
             if (!response.ok) throw new Error("No se pudo cargar habitaciones.");
@@ -931,8 +942,7 @@
             renderRooms();
           })
           .catch(function () {
-            feedback.textContent =
-              "No fue posible cargar habitaciones desde el sistema de reservas. Intenta más tarde o reserva directamente en reservas.adkiniq.cl.";
+            setRoomErrorWhatsApp();
             setMoreButton(false);
           });
       })();

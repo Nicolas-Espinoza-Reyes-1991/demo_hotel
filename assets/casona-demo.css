@@ -727,6 +727,13 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   color: var(--casona-stone);
 }
 
+.casona-room-feedback a {
+  color: var(--casona-forest);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .casona-room-actions {
   margin-top: 0.8rem;
   display: flex;
