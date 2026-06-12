@@ -19,29 +19,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/boye-carousel.css" />
-    <link rel="stylesheet" href="./assets/casona-demo.css" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260612" />
     <script src="./assets/adkiniq-env.js"></script>
   </head>
   <body class="casona-demo">
     <header class="casona-header" id="casona-header">
       <div class="casona-header__inner">
-        <a href="#inicio" class="casona-logo">
-          <img src="./assets/logo-bh.png" alt="Hotel Boye House" width="32" height="32" />
-          <span class="casona-logo__text casona-logo__text--short">Boye House</span>
-          <span class="casona-logo__text casona-logo__text--full">Hotel Boye House</span>
-        </a>
-        <button
-          type="button"
-          class="casona-nav-toggle"
-          id="casona-nav-toggle"
-          aria-expanded="false"
-          aria-controls="casona-nav-panel"
-          aria-label="Abrir menú"
-        >
-          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
-          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
-          <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
-        </button>
+        <div class="casona-header__bar">
+          <a href="#inicio" class="casona-logo">
+            <img src="./assets/logo-bh.png" alt="Hotel Boye House" width="32" height="32" />
+            <span class="casona-logo__text">Boye House</span>
+          </a>
+          <button
+            type="button"
+            class="casona-nav-toggle"
+            id="casona-nav-toggle"
+            aria-expanded="false"
+            aria-controls="casona-nav-panel"
+            aria-label="Abrir menú"
+          >
+            <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+            <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+            <span class="casona-nav-toggle__bar" aria-hidden="true"></span>
+          </button>
+        </div>
         <div class="casona-nav-backdrop" id="casona-nav-backdrop" aria-hidden="true"></div>
         <nav class="casona-nav" id="casona-nav-panel" aria-label="Navegación principal">
           <a href="#habitaciones">Habitaciones</a>

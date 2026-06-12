@@ -856,6 +856,15 @@ export function AdminCalendar() {
 
     const start = visibleDays[0];
     const end = visibleDays[6];
+
+    if (start.month === end.month && start.year === end.year) {
+      const monthYear = visibleDayDate(end).toLocaleDateString("es-AR", {
+        month: "long",
+        year: "numeric",
+      });
+      return `${start.day} – ${end.day} de ${monthYear}`;
+    }
+
     const startLabel = visibleDayDate(start).toLocaleDateString("es-AR", {
       day: "numeric",
       month: "short",

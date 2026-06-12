@@ -119,8 +119,8 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="max-w-2xl text-sm text-brand-500 sm:text-base">
-              Habitaciones cálidas, madera nativa y una experiencia boutique cerca del Lago Ranco.{" "}
-              <strong className="text-brand-100">Reserva directa</strong> con soporte por WhatsApp.
+              Habitaciones cálidas, madera nativa y una experiencia boutique cerca del Lago Ranco, con
+              soporte por WhatsApp.
             </p>
           </section>
 

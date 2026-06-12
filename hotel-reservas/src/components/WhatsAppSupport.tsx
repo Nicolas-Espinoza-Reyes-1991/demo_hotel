@@ -38,14 +38,14 @@ export function WhatsAppSupport({
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp por dudas en la reserva"
         className={cn(
-          "animate-float-soft fixed bottom-5 right-5 z-50 flex max-w-[min(100vw-2rem,320px)] items-center gap-3 rounded-2xl border border-emerald-400/50 bg-[#25D366] px-4 py-3 text-white shadow-lg shadow-emerald-900/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-900/30 sm:bottom-6 sm:right-6",
+          "whatsapp-floating animate-float-soft fixed bottom-4 right-4 z-30 flex items-center gap-3 rounded-full border border-emerald-400/50 bg-[#25D366] p-3 text-white shadow-lg shadow-emerald-900/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-900/30 sm:bottom-6 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
           className
         )}
       >
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20">
           <WhatsAppIcon className="h-6 w-6" />
         </span>
-        <span className="text-left text-sm leading-snug">
+        <span className="hidden text-left text-sm leading-snug sm:block">
           <strong className="block font-bold">¿Problema o dudas?</strong>
           Contáctanos por WhatsApp
         </span>

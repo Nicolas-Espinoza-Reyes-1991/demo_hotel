@@ -18,10 +18,11 @@ type NavItem = {
   variant?: "default" | "accent" | "admin";
 };
 
-function navItemClass(active: boolean, variant: NavItem["variant"] = "default") {
+function navItemClass(active: boolean, variant: NavItem["variant"] = "default", mobile = false) {
   if (active && variant === "accent") return "tab-active-accent";
   if (active && variant === "admin") return "tab-active-admin";
   if (active) return "tab-active-accent";
+  if (mobile) return "text-brand-100 hover:bg-brand-900/8";
   return "text-brand-500 hover:bg-white/45 hover:text-brand-100";
 }
 
@@ -66,8 +67,10 @@ export function AppHeader() {
   }, [pathname]);
 
   useEffect(() => {
+    document.body.classList.toggle("app-nav-open", mobileOpen);
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {
+      document.body.classList.remove("app-nav-open");
       document.body.style.overflow = "";
     };
   }, [mobileOpen]);
@@ -129,11 +132,12 @@ export function AppHeader() {
     });
   }
 
-  function renderNavLink(item: NavItem, className?: string) {
+  function renderNavLink(item: NavItem, mobile = false) {
     const classes = cn(
-      "flex min-h-11 w-full items-center rounded-xl px-4 py-2.5 text-sm font-semibold transition md:w-auto md:min-h-0 md:rounded-lg md:px-3 md:py-2 md:font-medium",
-      navItemClass(Boolean(item.active), item.variant),
-      className
+      mobile
+        ? "flex min-h-12 w-full items-center rounded-xl px-4 py-3 text-base font-semibold transition"
+        : "flex min-h-11 w-full items-center rounded-xl px-4 py-2.5 text-sm font-semibold transition md:w-auto md:min-h-0 md:rounded-lg md:px-3 md:py-2 md:font-medium",
+      navItemClass(Boolean(item.active), item.variant, mobile)
     );
 
     if (item.onClick) {
@@ -160,80 +164,89 @@ export function AppHeader() {
   }
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b transition-all duration-300",
-        isScrolled
-          ? "border-white/70 bg-brand-900/72 shadow-[0_14px_36px_-16px_rgba(15,23,42,0.62)] backdrop-blur-xl"
-          : "border-white/55 bg-brand-900/48 shadow-[0_10px_28px_-16px_rgba(15,23,42,0.5)] backdrop-blur-md"
-      )}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
-          <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-accent/25">
-            <Image src="/logo-bh.png" alt="Hotel Boye House" fill sizes="36px" className="object-cover" priority />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-brand-100">Hotel Boye House</p>
-            <p className="truncate text-[11px] text-brand-500">Futrono · Reservas</p>
-          </div>
-        </Link>
-
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
-          {navItems.map((item) => renderNavLink(item))}
-        </nav>
-
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand-700/80 bg-white/55 text-brand-100 transition hover:bg-white/75 md:hidden"
-          aria-expanded={mobileOpen}
-          aria-controls={menuId}
-          aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
-          onClick={() => setMobileOpen((open) => !open)}
-        >
-          <span className="sr-only">{mobileOpen ? "Cerrar menú" : "Abrir menú"}</span>
-          <span className="relative block h-4 w-5" aria-hidden>
-            <span
-              className={cn(
-                "absolute left-0 top-0 block h-0.5 w-5 rounded-full bg-current transition",
-                mobileOpen && "top-1.5 rotate-45"
-              )}
-            />
-            <span
-              className={cn(
-                "absolute left-0 top-1.5 block h-0.5 w-5 rounded-full bg-current transition",
-                mobileOpen && "opacity-0"
-              )}
-            />
-            <span
-              className={cn(
-                "absolute left-0 top-3 block h-0.5 w-5 rounded-full bg-current transition",
-                mobileOpen && "top-1.5 -rotate-45"
-              )}
-            />
-          </span>
-        </button>
-      </div>
-
-      {mobileOpen && (
-        <button
-          type="button"
-          className="fixed inset-0 top-[4.25rem] z-40 bg-brand-100/35 backdrop-blur-[2px] md:hidden"
-          aria-label="Cerrar menú"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      <nav
-        id={menuId}
-        aria-label="Menú móvil"
+    <>
+      <header
         className={cn(
-          "border-t border-brand-700/70 bg-brand-900/95 px-4 py-3 shadow-lg backdrop-blur-xl md:hidden",
-          mobileOpen ? "block" : "hidden"
+          "sticky top-0 z-50 border-b transition-all duration-300",
+          mobileOpen
+            ? "border-brand-700/25 bg-[#faf8f4] shadow-md"
+            : isScrolled
+              ? "border-white/70 bg-brand-900/72 shadow-[0_14px_36px_-16px_rgba(15,23,42,0.62)] backdrop-blur-xl"
+              : "border-white/55 bg-brand-900/48 shadow-[0_10px_28px_-16px_rgba(15,23,42,0.5)] backdrop-blur-md"
         )}
       >
-        <div className="mx-auto flex max-w-7xl flex-col gap-1">{navItems.map((item) => renderNavLink(item))}</div>
-      </nav>
-    </header>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
+            <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-accent/25">
+              <Image src="/logo-bh.png" alt="" fill sizes="36px" className="object-cover" priority aria-hidden />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-brand-100">Hotel Boye House</p>
+              <p className="truncate text-[11px] text-brand-500">Futrono · Reservas</p>
+            </div>
+          </Link>
+
+          <nav className="hidden items-center gap-1 md:flex" aria-label="Navegación principal">
+            {navItems.map((item) => renderNavLink(item))}
+          </nav>
+
+          <button
+            type="button"
+            className={cn(
+              "relative z-[60] inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition md:hidden",
+              mobileOpen
+                ? "border-brand-700/30 bg-white text-brand-100"
+                : "border-brand-700/80 bg-white/55 text-brand-100 hover:bg-white/75"
+            )}
+            aria-expanded={mobileOpen}
+            aria-controls={menuId}
+            aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            <span className="sr-only">{mobileOpen ? "Cerrar menú" : "Abrir menú"}</span>
+            <span className="relative block h-4 w-5" aria-hidden>
+              <span
+                className={cn(
+                  "absolute left-0 top-0 block h-0.5 w-5 rounded-full bg-current transition",
+                  mobileOpen && "top-1.5 rotate-45"
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute left-0 top-1.5 block h-0.5 w-5 rounded-full bg-current transition",
+                  mobileOpen && "opacity-0"
+                )}
+              />
+              <span
+                className={cn(
+                  "absolute left-0 top-3 block h-0.5 w-5 rounded-full bg-current transition",
+                  mobileOpen && "top-1.5 -rotate-45"
+                )}
+              />
+            </span>
+          </button>
+        </div>
+      </header>
+
+      {mobileOpen && (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-[#0c1814]/50 md:hidden"
+            aria-label="Cerrar menú"
+            onClick={() => setMobileOpen(false)}
+          />
+          <nav
+            id={menuId}
+            aria-label="Menú móvil"
+            className="fixed inset-x-0 bottom-0 top-[3.75rem] z-50 overflow-y-auto border-t border-brand-700/15 bg-[#faf8f4] px-4 py-4 shadow-2xl md:hidden"
+          >
+            <div className="mx-auto flex max-w-7xl flex-col gap-1">
+              {navItems.map((item) => renderNavLink(item, true))}
+            </div>
+          </nav>
+        </>
+      )}
+    </>
   );
 }
