@@ -14,5 +14,6 @@ describe("apiPath", () => {
   it("prefija con /reservas en producción por IP", () => {
     vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/reservas");
     expect(apiPath("/api/auth/login")).toBe("/reservas/api/auth/login");
+    expect(apiPath("/logo-bh.png")).toBe("/reservas/logo-bh.png");
   });
 });

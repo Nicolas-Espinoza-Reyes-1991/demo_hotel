@@ -6,10 +6,6 @@ vi.mock("next/navigation", () => ({
   useRouter: vi.fn(() => ({ push: vi.fn(), refresh: vi.fn() })),
 }));
 
-vi.mock("next/image", () => ({
-  default: (props: { alt: string }) => <img alt={props.alt} />,
-}));
-
 vi.mock("@/lib/website", () => ({
   getWebsiteUrl: vi.fn(() => "http://localhost:5501/propuesta-7-casona-futrono.html"),
 }));
@@ -36,6 +32,12 @@ describe("AppHeader", () => {
   it("muestra botón de menú móvil", () => {
     render(<AppHeader />);
     expect(screen.getByRole("button", { name: /abrir menú/i })).toBeTruthy();
+    cleanup();
+  });
+
+  it("renderiza logo del hotel", () => {
+    render(<AppHeader />);
+    expect(screen.getByRole("img", { name: /hotel boye house/i })).toHaveAttribute("src", "/logo-bh.png");
     cleanup();
   });
 });

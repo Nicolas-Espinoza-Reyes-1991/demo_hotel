@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -178,9 +177,13 @@ export function AppHeader() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
-            <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-accent/25">
-              <Image src="/logo-bh.png" alt="" fill sizes="36px" className="object-cover" priority aria-hidden />
-            </span>
+            <img
+              src={apiPath("/logo-bh.png")}
+              alt="Hotel Boye House"
+              width={36}
+              height={36}
+              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-accent/25"
+            />
             <div className="min-w-0">
               <p className="truncate text-sm font-bold text-brand-100">Hotel Boye House</p>
               <p className="truncate text-[11px] text-brand-500">Futrono · Reservas</p>
