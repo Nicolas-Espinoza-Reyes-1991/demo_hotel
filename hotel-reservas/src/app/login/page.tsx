@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import Link from "next/link";
+import { apiPath } from "@/lib/api-path";
 
 function LoginForm() {
   const router = useRouter();
@@ -20,7 +21,7 @@ function LoginForm() {
     setError(null);
 
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(apiPath("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

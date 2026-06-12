@@ -2,6 +2,7 @@
 
 import { CardPayment, initMercadoPago } from "@mercadopago/sdk-react";
 import { useEffect, useState } from "react";
+import { apiPath } from "@/lib/api-path";
 
 type MercadoPagoCheckoutProps = {
   publicKey: string;
@@ -56,7 +57,7 @@ export function MercadoPagoCheckout({
           },
         }}
         onSubmit={async (formData) => {
-          const response = await fetch("/api/checkout/pay", {
+          const response = await fetch(apiPath("/api/checkout/pay"), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

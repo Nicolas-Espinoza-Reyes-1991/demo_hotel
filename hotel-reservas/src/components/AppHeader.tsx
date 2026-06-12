@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
+import { apiPath } from "@/lib/api-path";
 import { getWebsiteUrl } from "@/lib/website";
 import { showDemoUi } from "@/lib/app-ui";
 
@@ -43,7 +44,7 @@ export function AppHeader() {
       return;
     }
 
-    fetch("/api/auth/session")
+    fetch(apiPath("/api/auth/session"))
       .then((response) => response.json())
       .then((data) => {
         if (data.authenticated) setUsername(data.username);
@@ -85,7 +86,7 @@ export function AppHeader() {
 
   async function handleLogout() {
     setMobileOpen(false);
-    await fetch("/api/auth/logout", { method: "POST" });
+    await fetch(apiPath("/api/auth/logout"), { method: "POST" });
     router.push("/login");
     router.refresh();
   }

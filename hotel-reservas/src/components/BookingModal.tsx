@@ -7,6 +7,7 @@ import { BankTransferCheckout } from "@/components/BankTransferCheckout";
 import { showDemoUi } from "@/lib/app-ui";
 import { formatCurrency, formatNightsLabel, formatStayRange } from "@/lib/dates";
 import { cn } from "@/lib/utils";
+import { apiPath } from "@/lib/api-path";
 import type { RoomCardData } from "@/components/RoomCard";
 import type { SearchParams } from "@/components/SearchForm";
 import type { SuccessReservation } from "@/components/ReservationSuccessModal";
@@ -162,7 +163,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
   useEffect(() => {
     if (!open) return;
 
-    fetch("/api/payments/config")
+    fetch(apiPath("/api/payments/config"))
       .then((response) => response.json())
       .then((data: PaymentConfigResponse) => {
         setPaymentConfig(data);
@@ -293,7 +294,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
     }
 
     try {
-      const response = await fetch("/api/checkout", {
+      const response = await fetch(apiPath("/api/checkout"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -344,7 +345,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
         throw new Error("Ingresá el vencimiento con formato MM/AA.");
       }
 
-      const response = await fetch("/api/checkout/pay", {
+      const response = await fetch(apiPath("/api/checkout/pay"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -379,7 +380,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
     setError(null);
 
     try {
-      const response = await fetch("/api/checkout/pay", {
+      const response = await fetch(apiPath("/api/checkout/pay"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

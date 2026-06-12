@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { paymentStatusLabel } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
+import { apiPath } from "@/lib/api-path";
 
 type CalendarRoom = {
   id: string;
@@ -724,7 +725,7 @@ export function AdminCalendar() {
       const responses = await Promise.all(
         [...monthsToLoad].map(async (key) => {
           const [y, m] = key.split("-").map(Number);
-          const response = await fetch(`/api/calendar?year=${y}&month=${m}`);
+          const response = await fetch(`${apiPath("/api/calendar")}?year=${y}&month=${m}`);
           const json = await response.json();
           if (!response.ok) throw new Error(json.error ?? "Error al cargar calendario.");
           return json as CalendarData;

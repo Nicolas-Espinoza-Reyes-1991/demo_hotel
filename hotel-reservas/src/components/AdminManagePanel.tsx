@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
 import { paymentStatusLabel, type ReservationScope } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
+import { apiPath } from "@/lib/api-path";
 
 type ReservationRow = {
   id: string;
@@ -95,7 +96,7 @@ export function AdminReservationsPanel() {
         scope,
       });
       if (debouncedSearch.trim()) query.set("q", debouncedSearch.trim());
-      const response = await fetch(`/api/reservations?${query.toString()}`);
+      const response = await fetch(`${apiPath("/api/reservations")}?${query.toString()}`);
       const data = await response.json();
       if (response.status === 401) {
         window.location.href = "/login?callbackUrl=/admin";
@@ -131,7 +132,7 @@ export function AdminReservationsPanel() {
     setSavingId(id);
     setMessage(null);
     try {
-      const response = await fetch(`/api/reservations/${id}`, {
+      const response = await fetch(apiPath(`/api/reservations/${id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(patch),
@@ -571,7 +572,7 @@ export function AdminRoomsPanel() {
         pageSize: String(DEFAULT_PAGE_SIZE),
       });
       if (debouncedSearch.trim()) query.set("q", debouncedSearch.trim());
-      const response = await fetch(`/api/rooms?${query.toString()}`);
+      const response = await fetch(`${apiPath("/api/rooms")}?${query.toString()}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Error al cargar habitaciones.");
       setRooms(data.rooms ?? []);
@@ -687,7 +688,7 @@ export function AdminRoomsPanel() {
         const formData = new FormData();
         formData.append("file", selectedImageFile);
 
-        const uploadResponse = await fetch("/api/uploads/rooms", {
+        const uploadResponse = await fetch(apiPath("/api/uploads/rooms"), {
           method: "POST",
           body: formData,
         });
@@ -702,7 +703,7 @@ export function AdminRoomsPanel() {
         ...formToPayload(form),
         imageUrl: uploadedImageUrl,
       };
-      const response = await fetch(editingId ? `/api/rooms/${editingId}` : "/api/rooms", {
+      const response = await fetch(editingId ? apiPath(`/api/rooms/${editingId}`) : apiPath("/api/rooms"), {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -743,7 +744,7 @@ export function AdminRoomsPanel() {
     setMessage(null);
 
     try {
-      const response = await fetch(`/api/rooms/${room.id}`, { method: "DELETE" });
+      const response = await fetch(apiPath(`/api/rooms/${room.id}`), { method: "DELETE" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "No se pudo eliminar la habitación.");
 
@@ -1221,8 +1222,8 @@ export function AdminRoomBlocksPanel() {
       if (debouncedSearch.trim()) blockQuery.set("q", debouncedSearch.trim());
 
       const [blocksRes, roomsRes] = await Promise.all([
-        fetch(`/api/room-blocks?${blockQuery.toString()}`),
-        fetch("/api/rooms?page=1&pageSize=100"),
+        fetch(`${apiPath("/api/room-blocks")}?${blockQuery.toString()}`),
+        fetch(`${apiPath("/api/rooms")}?page=1&pageSize=100`),
       ]);
       const blocksData = await blocksRes.json();
       const roomsData = await roomsRes.json();
@@ -1258,7 +1259,7 @@ export function AdminRoomBlocksPanel() {
         throw new Error("La fecha de fin debe ser posterior al inicio.");
       }
 
-      const response = await fetch("/api/room-blocks", {
+      const response = await fetch(apiPath("/api/room-blocks"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ roomId, startDate, endDate, reason: reason || undefined }),
@@ -1290,7 +1291,7 @@ export function AdminRoomBlocksPanel() {
     setDeletingId(id);
     setMessage(null);
     try {
-      const response = await fetch(`/api/room-blocks/${id}`, { method: "DELETE" });
+      const response = await fetch(apiPath(`/api/room-blocks/${id}`), { method: "DELETE" });
       const data = await response.json();
       if (response.status === 401) {
         window.location.href = "/login?callbackUrl=/admin";

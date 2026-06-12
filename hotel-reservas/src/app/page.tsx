@@ -11,6 +11,7 @@ import {
 import { SearchForm, type SearchParams } from "@/components/SearchForm";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
 import { showDemoUi } from "@/lib/app-ui";
+import { apiPath } from "@/lib/api-path";
 
 export default function HomePage() {
   const [rooms, setRooms] = useState<RoomCardData[]>([]);
@@ -38,7 +39,7 @@ export default function HomePage() {
         guests: String(params.guests),
       });
 
-      const response = await fetch(`/api/availability?${query}`);
+      const response = await fetch(`${apiPath("/api/availability")}?${query}`);
       const data = await response.json();
 
       if (!response.ok) {

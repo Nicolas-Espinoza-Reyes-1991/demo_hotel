@@ -7,6 +7,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
 import { firstZodErrorMessage } from "@/lib/zod-form-errors";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
+import { apiPath } from "@/lib/api-path";
 
 type LookupResult = {
   confirmationCode: string;
@@ -43,7 +44,7 @@ export default function MiReservaPage() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/public/reservations/lookup", {
+      const response = await fetch(apiPath("/api/public/reservations/lookup"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ confirmationCode, email }),
