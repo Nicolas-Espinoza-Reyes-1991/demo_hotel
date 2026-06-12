@@ -8,6 +8,23 @@ Sin Nginx en el puerto 80, la landing **no abre por IP**.
 En el VPS:
 
 ```bash
+cd /var/www/demo_hotel
+git pull origin main
+cd hotel-reservas
+sh scripts/restart-production.sh
+```
+
+El script reconstruye Docker, configura nginx y expone **reservas en el puerto 80** (no hace falta abrir el 3000).
+
+Abrí en el navegador:
+
+- **Landing:** `http://TU_IP/`  
+- **Reservas:** `http://TU_IP/reservas`  
+- **Admin:** `http://TU_IP/reservas/login`
+
+Instalación manual de nginx (solo la primera vez):
+
+```bash
 sudo apt update
 sudo apt install -y nginx
 
@@ -19,12 +36,6 @@ sudo nginx -t
 sudo systemctl reload nginx
 sudo ufw allow 80
 ```
-
-Abrí en el navegador:
-
-- **Landing:** `http://TU_IP/`  
-- **Reservas:** `http://TU_IP:3000`  
-- **Admin:** `http://TU_IP:3000/login`
 
 ## Cuando configures DNS
 

@@ -36,11 +36,18 @@ docker-compose up -d --build
 ## Verificar
 
 ```bash
-curl -s http://127.0.0.1:3000/api/health
-curl -I http://178.104.214.147:3000/login
+curl -s http://127.0.0.1/reservas/api/health
+curl -I http://178.104.214.147/reservas/login
 ```
 
-Login: `admin` / `boye2026!` en `http://178.104.214.147:3000/login`
+Login: `admin` / `boye2026!` en `http://178.104.214.147/reservas/login`
+
+## Reinicio rápido (si la web no responde)
+
+```bash
+cd /var/www/demo_hotel/hotel-reservas
+sh scripts/restart-production.sh
+```
 
 ## Cargar 8 habitaciones (Ejemplo 1 … Ejemplo 8)
 

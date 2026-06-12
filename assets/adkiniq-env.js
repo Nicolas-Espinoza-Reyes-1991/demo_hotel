@@ -11,17 +11,20 @@
     return host === "localhost" || host === "127.0.0.1";
   }
 
-  /** IP del VPS o localhost: reservas en :3000 hasta tener DNS. */
+  /** IP del VPS: reservas vía nginx en /reservas (puerto 80). */
   function isDirectServerAccess() {
     var host = global.location.hostname;
-    return isLocalDev() || /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
+    return /^\d{1,3}(\.\d{1,3}){3}$/.test(host);
   }
 
   function getReservasApiBase() {
+    if (isLocalDev()) {
+      return LOCAL_RESERVAS;
+    }
     if (isDirectServerAccess()) {
       if (global.location.port === "3000") return "";
       var protocol = global.location.protocol || "http:";
-      return protocol + "//" + global.location.hostname + ":3000";
+      return protocol + "//" + global.location.hostname + "/reservas";
     }
     return PROD_RESERVAS;
   }

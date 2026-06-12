@@ -35,8 +35,9 @@ cat > "$TARGET" <<'EOF'
 # Generado por scripts/bootstrap-production-env.sh — no commitear
 
 NODE_ENV=production
-APP_URL=http://178.104.214.147:3000
+APP_URL=http://178.104.214.147/reservas
 NEXT_PUBLIC_WEBSITE_URL=http://178.104.214.147
+NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
 SESSION_COOKIE_SECURE=false
 

@@ -45,12 +45,20 @@ function useSecureSessionCookies(): boolean {
   return appUrl.startsWith("https://");
 }
 
+function getCookiePath(): string {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim();
+  if (basePath && basePath !== "/") {
+    return basePath.endsWith("/") ? basePath.slice(0, -1) : basePath;
+  }
+  return "/";
+}
+
 export function getSessionCookieOptions() {
   return {
     httpOnly: true,
     secure: useSecureSessionCookies(),
     sameSite: "lax" as const,
-    path: "/",
+    path: getCookiePath(),
     maxAge: SESSION_MAX_AGE,
   };
 }
