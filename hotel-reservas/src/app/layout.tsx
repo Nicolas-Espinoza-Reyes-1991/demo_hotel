@@ -13,14 +13,16 @@ const playfair = Playfair_Display({
   variable: "--font-display",
 });
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
+
 export const metadata: Metadata = {
   title: "Hotel Boye House | Reservas",
   description:
     "Sistema de reservas de Hotel Boye House Futrono con disponibilidad en línea y panel administrativo.",
-  manifest: "/manifest.webmanifest",
+  manifest: `${basePath}/manifest.webmanifest`,
   icons: {
-    icon: "/logo-bh.png",
-    apple: "/logo-bh.png",
+    icon: `${basePath}/logo-bh.png`,
+    apple: `${basePath}/logo-bh.png`,
   },
   appleWebApp: {
     capable: true,
