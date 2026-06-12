@@ -48,8 +48,11 @@ Login: `admin` / `boye2026!` en `http://178.104.214.147:3000/login`
 
 ```bash
 cd /var/www/demo_hotel/hotel-reservas
+docker-compose up -d --build
 docker-compose exec app npx prisma db seed
 ```
+
+> Si cambiaste `prisma/seed.ts`, **rebuild obligatorio** antes del seed (el contenedor no usa los archivos del host).
 
 Verificar: `curl -s http://127.0.0.1:3000/api/public/rooms | head -c 400`
 

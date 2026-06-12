@@ -29,7 +29,9 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
-RUN chmod +x docker-entrypoint.sh
+RUN mkdir -p .next/cache \
+    && chmod +x docker-entrypoint.sh \
+    && chown -R nextjs:nodejs /app
 
 USER nextjs
 EXPOSE 3000
