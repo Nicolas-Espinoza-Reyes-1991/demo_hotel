@@ -42,6 +42,17 @@ curl -I http://178.104.214.147:3000/login
 
 Login: `admin` / `boye2026!` en `http://178.104.214.147:3000/login`
 
+## Cargar 8 habitaciones (Ejemplo 1 … Ejemplo 8)
+
+**Borra reservas y habitaciones existentes** y crea 8 habitaciones demo:
+
+```bash
+cd /var/www/demo_hotel/hotel-reservas
+docker-compose exec app npx prisma db seed
+```
+
+Verificar: `curl -s http://127.0.0.1:3000/api/public/rooms | head -c 400`
+
 ## Login admin no funciona
 
 ```bash

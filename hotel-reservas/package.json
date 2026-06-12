@@ -19,6 +19,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:setup": "node scripts/setup-local-db.mjs",
     "db:seed": "prisma db seed",
+    "db:seed:ejemplo": "prisma db seed",
     "db:studio": "prisma studio",
     "docker:dev": "docker compose -f docker-compose.dev.yml up -d",
     "docker:prod": "docker-compose up -d --build",
