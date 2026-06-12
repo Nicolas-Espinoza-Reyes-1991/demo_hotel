@@ -8,75 +8,120 @@
 | `https://hotel.adkiniq.cl` | Landing del hotel (`propuesta-7-casona-futrono.html`) |
 | `https://reservas.adkiniq.cl` | Motor de reservas + admin (Docker) |
 
-## En el VPS — deploy con Git
+---
+
+## Solución definitiva: bug `KeyError: 'ContainerConfig'`
+
+### Qué es el bug
+
+En el VPS tenés **docker-compose 1.29.2** (Python, comando con **guión**). Esa versión es **incompatible** con Docker Engine moderno. Al recrear contenedores, falla con:
+
+```
+KeyError: 'ContainerConfig'
+```
+
+Los parches (`docker rm -f …`, `--force-recreate`) **no lo arreglan** — solo limpian el desastre de un intento fallido.
+
+### Solución real: instalar Docker Compose v2
+
+`apt install docker-compose-plugin` **no funciona** en Ubuntu estándar (paquete no está en esos repos).  
+Instalá el binario oficial de GitHub (una sola vez):
+
+```bash
+cd /var/www/demo_hotel/hotel-reservas
+git pull origin main
+sh scripts/install-docker-compose-v2.sh
+```
+
+Verificá:
+
+```bash
+docker compose version
+# Debe mostrar v2.x — NO "docker-compose version 1.29.2"
+```
+
+Opcional — quitar el compose viejo para no confundirte:
+
+```bash
+sudo apt remove -y docker-compose
+```
+
+### Deploy normal (con Compose v2 — no borra la BD)
 
 ```bash
 cd /var/www/demo_hotel
 git pull origin main
 cd hotel-reservas
-
-# Genera .env.production (no requiere Node.js en el servidor)
-sh scripts/bootstrap-production-env.sh --force
-
-docker-compose down
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
-**`.env.production` no va en Git.** El script `bootstrap-production-env.sh` sí.
+**No uses** `docker-compose down -v` (borra la base de datos).  
+**No uses** `prisma db seed` salvo reset demo a propósito.
 
-Si cambiaste `POSTGRES_PASSWORD` y la BD ya existía con otra clave:
+También podés usar el wrapper del repo (elige v2 o v1 solo):
 
 ```bash
-docker-compose down -v
-docker-compose up -d --build
+sh scripts/dc.sh up -d --build
 ```
 
-> En este VPS se usa **`docker-compose`** (con guión), no `docker compose --env-file`.
+---
+
+## Parche temporal (solo si aún no instalaste v2)
+
+```bash
+docker-compose down
+docker ps -aq --filter "name=hotel-reservas" | xargs -r docker rm -f
+docker-compose up -d --build --force-recreate --remove-orphans
+```
+
+Si vuelve a fallar → **instalá Compose v2** (arriba). No sigas parcheando.
+
+---
+
+## `.env.production`
+
+No va en Git. Generar **una sola vez**:
+
+```bash
+sh scripts/bootstrap-production-env.sh
+```
+
+**No uses `--force`** si ya tenés datos en producción (puede cambiar contraseñas y obligarte a `down -v`).
+
+---
 
 ## Verificar
 
 ```bash
-curl -s http://127.0.0.1/reservas/api/health
-curl -I http://178.104.214.147/reservas/login
+docker compose ps
+curl -s http://127.0.0.1:3000/reservas/api/health
+curl -s http://127.0.0.1/reservas/api/health   # vía nginx
 ```
 
-Login: `admin` / `boye2026!` en `http://178.104.214.147/reservas/login`
+Login: `admin` / `boye2026!` → `http://178.104.214.147/reservas/login`
 
-## Reinicio rápido (si la web no responde)
+---
+
+## Backup y seed
+
+Backup (antes de deploy):
 
 ```bash
-cd /var/www/demo_hotel/hotel-reservas
-sh scripts/restart-production.sh
+sh scripts/backup-db.sh
 ```
 
-## Cargar 8 habitaciones (Ejemplo 1 … Ejemplo 8)
-
-**Borra reservas y habitaciones existentes** y crea 8 habitaciones demo:
+Seed demo (**borra reservas** — solo demo):
 
 ```bash
-cd /var/www/demo_hotel/hotel-reservas
-docker-compose up -d --build
-docker-compose exec app npx prisma db seed
+docker compose exec app npx prisma db seed
 ```
 
-> Si cambiaste `prisma/seed.ts`, **rebuild obligatorio** antes del seed (el contenedor no usa los archivos del host).
+---
 
-Verificar: `curl -s http://127.0.0.1:3000/api/public/rooms | head -c 400`
-
-## Login admin no funciona
+## Nginx (landing + /reservas en puerto 80)
 
 ```bash
-curl -s http://127.0.0.1:3000/api/health
-# Debe incluir "adminAuthConfigured":true
-```
-
-```bash
-grep -E '^ADMIN_' .env.production
-docker-compose exec app sh -c 'echo USER=$ADMIN_USERNAME PASS_SET=$([ -n "$ADMIN_PASSWORD" ] && echo yes || echo no)'
-```
-
-```bash
-curl -s -X POST http://127.0.0.1:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"boye2026!"}'
+sudo cp /var/www/demo_hotel/deploy/nginx/landing-ip.conf /etc/nginx/sites-available/hotel-landing
+sudo ln -sf /etc/nginx/sites-available/hotel-landing /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
 ```
