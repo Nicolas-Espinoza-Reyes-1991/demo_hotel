@@ -78,22 +78,49 @@ body.casona-demo img:not(.casona-hero__slide):not(.casona-momentos__item img):no
   margin-inline: auto;
   padding: 0.85rem var(--casona-gutter);
   min-height: var(--casona-header-h);
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
+
 .casona-logo {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
+  min-width: 0;
   font-family: "Playfair Display", Georgia, serif;
-  font-size: 1.22rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: #152a22;
   text-decoration: none;
   text-shadow: 0 1px 10px rgba(250, 248, 244, 0.9);
+}
+
+.casona-logo__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.casona-logo__text--full {
+  display: none;
+}
+
+@media (min-width: 520px) {
+  .casona-logo {
+    font-size: 1.15rem;
+    letter-spacing: 0.06em;
+  }
+
+  .casona-logo__text--short {
+    display: none;
+  }
+
+  .casona-logo__text--full {
+    display: inline;
+  }
 }
 
 .casona-logo img {
@@ -119,6 +146,24 @@ body.casona-demo img:not(.casona-hero__slide):not(.casona-momentos__item img):no
   display: none;
 }
 
+.casona-nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: var(--casona-header-h) 0 0 0;
+  z-index: 38;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(12, 24, 20, 0.42);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+
+body.casona-nav-open .casona-nav-backdrop {
+  display: block;
+}
+
 .casona-nav-toggle {
   display: inline-flex;
   flex-direction: column;
@@ -126,14 +171,14 @@ body.casona-demo img:not(.casona-hero__slide):not(.casona-momentos__item img):no
   gap: 0.3rem;
   width: 2.75rem;
   height: 2.75rem;
-  margin-left: auto;
-  margin-right: 0.35rem;
+  justify-self: end;
   padding: 0;
   border: 1px solid rgba(30, 61, 50, 0.18);
   border-radius: 0.65rem;
   background: rgba(250, 248, 244, 0.55);
   backdrop-filter: blur(10px);
   cursor: pointer;
+  z-index: 51;
 }
 
 .casona-nav-toggle__bar {
@@ -159,37 +204,55 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 }
 
 @media (max-width: 767px) {
+  .casona-header__cta-desktop {
+    display: none !important;
+  }
+
   .casona-nav {
     position: fixed;
-    inset: var(--casona-header-h) 0 0 0;
+    top: var(--casona-header-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
     z-index: 40;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
-    padding: 1rem var(--casona-gutter) 1.5rem;
+    padding: 0.75rem var(--casona-gutter) calc(1.25rem + env(safe-area-inset-bottom, 0px));
     background: rgba(250, 248, 244, 0.98);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--casona-line);
-    transform: translateY(-110%);
+    transform: translateY(-8%);
     opacity: 0;
     visibility: hidden;
-    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+    transition: transform 0.28s ease, opacity 0.28s ease, visibility 0.28s ease;
     overflow-y: auto;
   }
 
   body.casona-nav-open .casona-nav {
-    display: flex;
     transform: translateY(0);
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
   }
 
   body.casona-nav-open {
     overflow: hidden;
   }
 
+  body.casona-nav-open .casona-fab {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .casona-nav a:not(.casona-nav__cta) {
-    padding: 0.85rem 0;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
     border-bottom: 1px solid var(--casona-line);
     font-size: 1rem;
   }
@@ -197,12 +260,15 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   .casona-nav__cta {
     display: inline-flex;
     justify-content: center;
+    align-items: center;
+    min-height: 3rem;
     margin-top: 0.75rem;
     padding: 0.85rem 1.25rem;
     border-radius: 999px;
     background: var(--casona-forest);
     color: var(--casona-cream) !important;
     border: none;
+    text-shadow: none;
   }
 }
 .casona-nav a {
@@ -281,14 +347,42 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 }
 
 @media (min-width: 768px) {
+  .casona-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .casona-logo {
+    flex-shrink: 0;
+  }
+
   .casona-nav {
     display: flex;
+    flex: 1;
+    justify-content: center;
+    position: static;
+    inset: auto;
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    overflow: visible;
   }
-  .casona-nav-toggle {
-    display: none;
+
+  .casona-nav-toggle,
+  .casona-nav-backdrop {
+    display: none !important;
   }
+
   .casona-header__cta-desktop {
     display: inline-flex;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 }
 

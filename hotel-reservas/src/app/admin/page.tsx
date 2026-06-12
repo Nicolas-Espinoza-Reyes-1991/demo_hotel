@@ -42,14 +42,14 @@ export default function AdminPage() {
           </p>
         </section>
 
-        <div className="admin-toolbar mb-6 flex flex-wrap gap-2">
+        <div className="admin-toolbar mb-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {TABS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => selectTab(item.id)}
               className={cn(
-                "min-h-10 rounded-xl px-4 py-2 text-sm font-semibold transition",
+                "min-h-11 rounded-xl px-3 py-2.5 text-sm font-semibold transition sm:min-h-10 sm:px-4",
                 tab === item.id
                   ? "tab-active-admin"
                   : "text-brand-500 hover:bg-white/55 hover:text-brand-100"

@@ -20,16 +20,22 @@ describe("AppHeader", () => {
   // Happy path: muestra navegación principal y enlace al sitio web.
   it("renderiza enlace para volver al sitio web", () => {
     render(<AppHeader />);
-    const backLink = screen.getByRole("link", { name: /volver al sitio web/i });
-    expect(backLink).toHaveAttribute("href", "http://localhost:5501/propuesta-7-casona-futrono.html");
+    const backLinks = screen.getAllByRole("link", { name: /volver al sitio web/i });
+    expect(backLinks[0]).toHaveAttribute("href", "http://localhost:5501/propuesta-7-casona-futrono.html");
     cleanup();
   });
 
   // Navegación interna del módulo de reservas.
   it("renderiza links de Reservar y Mi reserva", () => {
     render(<AppHeader />);
-    expect(screen.getByRole("link", { name: /^Reservar$/i })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("link", { name: /^Mi reserva$/i })).toHaveAttribute("href", "/mi-reserva");
+    expect(screen.getAllByRole("link", { name: /^Reservar$/i })[0]).toHaveAttribute("href", "/");
+    expect(screen.getAllByRole("link", { name: /^Mi reserva$/i })[0]).toHaveAttribute("href", "/mi-reserva");
+    cleanup();
+  });
+
+  it("muestra botón de menú móvil", () => {
+    render(<AppHeader />);
+    expect(screen.getByRole("button", { name: /abrir menú/i })).toBeTruthy();
     cleanup();
   });
 });
