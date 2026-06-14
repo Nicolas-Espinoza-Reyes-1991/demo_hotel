@@ -20,7 +20,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./assets/boye-carousel.css" />
     <link rel="stylesheet" href="./assets/casona-demo.css?v=20260613" />
-    <script src="./assets/adkiniq-env.js"></script>
+    <script src="./assets/adkiniq-env.js?v=20260613"></script>
   </head>
   <body class="casona-demo">
     <header class="casona-header" id="casona-header">
@@ -50,9 +50,9 @@
           <a href="#experiencia">Experiencia</a>
           <a href="#nosotros">Boye House</a>
           <a href="#contacto">Contacto</a>
-          <a href="https://reservas.adkiniq.cl/" data-reservas-link class="casona-nav__cta">Reservar ahora</a>
+          <a href="/reservas/" data-reservas-link class="casona-nav__cta">Reservar ahora</a>
         </nav>
-        <a href="https://reservas.adkiniq.cl/" data-reservas-link class="casona-btn casona-btn--primary casona-header__cta-desktop">Reservar ahora</a>
+        <a href="/reservas/" data-reservas-link class="casona-btn casona-btn--primary casona-header__cta-desktop">Reservar ahora</a>
       </div>
     </header>
 
@@ -92,7 +92,7 @@
             Casona boutique entre bosque nativo y Lago Ranco. Descanso honesto, madera cálida y una hospitalidad que invita a quedarse.
           </p>
           <div class="casona-hero__actions">
-            <a href="https://reservas.adkiniq.cl/" data-reservas-link class="casona-btn casona-btn--primary">Reservar ahora</a>
+            <a href="/reservas/" data-reservas-link class="casona-btn casona-btn--primary">Reservar ahora</a>
             <a href="#habitaciones" class="casona-btn casona-btn--ghost casona-btn--hero-ghost">Ver habitaciones</a>
           </div>
         </div>
@@ -447,7 +447,7 @@
     <div class="casona-fab" id="casona-fab">
       <div class="casona-fab__menu" id="casona-fab-menu" role="menu" aria-label="Acciones rápidas" hidden>
         <a
-          href="https://reservas.adkiniq.cl/"
+          href="/reservas/"
           data-reservas-link
           class="casona-fab__action casona-fab__action--reserve"
           id="casona-fab-reserve"
@@ -561,8 +561,10 @@
         var fabMenu = document.getElementById("casona-fab-menu");
         var fabReserve = document.getElementById("casona-fab-reserve");
 
-        if (fabReserve && window.AdkiniqEnv) {
-          fabReserve.href = window.AdkiniqEnv.getReservasPageUrl();
+        if (fabReserve) {
+          fabReserve.href = window.AdkiniqEnv
+            ? window.AdkiniqEnv.getReservasPageUrl()
+            : window.location.origin + "/reservas/";
         }
 
         if (!fab || !fabToggle || !fabMenu) return;
@@ -600,7 +602,7 @@
         if (!form || !feedback) return;
 
         function getApiBase() {
-          return window.AdkiniqEnv ? window.AdkiniqEnv.getReservasApiBase() : "https://reservas.adkiniq.cl";
+          return window.AdkiniqEnv ? window.AdkiniqEnv.getReservasApiBase() : window.location.origin + "/reservas";
         }
 
         function setFeedback(message, type) {
@@ -730,7 +732,7 @@
         ];
 
         function getApiBase() {
-          return window.AdkiniqEnv ? window.AdkiniqEnv.getReservasApiBase() : "https://reservas.adkiniq.cl";
+          return window.AdkiniqEnv ? window.AdkiniqEnv.getReservasApiBase() : window.location.origin + "/reservas";
         }
 
         function getBedLabel(room) {
@@ -896,7 +898,7 @@
             }
 
             var link = document.createElement("a");
-            link.href = window.AdkiniqEnv ? window.AdkiniqEnv.getReservasPageUrl() : "https://reservas.adkiniq.cl/";
+            link.href = window.AdkiniqEnv ? window.AdkiniqEnv.getReservasPageUrl() : window.location.origin + "/reservas/";
             link.className = "casona-room-card__link";
             link.textContent = "Ver detalles →";
 
