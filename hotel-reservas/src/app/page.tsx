@@ -68,12 +68,12 @@ export default function HomePage() {
       <AppHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-6 pb-28 sm:px-6 sm:py-10 sm:pb-32">
-        <div className="rounded-3xl border border-white/55 bg-brand-900/58 p-4 shadow-[0_22px_58px_-22px_rgba(15,23,42,0.38)] backdrop-blur-[2px] sm:p-6 lg:p-8">
+        <div className="rounded-3xl border border-white/70 bg-white/72 p-4 shadow-[0_22px_58px_-22px_rgba(61,43,31,0.18)] backdrop-blur-md sm:p-6 lg:p-8">
           {demoUi && (
             <section className="animate-fade-in-up mb-8 grid gap-4 sm:grid-cols-2">
               <a
                 href="/"
-                className="glass-panel-highlight group block p-5 transition hover:shadow-xl hover:shadow-emerald-500/15"
+                className="glass-panel-highlight group block p-5 transition hover:shadow-xl hover:shadow-highlight/15"
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-accent">Módulo 1 · Activo</p>
                 <h2 className="mt-2 text-lg font-bold text-brand-100 group-hover:text-accent">

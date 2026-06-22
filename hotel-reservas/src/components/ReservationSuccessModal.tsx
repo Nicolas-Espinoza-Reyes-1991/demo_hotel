@@ -45,7 +45,7 @@ export function ReservationSuccessModal({
         className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-t-3xl border-2 border-accent/40 bg-brand-900 shadow-2xl sm:rounded-3xl animate-fade-in-up"
       >
         <div className="bg-gradient-to-br from-brand-800 to-brand-900 px-6 pb-2 pt-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-teal-900/15 ring-2 ring-teal-700/30">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent/15 ring-2 ring-accent/30">
             <svg viewBox="0 0 24 24" className="h-8 w-8 text-accent" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

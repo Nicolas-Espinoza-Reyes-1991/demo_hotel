@@ -250,7 +250,6 @@ body.casona-nav-open .casona-header {
   font-weight: 500;
   font-style: italic;
   letter-spacing: 0.24em;
-  text-transform: lowercase;
   color: var(--casona-earth);
 }
 
@@ -1087,7 +1086,6 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   font-weight: 500;
   font-style: italic;
   letter-spacing: 0.2em;
-  text-transform: lowercase;
   color: rgba(255, 252, 246, 0.96);
 }
 

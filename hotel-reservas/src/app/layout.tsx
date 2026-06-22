@@ -1,18 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
+import { CasonaInitialPreloader } from "@/components/CasonaPreloader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { apiPath } from "@/lib/api-path";
-import { HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
+import { getHotelName, HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  weight: ["400", "600", "700"],
 });
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
   variable: "--font-display",
+  weight: ["600", "700"],
+  style: ["normal", "italic"],
 });
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
@@ -34,7 +45,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f6efe4",
+  themeColor: "#3d2b1f",
   width: "device-width",
   initialScale: 1,
 };
@@ -45,9 +56,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body
-        className={`${inter.variable} ${playfair.variable} min-h-dvh`}
+        className={`${inter.variable} ${playfair.variable} ${cormorant.variable} min-h-dvh`}
         style={{ ["--bg-reception-url" as string]: bgReception }}
       >
+        <CasonaInitialPreloader hotelName={getHotelName()} />
         <div className="flex min-h-dvh flex-col">
           <div className="flex-1">{children}</div>
           <SiteFooter />

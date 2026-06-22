@@ -38,7 +38,7 @@ export function WhatsAppSupport({
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp por dudas en la reserva"
         className={cn(
-          "whatsapp-floating animate-float-soft fixed bottom-4 right-4 z-30 flex items-center gap-3 rounded-full border border-emerald-400/50 bg-[#25D366] p-3 text-white shadow-lg shadow-emerald-900/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-900/30 sm:bottom-6 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
+          "whatsapp-floating animate-float-soft fixed bottom-4 right-4 z-30 flex items-center gap-3 rounded-full border border-wa/50 bg-wa p-3 text-white shadow-lg shadow-accent-hover/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-accent-hover/30 sm:bottom-6 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
           className
         )}
       >
@@ -60,7 +60,7 @@ export function WhatsAppSupport({
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/15 px-4 py-2.5 text-sm font-semibold text-emerald-950 transition hover:bg-[#25D366]/25",
+          "inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-wa/40 bg-wa/15 px-4 py-2.5 text-sm font-semibold text-accent-hover transition hover:bg-wa/25",
           className
         )}
       >
@@ -73,7 +73,7 @@ export function WhatsAppSupport({
   return (
     <div
       className={cn(
-        "animate-fade-in-up rounded-2xl border-2 border-[#25D366]/45 bg-gradient-to-r from-[#25D366]/20 via-emerald-100/40 to-brand-900 p-4 shadow-md shadow-emerald-900/10",
+        "animate-fade-in-up rounded-2xl border-2 border-wa/45 bg-gradient-to-r from-wa/20 via-honey/40 to-brand-900 p-4 shadow-md shadow-accent-hover/10",
         className
       )}
     >

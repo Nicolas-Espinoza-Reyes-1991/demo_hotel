@@ -98,7 +98,7 @@ export function RoomCard({
   return (
     <article
       className={cn(
-        "group animate-fade-in-up glass-panel overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:border-accent-bright/45 hover:shadow-lg hover:shadow-emerald-500/18",
+        "group animate-fade-in-up glass-panel overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:border-highlight/45 hover:shadow-lg hover:shadow-highlight/20",
         delayClasses[animationDelay % delayClasses.length],
         className
       )}

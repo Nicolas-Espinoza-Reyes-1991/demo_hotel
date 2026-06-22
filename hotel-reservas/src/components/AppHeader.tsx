@@ -23,8 +23,8 @@ function navItemClass(active: boolean, variant: NavItem["variant"] = "default", 
   if (active && variant === "accent") return "tab-active-accent";
   if (active && variant === "admin") return "tab-active-admin";
   if (active) return "tab-active-accent";
-  if (mobile) return "text-brand-100 hover:bg-brand-900/8";
-  return "text-brand-500 hover:bg-white/45 hover:text-brand-100";
+  if (mobile) return "text-accent hover:bg-brand-800/60";
+  return "text-brand-600 hover:bg-brand-800/45 hover:text-accent";
 }
 
 export function AppHeader() {
@@ -170,10 +170,10 @@ export function AppHeader() {
         className={cn(
           "sticky top-0 z-50 border-b transition-all duration-300",
           mobileOpen
-            ? "border-brand-700/25 bg-[#faf8f4] shadow-md"
+            ? "border-brand-600/20 bg-white/97 shadow-md backdrop-blur-xl"
             : isScrolled
-              ? "border-white/70 bg-brand-900/72 shadow-[0_14px_36px_-16px_rgba(15,23,42,0.62)] backdrop-blur-xl"
-              : "border-white/55 bg-brand-900/48 shadow-[0_10px_28px_-16px_rgba(15,23,42,0.5)] backdrop-blur-md"
+              ? "border-[rgba(61,43,31,0.09)] bg-white/92 shadow-[0_10px_32px_rgba(61,43,31,0.06)] backdrop-blur-xl"
+              : "border-[rgba(61,43,31,0.07)] bg-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] backdrop-blur-xl"
         )}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
@@ -183,11 +183,11 @@ export function AppHeader() {
               alt={HOTEL_NAME}
               width={44}
               height={44}
-              className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-accent/25"
+              className="h-11 w-11 shrink-0 object-contain drop-shadow-md"
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-brand-100">{HOTEL_NAME}</p>
-              <p className="truncate text-[11px] text-brand-500">{HOTEL_TAGLINE}</p>
+              <p className="truncate font-display text-sm font-bold text-accent">{HOTEL_NAME}</p>
+              <p className="truncate text-[11px] text-brand-600">{HOTEL_TAGLINE}</p>
             </div>
           </Link>
 
@@ -200,8 +200,8 @@ export function AppHeader() {
             className={cn(
               "relative z-[60] inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition md:hidden",
               mobileOpen
-                ? "border-brand-700/30 bg-white text-brand-100"
-                : "border-brand-700/80 bg-white/55 text-brand-100 hover:bg-white/75"
+                ? "border-brand-600/25 bg-white text-accent"
+                : "border-brand-600/20 bg-white/80 text-accent hover:bg-white"
             )}
             aria-expanded={mobileOpen}
             aria-controls={menuId}
@@ -244,7 +244,7 @@ export function AppHeader() {
           <nav
             id={menuId}
             aria-label="Menú móvil"
-            className="fixed inset-x-0 bottom-0 top-[3.75rem] z-50 overflow-y-auto border-t border-brand-700/15 bg-[#faf8f4] px-4 py-4 shadow-2xl md:hidden"
+            className="fixed inset-x-0 bottom-0 top-[3.75rem] z-50 overflow-y-auto border-t border-brand-600/15 bg-white px-4 py-4 shadow-2xl md:hidden"
           >
             <div className="mx-auto flex max-w-7xl flex-col gap-1">
               {navItems.map((item) => renderNavLink(item, true))}

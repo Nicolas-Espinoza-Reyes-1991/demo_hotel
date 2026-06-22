@@ -4,8 +4,8 @@
   "description": "Reservas en línea — La Casona de Futrono",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6efe4",
-  "theme_color": "#f6efe4",
+  "background_color": "#faf6f0",
+  "theme_color": "#3d2b1f",
   "orientation": "portrait-primary",
   "icons": [
     {

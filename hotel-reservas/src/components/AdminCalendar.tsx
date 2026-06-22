@@ -196,7 +196,7 @@ function reservationBarStyles(reservation: CalendarReservation) {
     return "border-slate-400/60 border-dashed bg-slate-200/90 text-slate-700 shadow-slate-900/10 opacity-85";
   }
   if (reservation.paymentStatus === "PAID") {
-    return "border-emerald-700/40 bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-emerald-900/20";
+    return "border-accent/40 bg-gradient-to-r from-accent to-highlight text-brand-900 shadow-accent-hover/20";
   }
   if (reservation.paymentStatus === "PENDING") {
     return "border-amber-500/60 border-dashed bg-gradient-to-r from-amber-100 to-amber-50 text-amber-950 shadow-amber-900/10";
@@ -230,12 +230,12 @@ function LegendSwatch({
   variant: "paid" | "pending" | "history" | "refunded" | "weekend" | "today" | "unavailable";
 }) {
   const styles = {
-    paid: "bg-gradient-to-r from-emerald-600 to-teal-500",
+    paid: "bg-gradient-to-r from-accent to-highlight",
     pending: "border border-dashed border-amber-500 bg-amber-100",
     history: "border border-dashed border-slate-400 bg-slate-200",
     refunded: "border border-dashed border-violet-400 bg-violet-100",
     weekend: "bg-slate-300/50",
-    today: "bg-emerald-200 ring-2 ring-emerald-500/50",
+    today: "bg-honey/60 ring-2 ring-highlight/50",
     unavailable: "bg-brand-700/70",
   };
 
@@ -321,31 +321,31 @@ function CalendarDayCell({
     variant === "header"
       ? cn(
           isWeekend && "bg-slate-300/30",
-          today && "bg-emerald-100/60",
+          today && "bg-honey/40",
           outsideMonth && "bg-brand-700/15",
           !today && !isWeekend && !outsideMonth && "bg-brand-800"
         )
       : cn(
           roomUnavailable ? "bg-brand-700/40" : "bg-brand-900",
           isWeekend && !roomUnavailable && "bg-slate-300/12",
-          today && !roomUnavailable && "bg-emerald-50/50",
+          today && !roomUnavailable && "bg-honey/25",
           outsideMonth && !roomUnavailable && "bg-brand-800/40"
         )
   );
 
   const headerWeekdayClasses = cn(
     "text-[8px] font-medium uppercase tracking-wide sm:text-[9px]",
-    today ? "text-emerald-700/90" : "text-brand-500/55"
+    today ? "text-accent/90" : "text-brand-500/55"
   );
 
   const headerDayClasses = cn(
     "tabular-nums leading-none",
-    today ? "text-xs font-semibold text-emerald-800 sm:text-sm" : "text-[10px] font-medium text-brand-500/65 sm:text-[11px]"
+    today ? "text-xs font-semibold text-accent sm:text-sm" : "text-[10px] font-medium text-brand-500/65 sm:text-[11px]"
   );
 
   const bodyDayClasses = cn(
     "pointer-events-none absolute left-1 top-1 tabular-nums leading-none select-none",
-    today ? "text-[9px] font-medium text-emerald-700/75" : "text-[9px] font-normal text-brand-600/30 sm:text-[10px]"
+    today ? "text-[9px] font-medium text-accent/75" : "text-[9px] font-normal text-brand-600/30 sm:text-[10px]"
   );
 
   if (variant === "header") {
@@ -622,8 +622,8 @@ function ReservationBar({
         onClick={() => onTogglePin(isPinned ? null : reservation.id)}
         className={cn(
           "relative flex h-full w-full items-center overflow-hidden rounded-lg border px-2 text-xs font-semibold shadow-sm transition-all duration-150",
-          "hover:z-30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-          isPinned && "z-40 ring-2 ring-emerald-500/60",
+          "hover:z-30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight/50",
+          isPinned && "z-40 ring-2 ring-highlight/60",
           reservationBarStyles(reservation)
         )}
         aria-expanded={isOpen}
@@ -1061,7 +1061,7 @@ export function AdminCalendar() {
               className={cn(
                 "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
                 paymentFilter === item.id
-                  ? "border-emerald-600/40 bg-emerald-100 text-emerald-950"
+                  ? "border-accent/40 bg-honey/40 text-accent-hover"
                   : "border-brand-700 bg-white/55 text-brand-500 hover:border-brand-600 hover:bg-white/75 hover:text-brand-100"
               )}
             >
@@ -1080,9 +1080,9 @@ export function AdminCalendar() {
               <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Reservas visibles</p>
               <p className="mt-0.5 text-2xl font-bold text-brand-100">{visibleReservations.length}</p>
             </div>
-            <div className="rounded-xl border border-emerald-600/30 bg-emerald-50/80 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">Pagadas</p>
-              <p className="mt-0.5 text-2xl font-bold text-emerald-900">{stats.paidCount}</p>
+            <div className="rounded-xl border border-accent/30 bg-honey/30 px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-accent">Pagadas</p>
+              <p className="mt-0.5 text-2xl font-bold text-accent-hover">{stats.paidCount}</p>
             </div>
             <div className="rounded-xl border border-amber-500/30 bg-amber-50/80 px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-800">Pendientes</p>
@@ -1099,7 +1099,7 @@ export function AdminCalendar() {
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-brand-800">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-600 to-teal-400 transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-r from-accent to-highlight transition-all duration-500"
                 style={{ width: `${Math.min(100, stats.occupancy)}%` }}
               />
             </div>
@@ -1242,7 +1242,7 @@ export function AdminCalendar() {
                   <div className="relative min-w-0 flex-1" style={{ height: rowHeight }}>
                     {todayColumnIndex >= 0 && (
                       <div
-                        className="pointer-events-none absolute bottom-0 top-0 z-[2] w-px bg-emerald-500/50"
+                        className="pointer-events-none absolute bottom-0 top-0 z-[2] w-px bg-highlight/50"
                         style={{ left: `${((todayColumnIndex + 0.5) / rangeDays) * 100}%` }}
                         aria-hidden
                       />

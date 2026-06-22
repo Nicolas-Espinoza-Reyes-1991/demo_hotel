@@ -414,7 +414,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
         role="dialog"
         aria-modal="true"
         aria-labelledby="booking-title"
-        className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border-2 border-accent/30 bg-brand-900 p-5 shadow-2xl shadow-emerald-500/15 sm:rounded-3xl sm:p-6 animate-fade-in-up"
+        className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border-2 border-highlight/35 bg-brand-900 p-5 shadow-2xl shadow-accent/10 sm:rounded-3xl sm:p-6 animate-fade-in-up"
       >
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>

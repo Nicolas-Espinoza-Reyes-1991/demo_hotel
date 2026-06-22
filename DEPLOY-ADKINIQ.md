@@ -48,6 +48,24 @@ sudo apt remove -y docker-compose
 
 ### Deploy normal (con Compose v2 — no borra la BD)
 
+**Importante:** la landing (`propuesta-7-casona-futrono.html`) se actualiza con `git pull`.  
+El motor de reservas (`/reservas/`) vive en **Docker** y requiere **rebuild** para ver logo, colores y preloader.
+
+```bash
+cd /var/www/demo_hotel
+git pull origin main
+sh scripts/deploy-site.sh
+```
+
+Solo reservas (sin tocar landing):
+
+```bash
+cd /var/www/demo_hotel/hotel-reservas
+sh scripts/deploy-safe.sh
+```
+
+Alternativa manual:
+
 ```bash
 cd /var/www/demo_hotel
 git pull origin main

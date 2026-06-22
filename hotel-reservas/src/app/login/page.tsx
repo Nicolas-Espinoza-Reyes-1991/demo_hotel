@@ -90,7 +90,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="min-h-11 w-full rounded-xl bg-gold px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-primary min-h-11 w-full disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Ingresando…" : "Ingresar"}
         </button>

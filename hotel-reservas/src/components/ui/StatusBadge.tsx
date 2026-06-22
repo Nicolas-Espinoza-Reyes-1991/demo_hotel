@@ -10,8 +10,8 @@ type BadgeVariant =
   | "refunded";
 
 const styles: Record<BadgeVariant, string> = {
-  available: "bg-teal-900/15 text-teal-900 ring-teal-700/30",
-  paid: "bg-teal-900/15 text-teal-900 ring-teal-700/30",
+  available: "bg-accent/15 text-accent-hover ring-accent/30",
+  paid: "bg-accent/15 text-accent-hover ring-accent/30",
   pending: "bg-amber-900/15 text-amber-950 ring-amber-700/30",
   maintenance: "bg-brand-700 text-brand-100 ring-brand-600",
   blocked: "bg-red-900/15 text-red-900 ring-red-700/30",
