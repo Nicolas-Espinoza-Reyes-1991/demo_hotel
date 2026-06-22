@@ -30,6 +30,13 @@ fi
 echo "[deploy] Landing estática actualizada (nginx sirve este directorio)."
 echo "[deploy] Reconstruyendo contenedor de reservas…"
 cd "$REPO_ROOT/hotel-reservas"
+
+AVAIL_KB="$(df -k / | awk 'NR==2 {print $4}')"
+if [ "$AVAIL_KB" -lt 3145728 ] 2>/dev/null; then
+  echo "[deploy] AVISO: quedan menos de 3 GB libres. Limpiando Docker…"
+  sh scripts/vps-cleanup.sh
+fi
+
 sh scripts/deploy-safe.sh
 
 echo ""
