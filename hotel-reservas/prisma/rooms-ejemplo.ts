@@ -22,7 +22,7 @@ export function buildEjemploRooms() {
       code,
       name: `Ejemplo ${n}`,
       type: n <= 4 ? RoomType.STANDARD : n <= 6 ? RoomType.SUPERIOR : RoomType.DELUXE,
-      description: `Habitación de demostración ${n} — Hotel Boye House.`,
+      description: `Habitación de demostración ${n} — La Casona de Futrono.`,
       pricePerNight: 75_000 + n * 5_000,
       maxGuests: n >= 7 ? 3 : 2,
       floor: Math.ceil(n / 2),

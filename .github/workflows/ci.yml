@@ -79,7 +79,7 @@ jobs:
           ALLOW_SIMULATED_PAYMENT: "true"
           BANK_TRANSFER_ENABLED: "true"
           BANK_NAME: Banco E2E Test
-          BANK_ACCOUNT_HOLDER: Hotel Boye House E2E
+          BANK_ACCOUNT_HOLDER: La Casona de Futrono E2E
           BANK_ACCOUNT_NUMBER: "000111222333444"
           BANK_CONTACT_EMAIL: e2e@hotel.test
           ADMIN_USERNAME: admin

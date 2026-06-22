@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { apiPath, publicAssetUrl } from "@/lib/api-path";
 import { getWebsiteUrl } from "@/lib/website";
 import { showDemoUi } from "@/lib/app-ui";
+import { HOTEL_NAME, HOTEL_TAGLINE, LOGO_PATH } from "@/lib/brand";
 
 type NavItem = {
   key: string;
@@ -178,15 +179,15 @@ export function AppHeader() {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
             <img
-              src={publicAssetUrl("/logo-bh.png") ?? apiPath("/logo-bh.png")}
-              alt="Hotel Boye House"
-              width={36}
-              height={36}
-              className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-accent/25"
+              src={publicAssetUrl(LOGO_PATH) ?? apiPath(LOGO_PATH)}
+              alt={HOTEL_NAME}
+              width={44}
+              height={44}
+              className="h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-accent/25"
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-bold text-brand-100">Hotel Boye House</p>
-              <p className="truncate text-[11px] text-brand-500">Futrono · Reservas</p>
+              <p className="truncate text-sm font-bold text-brand-100">{HOTEL_NAME}</p>
+              <p className="truncate text-[11px] text-brand-500">{HOTEL_TAGLINE}</p>
             </div>
           </Link>
 

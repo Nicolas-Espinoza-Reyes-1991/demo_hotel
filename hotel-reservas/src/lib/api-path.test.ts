@@ -14,7 +14,7 @@ describe("apiPath", () => {
   it("prefija con /reservas en producción por IP", () => {
     vi.stubEnv("NEXT_PUBLIC_BASE_PATH", "/reservas");
     expect(apiPath("/api/auth/login")).toBe("/reservas/api/auth/login");
-    expect(apiPath("/logo-bh.png")).toBe("/reservas/logo-bh.png");
+    expect(apiPath("/logo-casona.png")).toBe("/reservas/logo-casona.png");
   });
 
   it("publicAssetUrl codifica espacios en rutas locales", () => {

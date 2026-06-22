@@ -1,4 +1,5 @@
 import { ADKINIQ_NAME, ADKINIQ_URL } from "@/lib/adkiniq";
+import { getHotelName } from "@/lib/brand";
 import type { BankTransferConfig } from "@/types/payments";
 export type ReservationEmailPayload = {
   to: string;
@@ -10,10 +11,6 @@ export type ReservationEmailPayload = {
   totalAmount: number;
   paymentStatus: string;
 };
-
-function getHotelName(): string {
-  return process.env.HOTEL_NAME?.trim() || "Hotel Boye House";
-}
 
 function getBccRecipients(): string | undefined {
   const bcc = process.env.SMTP_BCC?.trim();

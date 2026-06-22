@@ -77,7 +77,7 @@ export default function HomePage() {
               >
                 <p className="text-xs font-bold uppercase tracking-wider text-accent">Módulo 1 · Activo</p>
                 <h2 className="mt-2 text-lg font-bold text-brand-100 group-hover:text-accent">
-                  Reservas Hotel Boye House
+                  Reservas La Casona de Futrono
                 </h2>
                 <p className="mt-2 text-sm text-brand-500">
                   Disponibilidad en línea para tu estadía en Futrono.

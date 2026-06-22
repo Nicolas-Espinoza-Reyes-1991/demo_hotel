@@ -37,14 +37,14 @@ ADMIN_PASSWORD=boye2026!
 CRON_SECRET=6a6fe42a571fcd68f5c2427dcd13e40f5ad6aff11bedf6f9bac99587157efa8e
 RESERVATION_HOLD_MINUTES=30
 
-HOTEL_NAME=Hotel Boye House
+HOTEL_NAME=La Casona de Futrono
 NEXT_PUBLIC_WHATSAPP_NUMBER=56900000000
 
 SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
 SMTP_PASS=CAMBIAR_RE_API_KEY
-SMTP_FROM=Reservas Hotel Boye House <reservas@adkiniq.cl>
+SMTP_FROM=Reservas La Casona de Futrono <reservas@adkiniq.cl>
 SMTP_BCC=contacto@adkiniq.cl
 
 NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=CAMBIAR_MP_PUBLIC_KEY

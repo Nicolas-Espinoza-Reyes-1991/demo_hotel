@@ -1,18 +1,18 @@
-{
-  "name": "Hotel Reservas",
-  "short_name": "Reservas",
-  "description": "Sistema de reservas hoteleras multiplataforma",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#cfd8e3",
-  "theme_color": "#cfd8e3",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ]
-}
+{
+  "name": "La Casona de Futrono",
+  "short_name": "La Casona",
+  "description": "Reservas en línea — La Casona de Futrono",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6efe4",
+  "theme_color": "#f6efe4",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo-casona.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

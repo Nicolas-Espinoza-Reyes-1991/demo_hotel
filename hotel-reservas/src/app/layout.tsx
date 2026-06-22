@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { apiPath } from "@/lib/api-path";
+import { HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,18 +18,18 @@ const playfair = Playfair_Display({
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
 
 export const metadata: Metadata = {
-  title: "Hotel Boye House | Reservas",
+  title: `${HOTEL_NAME} | Reservas`,
   description:
-    "Sistema de reservas de Hotel Boye House Futrono con disponibilidad en línea y panel administrativo.",
+    `Sistema de reservas de ${HOTEL_NAME} con disponibilidad en línea y panel administrativo.`,
   manifest: `${basePath}/manifest.webmanifest`,
   icons: {
-    icon: `${basePath}/logo-bh.png`,
-    apple: `${basePath}/logo-bh.png`,
+    icon: `${basePath}${LOGO_PATH}`,
+    apple: `${basePath}${LOGO_PATH}`,
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Hotel Boye House",
+    title: HOTEL_NAME,
   },
 };
 
