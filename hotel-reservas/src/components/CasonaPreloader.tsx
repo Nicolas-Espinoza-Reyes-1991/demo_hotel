@@ -46,9 +46,9 @@ export function CasonaPreloaderView({
     setLoadingClass(true);
     const start = Date.now();
     let dismissed = false;
-    let progressTimer: ReturnType<typeof setInterval> | null = null;
-    let fadeTimer: ReturnType<typeof setTimeout> | null = null;
-    let maxTimer: ReturnType<typeof setTimeout> | null = null;
+    let progressTimer: number | null = null;
+    let fadeTimer: number | null = null;
+    let maxTimer: number | null = null;
 
     const minMs = mode === "route" ? ROUTE_MIN_MS : MIN_MS;
     const maxMs = mode === "route" ? 4000 : MAX_MS;
