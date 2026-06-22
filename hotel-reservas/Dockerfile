@@ -35,9 +35,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-# Solo Prisma CLI para migrate deploy (no copiar node_modules completo — ahorra ~400 MB)
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules ./node_modules
 COPY scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN mkdir -p .next/cache \
