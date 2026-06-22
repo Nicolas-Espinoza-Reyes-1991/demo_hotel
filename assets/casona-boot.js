@@ -1,0 +1,86 @@
+(function () {
+  var preloader = document.getElementById("casona-preloader");
+  var progressBar = document.getElementById("casona-preloader-progress");
+  var MIN_MS = 850;
+  var MAX_MS = 9000;
+  var start = Date.now();
+  var dismissed = false;
+  var progress = 0;
+  var progressTimer = null;
+
+  document.documentElement.classList.add("casona-is-loading");
+
+  function setProgress(value) {
+    progress = Math.min(100, Math.max(progress, value));
+    if (progressBar) {
+      progressBar.style.width = progress + "%";
+    }
+  }
+
+  function loadDeferredHeroSlides() {
+    var slides = document.querySelectorAll(".casona-hero__slide[data-src]");
+    slides.forEach(function (img) {
+      var src = img.getAttribute("data-src");
+      if (!src) return;
+      img.src = src;
+      img.removeAttribute("data-src");
+    });
+  }
+
+  function dismissPreloader() {
+    if (dismissed || !preloader) return;
+    dismissed = true;
+    if (progressTimer) window.clearInterval(progressTimer);
+    setProgress(100);
+    preloader.classList.add("is-hidden");
+    document.documentElement.classList.remove("casona-is-loading");
+    loadDeferredHeroSlides();
+    window.setTimeout(function () {
+      if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+    }, 650);
+    window.dispatchEvent(new Event("casona:ready"));
+  }
+
+  function readinessScore() {
+    var score = 0;
+    if (document.readyState === "interactive" || document.readyState === "complete") score += 35;
+    if (document.readyState === "complete") score += 25;
+
+    var heroImg = document.querySelector(".casona-hero__slide.is-active");
+    if (!heroImg || heroImg.complete) score += 25;
+
+    var logoImg = document.querySelector(".casona-hero__logo img");
+    if (!logoImg || logoImg.complete) score += 15;
+
+    return score;
+  }
+
+  function tickProgress() {
+    var elapsed = Date.now() - start;
+    var target = Math.min(92, readinessScore() + Math.floor((elapsed / MIN_MS) * 18));
+    setProgress(target);
+
+    if (elapsed >= MIN_MS && readinessScore() >= 95) {
+      dismissPreloader();
+    }
+  }
+
+  function bindImage(img, weight) {
+    if (!img) return;
+    if (img.complete) {
+      setProgress(progress + weight);
+      return;
+    }
+    img.addEventListener("load", tickProgress, { once: true });
+    img.addEventListener("error", tickProgress, { once: true });
+  }
+
+  bindImage(document.querySelector(".casona-hero__slide.is-active"), 20);
+  bindImage(document.querySelector(".casona-hero__logo img"), 10);
+
+  document.addEventListener("readystatechange", tickProgress);
+  window.addEventListener("load", tickProgress);
+  progressTimer = window.setInterval(tickProgress, 120);
+  window.setTimeout(dismissPreloader, MAX_MS);
+  tickProgress();
+})();
