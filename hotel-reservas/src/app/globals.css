@@ -428,6 +428,10 @@
     border-top: 1px solid rgba(212, 184, 150, 0.35);
   }
 
+  .admin-table-row td {
+    vertical-align: middle;
+  }
+
   .admin-table-row:nth-child(even) {
     background-color: rgba(255, 253, 249, 0.5);
   }

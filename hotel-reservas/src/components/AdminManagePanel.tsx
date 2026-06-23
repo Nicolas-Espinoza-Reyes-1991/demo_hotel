@@ -239,13 +239,13 @@ export function AdminReservationsPanel() {
                       "opacity-90"
                   )}
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-gold">{row.confirmationCode.slice(0, 10)}…</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-brand-100">
+                  <td className="px-4 py-3 align-middle font-mono text-xs text-gold">{row.confirmationCode.slice(0, 10)}…</td>
+                  <td className="px-4 py-3 align-middle">
+                    <p className="font-medium text-brand-100 whitespace-nowrap">
                       {row.guestFullName ?? row.guest.fullName}
                     </p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 align-middle">
                     <GuestContactInfo
                       email={row.guest.email}
                       phone={row.guest.phone}
@@ -262,15 +262,15 @@ export function AdminReservationsPanel() {
                       compact
                     />
                   </td>
-                  <td className="px-4 py-3 text-brand-100">
+                  <td className="px-4 py-3 align-middle text-brand-100 whitespace-nowrap">
                     {row.room.code}
                     <span className="block text-xs text-brand-500">{row.room.name}</span>
                   </td>
-                  <td className="px-4 py-3 text-brand-100">
+                  <td className="px-4 py-3 align-middle text-brand-100 whitespace-nowrap">
                     {row.checkIn} → {row.checkOut}
                   </td>
                   {scope === "history" && (
-                    <td className="px-4 py-3 text-xs text-brand-500">
+                    <td className="px-4 py-3 align-middle text-xs text-brand-500 whitespace-nowrap">
                       {row.updatedAt
                         ? new Date(row.updatedAt).toLocaleString("es-AR", {
                             day: "2-digit",
@@ -282,53 +282,39 @@ export function AdminReservationsPanel() {
                         : "—"}
                     </td>
                   )}
-                  <td className="px-4 py-3 font-semibold text-accent">
+                  <td className="px-4 py-3 align-middle font-semibold text-accent whitespace-nowrap">
                     {formatCurrency(row.totalAmount)}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 align-middle">
                     {row.paymentProvider === "BANK_TRANSFER" && (
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-sky-700">
+                      <span className="mb-1.5 inline-block rounded-full bg-sky-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700">
                         Transferencia
-                      </p>
+                      </span>
                     )}
                     {row.paymentProvider === "MERCADO_PAGO" && (
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                      <span className="mb-1.5 inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
                         Mercado Pago
-                      </p>
+                      </span>
                     )}
-                    <div className="space-y-1">
-                      <StatusBadge
-                        variant={
-                          row.paymentStatus === "PAID"
-                            ? "paid"
-                            : row.paymentStatus === "REFUNDED"
-                              ? "refunded"
-                              : row.paymentStatus === "CANCELLED"
-                                ? "cancelled"
-                                : "pending"
-                        }
-                        label={paymentStatusLabel(row.paymentStatus)}
-                      />
-                      <select
-                        value={row.paymentStatus}
-                        disabled={savingId === row.id}
-                        onChange={(e) => updateReservation(row.id, { paymentStatus: e.target.value })}
-                        className="input-field min-h-10 py-2 text-xs"
-                      >
-                        {PAYMENT_OPTIONS.map((o) => (
-                          <option key={o.value} value={o.value}>
-                            {o.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    <select
+                      value={row.paymentStatus}
+                      disabled={savingId === row.id}
+                      onChange={(e) => updateReservation(row.id, { paymentStatus: e.target.value })}
+                      className="input-field min-h-9 min-w-[130px] py-1.5 text-xs"
+                    >
+                      {PAYMENT_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
+                    </select>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 align-middle">
                     <select
                       value={row.status}
                       disabled={savingId === row.id}
                       onChange={(e) => updateReservation(row.id, { status: e.target.value })}
-                      className="input-field min-h-10 py-2 text-xs"
+                      className="input-field min-h-9 min-w-[140px] py-1.5 text-xs"
                     >
                       {STATUS_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>
