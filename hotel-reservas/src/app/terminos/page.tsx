@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Términos y condiciones",
+  description: "Condiciones de reserva, políticas de cancelación y pago en La Casona de Futrono.",
+  robots: { index: false, follow: false },
+};
 
 export default function TerminosPage() {
   return (

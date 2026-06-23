@@ -35,11 +35,12 @@ cat > "$TARGET" <<'EOF'
 # Generado por scripts/bootstrap-production-env.sh — no commitear
 
 NODE_ENV=production
-APP_URL=http://178.104.214.147/reservas
-NEXT_PUBLIC_WEBSITE_URL=http://178.104.214.147
+APP_URL=https://lacasonadefutrono.cl/reservas
+NEXT_PUBLIC_APP_URL=https://lacasonadefutrono.cl
+NEXT_PUBLIC_WEBSITE_URL=https://lacasonadefutrono.cl
 NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
 
 NEXT_PUBLIC_SHOW_DEMO_UI=false
 NEXT_PUBLIC_DISPLAY_CURRENCY=CLP
@@ -63,8 +64,8 @@ SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
 SMTP_PASS=CAMBIAR_RE_API_KEY
-SMTP_FROM=Reservas La Casona de Futrono <reservas@adkiniq.cl>
-SMTP_BCC=contacto@adkiniq.cl
+SMTP_FROM=Reservas La Casona de Futrono <reservas@lacasonadefutrono.cl>
+SMTP_BCC=contacto@lacasonadefutrono.cl
 
 NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=CAMBIAR_MP_PUBLIC_KEY
 MERCADOPAGO_ACCESS_TOKEN=CAMBIAR_MP_ACCESS_TOKEN
@@ -78,7 +79,7 @@ BANK_ACCOUNT_NUMBER=CAMBIAR_NUMERO_CUENTA
 BANK_ACCOUNT_TYPE=Cuenta corriente CLP
 BANK_CBU=CAMBIAR_CBU_O_CVU
 BANK_ALIAS=CAMBIAR_ALIAS
-BANK_CONTACT_EMAIL=reservas@adkiniq.cl
+BANK_CONTACT_EMAIL=reservas@lacasonadefutrono.cl
 BANK_TRANSFER_DEADLINE_HOURS=48
 BANK_TRANSFER_NOTES=Indica tu código de reserva en el concepto de la transferencia.
 

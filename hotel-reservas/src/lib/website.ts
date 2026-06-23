@@ -7,5 +7,5 @@ export function getWebsiteUrl(): string {
     return "http://localhost:5501/propuesta-7-casona-futrono.html";
   }
 
-  return "https://hotelboyehouse.cl";
+  return "https://lacasonadefutrono.cl";
 }

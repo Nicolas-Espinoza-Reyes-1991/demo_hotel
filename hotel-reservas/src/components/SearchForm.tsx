@@ -2,7 +2,7 @@
 
 import { addDays, format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type SearchParams = {
   checkIn: string;
@@ -24,6 +24,15 @@ export function SearchForm({
   const [checkOut, setCheckOut] = useState(tomorrow);
   const [guests, setGuests] = useState(2);
   const [error, setError] = useState<string | null>(null);
+
+  // Lanzar búsqueda automáticamente con los valores por defecto al montar
+  const autoSearched = useRef(false);
+  useEffect(() => {
+    if (autoSearched.current) return;
+    autoSearched.current = true;
+    onSearch({ checkIn: today, checkOut: tomorrow, guests: 2 });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function nextDay(value: string): string {
     return format(addDays(new Date(`${value}T12:00:00`), 1), "yyyy-MM-dd");

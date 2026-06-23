@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Política de privacidad",
+  description: "Tratamiento de datos personales en La Casona de Futrono conforme a la Ley 19.628.",
+  robots: { index: false, follow: false },
+};
 
 export default function PrivacidadPage() {
   return (

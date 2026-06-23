@@ -19,7 +19,11 @@ services:
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_BASE_PATH: /reservas
+        # Usar IP mientras el DNS de lacasonadefutrono.cl no esté activo
+        # (este link aparece en el header "Volver al sitio web")
         NEXT_PUBLIC_WEBSITE_URL: http://178.104.214.147
+        # APP_URL solo se usa en meta tags SEO (canonical, OG), no afecta funcionalidad
+        NEXT_PUBLIC_APP_URL: https://lacasonadefutrono.cl
         NEXT_PUBLIC_SHOW_DEMO_UI: "false"
         NEXT_PUBLIC_DISPLAY_CURRENCY: CLP
         NEXT_PUBLIC_WHATSAPP_NUMBER: "56900000000"

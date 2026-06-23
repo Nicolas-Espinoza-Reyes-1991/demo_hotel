@@ -18,8 +18,16 @@ function isValidDateOnly(value: string): boolean {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
+/**
+ * Fecha mínima permitida para check-in en validaciones de servidor.
+ * Se descuenta 1 día para acomodar clientes en zonas UTC negativas
+ * (e.g. UTC-4 a las 23:00 ya es "mañana" en UTC) sin rechazar
+ * fechas de "hoy" legítimas.
+ */
 function todayDateOnly(): string {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
 }
 
 const dateOnlySchema = z
