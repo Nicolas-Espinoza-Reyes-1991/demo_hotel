@@ -1023,6 +1023,18 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   font-weight: 700;
   font-style: italic;
   letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.casona-room-card__title-tree {
+  width: 1.05rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  fill: var(--casona-wood-soft);
+  opacity: 0.85;
+  margin-top: 0.05rem;
 }
 
 /* ── Meta info ── */
