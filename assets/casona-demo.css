@@ -1824,21 +1824,16 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   margin-top: clamp(2rem, 5vw, 3rem);
 }
 
-/* ── Cada ítem define su propia proporción — sin alturas fijas ── */
+/* ── Base: mobile — cada imagen en su propia fila con proporción landscape ── */
 .casona-ambiente__item {
   position: relative;
   margin: 0;
   overflow: hidden;
   border-radius: 1rem;
   background: #ddd5c8;
-  aspect-ratio: 4 / 3;
-}
-
-.casona-ambiente__item--hero {
   aspect-ratio: 16 / 10;
 }
 
-/* Imagen llena el contenedor con position absolute para respetar aspect-ratio */
 .casona-ambiente__item img {
   position: absolute;
   inset: 0;
@@ -1849,20 +1844,6 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Ajuste de foco por imagen: ver más del contenido relevante */
-.casona-ambiente__item--hero img {
-  object-position: center 40%;
-}
-
-.casona-ambiente__item:nth-child(2) img {
-  object-position: center 30%;
-}
-
-.casona-ambiente__item:nth-child(3) img {
-  object-position: center 45%;
-}
-
-/* Hover zoom suave */
 .casona-ambiente__item:hover img {
   transform: scale(1.04);
 }
@@ -1881,31 +1862,40 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   pointer-events: none;
 }
 
-/* ── Desktop: layout 2 columnas con hero principal ── */
+/* ── Desktop: 2 columnas, filas más altas para mostrar más contenido ── */
 @media (min-width: 768px) {
   .casona-ambiente {
-    /* Hero ocupa columna izquierda completa; derecha apila 2 fotos */
-    grid-template-columns: 1.45fr 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: 1.4fr 1fr;
+    /* Filas generosas — 2× más alto que antes para mostrar más de cada foto */
+    grid-template-rows: repeat(2, minmax(0, clamp(17rem, 28vw, 24rem)));
     gap: 0.85rem;
-    align-items: start;
   }
 
+  /* Hero ocupa ambas filas — se estira para llenarlas */
   .casona-ambiente__item--hero {
-    grid-row: 1 / 3;
-    /* Más altura para la foto principal — muestra más del interior */
-    aspect-ratio: 3 / 4;
+    grid-row: span 2;
+    aspect-ratio: unset;
+    height: 100%;
   }
 
+  .casona-ambiente__item--hero img {
+    object-position: center 45%;
+  }
+
+  /* Fotos laterales llenan su fila */
   .casona-ambiente__item:not(.casona-ambiente__item--hero) {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: unset;
+    height: 100%;
   }
-}
 
-/* ── Tablet ancho (900–1200px): hero más panorámico ── */
-@media (min-width: 900px) {
-  .casona-ambiente__item--hero {
-    aspect-ratio: 2 / 3;
+  /* Escalera: mostrar desde arriba */
+  .casona-ambiente__item:nth-child(2) img {
+    object-position: center 25%;
+  }
+
+  /* Segundo piso: mostrar perspectiva central */
+  .casona-ambiente__item:nth-child(3) img {
+    object-position: center 40%;
   }
 }
 .casona-experience__grid {
