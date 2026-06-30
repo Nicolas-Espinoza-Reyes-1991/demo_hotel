@@ -82,7 +82,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.26.jpeg" fetchpriority="high" />
     <link rel="preload" as="image" href="./assets/logo-casona.png" />
-    <link rel="preload" href="./assets/casona-demo.css?v=20260630-8" as="style" />
+    <link rel="preload" href="./assets/casona-demo.css?v=20260630-12" as="style" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap"
       rel="stylesheet"
@@ -95,7 +95,7 @@
         rel="stylesheet"
       />
     </noscript>
-    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-8" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-12" />
     <style>
       html.casona-is-loading,
       html.casona-is-loading body {
@@ -273,7 +273,7 @@
           <div class="casona-services">
             <article class="casona-service casona-service--visual">
               <div class="casona-service__photo">
-                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.18.32.jpeg" alt="Fachada de madera de La Casona de Futrono con jardín y flores" loading="lazy" />
+                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.18.32.webp" alt="Fachada de madera de La Casona de Futrono con jardín y flores" loading="lazy" />
               </div>
               <div class="casona-service__body">
                 <h3 class="casona-service__title">Arquitectura tradicional</h3>
@@ -300,7 +300,7 @@
             </article>
             <article class="casona-service casona-service--visual">
               <div class="casona-service__photo">
-                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.14.jpeg" alt="Bar y salón común de La Casona de Futrono con vista al bosque" loading="lazy" />
+                <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.14.webp" alt="Bar y salón común de La Casona de Futrono con vista al bosque" loading="lazy" />
               </div>
               <div class="casona-service__body">
                 <h3 class="casona-service__title">Salón y bar</h3>
@@ -334,16 +334,28 @@
 
           <div class="casona-ambiente" aria-label="Galería del entorno y la arquitectura">
             <figure class="casona-ambiente__item casona-ambiente__item--hero">
-              <img src="./fotos_web/arquitectura_hotel_vista/sala.webp" alt="Interior de madera con ventanales y luz natural" loading="lazy" />
-              <figcaption>Interiores en madera</figcaption>
+              <img src="./fotos_web/arquitectura_hotel_vista/sala.webp" alt="Sala de estar revestida en madera con grandes ventanales y vista hacia el jardín" loading="lazy" />
+              <figcaption>Sala mirador</figcaption>
             </figure>
             <figure class="casona-ambiente__item">
-              <img src="./fotos_web/arquitectura_hotel_vista/escalera.webp" alt="Fachada de madera con tejuelas y jardín" loading="lazy" />
-              <figcaption>Arquitectura sureña</figcaption>
+              <img src="./fotos_web/arquitectura_hotel_vista/escalera.webp" alt="Escalera interior de madera que conecta los niveles de la casona con vista al altillo" loading="lazy" />
+              <figcaption>Escalera y altillo</figcaption>
             </figure>
             <figure class="casona-ambiente__item">
-              <img src="./fotos_web/arquitectura_hotel_vista/segundo_piso.webp" alt="Panorámica del hotel con vista al Lago Ranco" loading="lazy" />
-              <figcaption>Vista al Lago Ranco</figcaption>
+              <img src="./fotos_web/arquitectura_hotel_vista/segundo_piso.webp" alt="Vista desde el segundo piso hacia la escalera central y los espacios comunes de madera" loading="lazy" />
+              <figcaption>Segundo piso</figcaption>
+            </figure>
+            <figure class="casona-ambiente__item casona-ambiente__item--wide">
+              <img src="./fotos_web/arquitectura_hotel_vista/recepcion.webp" alt="Recepción principal de La Casona de Futrono con mostrador y detalles en madera nativa" loading="lazy" />
+              <figcaption>Recepción de madera</figcaption>
+            </figure>
+            <figure class="casona-ambiente__item casona-ambiente__item--wide">
+              <img src="./fotos_web/arquitectura_hotel_vista/comedor.webp" alt="Comedor acogedor con mesas preparadas para el desayuno y ambiente familiar" loading="lazy" />
+              <figcaption>Comedor acogedor</figcaption>
+            </figure>
+            <figure class="casona-ambiente__item casona-ambiente__item--featured">
+              <img src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.07.34.webp" alt="Vista privilegiada del entorno natural desde La Casona de Futrono, rodeada de madera, jardín y paisaje sureño" loading="lazy" />
+              <figcaption>Vista privilegiada</figcaption>
             </figure>
           </div>
 
@@ -392,7 +404,7 @@
           <div class="casona-about__grid">
             <div class="casona-about__img">
               <img
-                src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.05.09.jpeg"
+                src="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.05.09.webp"
                 alt="Salón principal de La Casona de Futrono con madera nativa y escalera artesanal"
                 loading="lazy"
                 decoding="async"
@@ -1028,6 +1040,73 @@
           }
         }
 
+        function openRoomLightbox(photos, startIndex, roomName) {
+          var current = startIndex || 0;
+          var lightbox = document.querySelector(".lp-lightbox");
+
+          if (!lightbox) {
+            lightbox = document.createElement("div");
+            lightbox.className = "lp-lightbox";
+            lightbox.setAttribute("role", "dialog");
+            lightbox.setAttribute("aria-modal", "true");
+            lightbox.innerHTML =
+              '<button type="button" class="lp-lightbox__close" aria-label="Cerrar imagen ampliada">×</button>' +
+              '<button type="button" class="lp-lightbox__btn lp-lightbox__btn--prev" aria-label="Imagen anterior">‹</button>' +
+              '<figure class="lp-lightbox__figure">' +
+                '<img class="lp-lightbox__img" alt="" />' +
+                '<figcaption class="lp-lightbox__caption"></figcaption>' +
+              "</figure>" +
+              '<button type="button" class="lp-lightbox__btn lp-lightbox__btn--next" aria-label="Imagen siguiente">›</button>' +
+              '<span class="lp-lightbox__counter" aria-live="polite"></span>';
+            document.body.appendChild(lightbox);
+          }
+
+          var img = lightbox.querySelector(".lp-lightbox__img");
+          var caption = lightbox.querySelector(".lp-lightbox__caption");
+          var counter = lightbox.querySelector(".lp-lightbox__counter");
+          var btnPrev = lightbox.querySelector(".lp-lightbox__btn--prev");
+          var btnNext = lightbox.querySelector(".lp-lightbox__btn--next");
+          var btnClose = lightbox.querySelector(".lp-lightbox__close");
+
+          function render() {
+            img.src = photos[current];
+            img.alt = roomName + " — imagen ampliada " + (current + 1);
+            caption.textContent = roomName;
+            counter.textContent = (current + 1) + " / " + photos.length;
+            btnPrev.hidden = photos.length <= 1;
+            btnNext.hidden = photos.length <= 1;
+          }
+
+          function goTo(nextIndex) {
+            current = (nextIndex + photos.length) % photos.length;
+            render();
+          }
+
+          function close() {
+            lightbox.classList.remove("is-open");
+            document.body.style.overflow = "";
+            document.removeEventListener("keydown", onKeydown);
+          }
+
+          function onKeydown(event) {
+            if (event.key === "Escape") close();
+            if (event.key === "ArrowLeft") goTo(current - 1);
+            if (event.key === "ArrowRight") goTo(current + 1);
+          }
+
+          btnPrev.onclick = function (event) { event.stopPropagation(); goTo(current - 1); };
+          btnNext.onclick = function (event) { event.stopPropagation(); goTo(current + 1); };
+          btnClose.onclick = close;
+          lightbox.onclick = function (event) {
+            if (event.target === lightbox) close();
+          };
+
+          render();
+          lightbox.classList.add("is-open");
+          document.body.style.overflow = "hidden";
+          document.addEventListener("keydown", onKeydown);
+        }
+
         function buildCarousel(photos, roomName, fallbackSrc) {
           var wrap = document.createElement("div");
           wrap.className = "lp-carousel";
@@ -1040,6 +1119,11 @@
             img.alt = roomName + " \u2014 foto " + (i + 1);
             img.loading = i === 0 ? "eager" : "lazy";
             img.onerror = function () { this.src = fallbackSrc; };
+            img.addEventListener("click", function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              openRoomLightbox(photos, i, roomName);
+            });
             wrap.appendChild(img);
           });
 

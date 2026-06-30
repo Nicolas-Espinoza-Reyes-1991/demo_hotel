@@ -68,7 +68,7 @@ export default function HomePage() {
       <AppHeader />
 
       <main className="mx-auto max-w-7xl px-4 py-6 pb-28 sm:px-6 sm:py-10 sm:pb-32">
-        <div className="rounded-3xl border border-white/70 bg-white/72 p-4 shadow-[0_22px_58px_-22px_rgba(61,43,31,0.18)] backdrop-blur-md sm:p-6 lg:p-8">
+        <div className="rounded-3xl border border-white/40 bg-white/32 p-4 shadow-[0_22px_58px_-22px_rgba(61,43,31,0.18)] backdrop-blur-[2px] sm:p-6 lg:p-8">
           {demoUi && (
             <section className="animate-fade-in-up mb-8 grid gap-4 sm:grid-cols-2">
               <a

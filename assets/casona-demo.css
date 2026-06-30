@@ -166,7 +166,7 @@ body.casona-demo {
   line-height: 1.5;
 }
 
-body.casona-demo img:not(.casona-hero__slide):not(.casona-hero__logo img):not(.casona-momentos__item img):not(.casona-service__photo img):not(.casona-about__img img):not(.casona-carousel__photo) {
+body.casona-demo img:not(.casona-hero__slide):not(.casona-hero__logo img):not(.casona-momentos__item img):not(.casona-service__photo img):not(.casona-about__img img):not(.casona-carousel__photo):not(.casona-ambiente__item img) {
   display: block;
   max-width: 100%;
   height: auto;
@@ -846,6 +846,7 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   opacity: 0;
   transition: opacity 0.5s ease, transform 0.5s ease;
   transform: scale(1.06);
+  cursor: zoom-in;
 }
 
 .lp-carousel__slide--active {
@@ -948,6 +949,149 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 /* Touch: botones siempre visibles */
 @media (hover: none) {
   .lp-carousel__btn { opacity: 0.9; }
+}
+
+/* ── Lightbox habitaciones landing ─────────────────────────────────── */
+.lp-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at top, rgba(193, 154, 107, 0.16), transparent 24rem),
+    rgba(18, 10, 5, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+  backdrop-filter: blur(10px);
+}
+
+.lp-lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.lp-lightbox__figure {
+  width: min(94vw, 72rem);
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.lp-lightbox__img {
+  display: block;
+  width: 100%;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 1rem;
+  background: rgba(255, 253, 249, 0.08);
+  box-shadow:
+    0 2rem 5rem rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 253, 249, 0.14);
+}
+
+.lp-lightbox__caption {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(1.15rem, 2vw, 1.6rem);
+  font-style: italic;
+  font-weight: 700;
+  color: #fffdf9;
+  text-align: center;
+}
+
+.lp-lightbox__close,
+.lp-lightbox__btn {
+  position: fixed;
+  z-index: 10001;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 253, 249, 0.22);
+  background: rgba(255, 253, 249, 0.14);
+  color: #fffdf9;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0.7rem 1.8rem rgba(0, 0, 0, 0.22);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lp-lightbox__close:hover,
+.lp-lightbox__btn:hover {
+  background: rgba(255, 253, 249, 0.24);
+  transform: scale(1.04);
+}
+
+.lp-lightbox__close {
+  top: max(1rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right));
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.lp-lightbox__btn {
+  top: 50%;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.lp-lightbox__btn--prev {
+  left: max(1rem, env(safe-area-inset-left));
+}
+
+.lp-lightbox__btn--next {
+  right: max(1rem, env(safe-area-inset-right));
+}
+
+.lp-lightbox__counter {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: rgba(255, 253, 249, 0.14);
+  color: rgba(255, 253, 249, 0.92);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 639px) {
+  .lp-lightbox {
+    padding: 0.8rem;
+  }
+
+  .lp-lightbox__img {
+    max-height: 76vh;
+    border-radius: 0.85rem;
+  }
+
+  .lp-lightbox__btn {
+    top: auto;
+    bottom: max(3.4rem, calc(env(safe-area-inset-bottom) + 3.4rem));
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .lp-lightbox__btn--prev {
+    left: calc(50% - 3.35rem);
+  }
+
+  .lp-lightbox__btn--next {
+    right: calc(50% - 3.35rem);
+  }
 }
 
 /* ── Overlay inferior imagen: gradiente + código + árbol ── */
@@ -1835,6 +1979,7 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 }
 
 .casona-ambiente__item img {
+  display: block;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1862,12 +2007,15 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   pointer-events: none;
 }
 
-/* ── Desktop: 2 columnas, filas más altas para mostrar más contenido ── */
+/* ── Desktop: composición superior + fila inferior de apoyo ── */
 @media (min-width: 768px) {
   .casona-ambiente {
     grid-template-columns: 1.4fr 1fr;
-    /* Filas generosas — 2× más alto que antes para mostrar más de cada foto */
-    grid-template-rows: repeat(2, minmax(0, clamp(17rem, 28vw, 24rem)));
+    /* Primeras 2 filas mantienen la arquitectura original: 1 hero + 2 laterales. */
+    grid-template-rows:
+      repeat(2, minmax(0, clamp(13rem, 20vw, 17rem)))
+      minmax(0, clamp(13rem, 18vw, 16rem))
+      minmax(0, clamp(14rem, 20vw, 18rem));
     gap: 0.85rem;
   }
 
@@ -1882,8 +2030,30 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
     object-position: center 45%;
   }
 
-  /* Fotos laterales llenan su fila */
-  .casona-ambiente__item:not(.casona-ambiente__item--hero) {
+  /* Fotos laterales superiores llenan su fila */
+  .casona-ambiente__item:nth-child(2),
+  .casona-ambiente__item:nth-child(3) {
+    aspect-ratio: unset;
+    height: 100%;
+  }
+
+  /* Fila inferior: dos imágenes nuevas debajo del conjunto principal. */
+  .casona-ambiente__item--wide {
+    aspect-ratio: unset;
+    height: 100%;
+  }
+
+  .casona-ambiente__item--wide:nth-child(4) {
+    grid-column: 1;
+  }
+
+  .casona-ambiente__item--wide:nth-child(5) {
+    grid-column: 2;
+  }
+
+  /* Imagen destacada final: ancho completo, cierre visual del conjunto. */
+  .casona-ambiente__item--featured {
+    grid-column: 1 / -1;
     aspect-ratio: unset;
     height: 100%;
   }
@@ -1896,6 +2066,18 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   /* Segundo piso: mostrar perspectiva central */
   .casona-ambiente__item:nth-child(3) img {
     object-position: center 40%;
+  }
+
+  .casona-ambiente__item:nth-child(4) img {
+    object-position: center 44%;
+  }
+
+  .casona-ambiente__item:nth-child(5) img {
+    object-position: center 38%;
+  }
+
+  .casona-ambiente__item:nth-child(6) img {
+    object-position: center 46%;
   }
 }
 .casona-experience__grid {

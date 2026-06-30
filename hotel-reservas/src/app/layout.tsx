@@ -86,7 +86,7 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const bgReception = `url('${apiPath("/bg-reception.png")}')`;
+  const bgReception = `url('${apiPath("/bg-recepcion.webp")}')`;
 
   return (
     <html lang="es">

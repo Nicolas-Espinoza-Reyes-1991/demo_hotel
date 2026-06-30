@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
 import { publicAssetUrl } from "@/lib/api-path";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -92,6 +93,38 @@ function getResolvedPhotos(room: RoomCardData): string[] {
 // ── Carrusel de fotos ───────────────────────────────────────────────────────
 function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
   const [current, setCurrent] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+  }, []);
+
+  const goLightbox = useCallback(
+    (index: number) => {
+      setLightboxIndex((index + photos.length) % photos.length);
+    },
+    [photos.length]
+  );
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function onKeydown(event: KeyboardEvent) {
+      if (event.key === "Escape") closeLightbox();
+      if (event.key === "ArrowLeft") goLightbox(lightboxIndex - 1);
+      if (event.key === "ArrowRight") goLightbox(lightboxIndex + 1);
+    }
+
+    document.addEventListener("keydown", onKeydown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeydown);
+    };
+  }, [closeLightbox, goLightbox, lightboxIndex, lightboxOpen]);
 
   const prev = useCallback(
     (e: React.MouseEvent) => {
@@ -118,6 +151,11 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
           src={src}
           alt={`${name} — foto ${i + 1}`}
           loading={i === 0 ? "eager" : "lazy"}
+          onClick={(e) => {
+            e.stopPropagation();
+            setLightboxIndex(i);
+            setLightboxOpen(true);
+          }}
           className={cn(
             "room-carousel__slide",
             i === current ? "room-carousel__slide--active" : ""
@@ -169,6 +207,72 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
           </span>
         </>
       )}
+
+      {lightboxOpen && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="room-lightbox"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Imagen ampliada de ${name}`}
+              onClick={closeLightbox}
+            >
+              <button
+                type="button"
+                className="room-lightbox__close"
+                onClick={closeLightbox}
+                aria-label="Cerrar imagen ampliada"
+              >
+                ×
+              </button>
+
+              {photos.length > 1 && (
+                <button
+                  type="button"
+                  className="room-lightbox__btn room-lightbox__btn--prev"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goLightbox(lightboxIndex - 1);
+                  }}
+                  aria-label="Imagen anterior"
+                >
+                  ‹
+                </button>
+              )}
+
+              <figure
+                className="room-lightbox__figure"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <img
+                  src={photos[lightboxIndex]}
+                  alt={`${name} — imagen ampliada ${lightboxIndex + 1}`}
+                  className="room-lightbox__img"
+                />
+                <figcaption className="room-lightbox__caption">{name}</figcaption>
+              </figure>
+
+              {photos.length > 1 && (
+                <button
+                  type="button"
+                  className="room-lightbox__btn room-lightbox__btn--next"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goLightbox(lightboxIndex + 1);
+                  }}
+                  aria-label="Imagen siguiente"
+                >
+                  ›
+                </button>
+              )}
+
+              <span className="room-lightbox__counter" aria-live="polite">
+                {lightboxIndex + 1} / {photos.length}
+              </span>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }
