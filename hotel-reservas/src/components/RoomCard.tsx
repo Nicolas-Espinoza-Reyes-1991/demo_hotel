@@ -217,11 +217,14 @@ export function RoomCard({
       <div className="space-y-3 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-brand-500">
+            <p className="flex flex-wrap items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand-500">
               Hab. {room.code}
               {treeName && (
-                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-accent">
-                  🌿 {treeName}
+                <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-accent">
+                  <svg viewBox="0 0 14 16" fill="currentColor" className="h-3 w-3 shrink-0" aria-hidden="true">
+                    <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
+                  </svg>
+                  {treeName}
                 </span>
               )}
             </p>
