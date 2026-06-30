@@ -789,17 +789,134 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #ebe3d6;
+  position: relative;
 }
 
-.casona-room-card__media img {
+/* ── Carrusel landing ──────────────────────────────────────────────── */
+.lp-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.lp-carousel__slide {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.45s ease;
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  transform: scale(1.04);
 }
 
-.casona-room-card:hover .casona-room-card__media img {
-  transform: scale(1.05);
+.lp-carousel__slide--active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.casona-room-card:hover .lp-carousel__slide--active {
+  transform: scale(1.03);
+}
+
+.lp-carousel__btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: rgba(61, 43, 31, 0.70);
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.casona-room-card:hover .lp-carousel__btn { opacity: 1; }
+
+.lp-carousel__btn:hover { background: rgba(61, 43, 31, 0.92); }
+.lp-carousel__btn--prev { left: 0.5rem; }
+.lp-carousel__btn--next { right: 0.5rem; }
+
+.lp-carousel__dots {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.lp-carousel__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.5);
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+.lp-carousel__dot--active {
+  background: #fff;
+  transform: scale(1.45);
+}
+
+.lp-carousel__counter {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.55rem;
+  z-index: 10;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.88);
+  background: rgba(0,0,0,0.32);
+  border-radius: 9999px;
+  padding: 1px 6px;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+}
+
+@media (hover: none) {
+  .lp-carousel__btn { opacity: 0.85; }
+}
+
+/* Código de habitación + badge árbol */
+.casona-room-card__code {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #7a5c40;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.casona-room-tree-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(107, 79, 58, 0.12);
+  color: #6b4f3a;
+  border-radius: 9999px;
+  padding: 1px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
 }
 
 .casona-room-card__body {

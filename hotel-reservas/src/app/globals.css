@@ -406,6 +406,110 @@
     background-color: rgba(243, 235, 224, 0.62);
   }
 
+  /* ── Carrusel de habitaciones ──────────────────────────────────────── */
+  .room-carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #2a1e17;
+  }
+
+  .room-carousel__slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    transform: scale(1.03);
+  }
+
+  .room-carousel__slide--active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .room-carousel__btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    background: rgba(61, 43, 31, 0.72);
+    color: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    backdrop-filter: blur(4px);
+  }
+
+  .group:hover .room-carousel__btn,
+  .room-carousel:focus-within .room-carousel__btn {
+    opacity: 1;
+  }
+
+  .room-carousel__btn:hover {
+    background: rgba(61, 43, 31, 0.92);
+  }
+
+  .room-carousel__btn--prev { left: 0.5rem; }
+  .room-carousel__btn--next { right: 0.5rem; }
+
+  .room-carousel__dots {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .room-carousel__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.5);
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+  }
+
+  .room-carousel__dot--active {
+    background: #fff;
+    transform: scale(1.4);
+  }
+
+  .room-carousel__counter {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.6rem;
+    z-index: 20;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 9999px;
+    padding: 1px 6px;
+    pointer-events: none;
+    backdrop-filter: blur(2px);
+  }
+
+  @media (hover: none) {
+    .room-carousel__btn { opacity: 0.85; }
+  }
+
   .admin-toolbar {
     @apply rounded-2xl border p-2 shadow-sm;
     border-color: rgba(160, 120, 90, 0.32);

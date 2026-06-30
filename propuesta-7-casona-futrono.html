@@ -874,6 +874,31 @@
         var VISIBLE_STEP = 12;
         var visibleCount = VISIBLE_STEP;
         var rooms = [];
+
+        /* Galería de fotos por habitación — árbol nativo chileno */
+        var ROOM_GALLERY = {
+          1: { treeName: "Canelo",  folder: "habitacion_1_canelo",  photos: ["1.webp","2.webp","3.webp","4.webp"] },
+          2: { treeName: "Laurel",  folder: "habitacion_2_laurel",  photos: ["1.webp","2.webp","3.webp"] },
+          3: { treeName: "Ma\u00F1\u00EDo",   folder: "habitacion_3_ma\u00F1io",   photos: ["1.webp","2.webp","3.webp"] },
+          4: { treeName: "Roble",   folder: "habitacion_4_roble",   photos: ["1.webp","2.webp","file_000000001d34720ebbb7d9eb9169ed7b.webp"] },
+          5: { treeName: "Raul\u00ED",  folder: "habitacion_5_rauli",   photos: ["1.webp","2.webp","3.webp","4.webp"] },
+          6: { treeName: "Ulmo",    folder: "habitacion_6_ulmo",    photos: ["1.webp","2.webp","3.webp","4.webp","5.webp"] },
+          7: { treeName: "Alerce",  folder: "habitacion_7_alerce",  photos: ["1.webp","2.webp","3.webp","4.webp"] },
+        };
+
+        function getGallery(code) {
+          var num = parseInt(String(code || "").replace(/\D/g, ""), 10);
+          return ROOM_GALLERY[num] || null;
+        }
+
+        function getGalleryPhotos(code, apiBase) {
+          var gallery = getGallery(code);
+          if (!gallery) return [];
+          return gallery.photos.map(function (photo) {
+            return apiBase + "/habitaciones/" + encodeURIComponent(gallery.folder) + "/" + photo;
+          });
+        }
+
         var fallbackImages = [
           "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.07.58.jpeg",
           "./fotos_web/habitaciones/WhatsApp Image 2026-06-08 at 11.06.02.jpeg",
@@ -1003,27 +1028,117 @@
           }
         }
 
+        function buildCarousel(photos, roomName, fallbackSrc) {
+          var wrap = document.createElement("div");
+          wrap.className = "casona-room-card__media lp-carousel";
+
+          /* Slides */
+          photos.forEach(function (src, i) {
+            var img = document.createElement("img");
+            img.className = "lp-carousel__slide" + (i === 0 ? " lp-carousel__slide--active" : "");
+            img.src = src;
+            img.alt = roomName + " \u2014 foto " + (i + 1);
+            img.loading = i === 0 ? "eager" : "lazy";
+            img.onerror = function () { this.src = fallbackSrc; };
+            wrap.appendChild(img);
+          });
+
+          if (photos.length <= 1) return wrap;
+
+          /* Botón prev */
+          var btnPrev = document.createElement("button");
+          btnPrev.type = "button";
+          btnPrev.className = "lp-carousel__btn lp-carousel__btn--prev";
+          btnPrev.setAttribute("aria-label", "Foto anterior");
+          btnPrev.textContent = "\u2039";
+          wrap.appendChild(btnPrev);
+
+          /* Botón next */
+          var btnNext = document.createElement("button");
+          btnNext.type = "button";
+          btnNext.className = "lp-carousel__btn lp-carousel__btn--next";
+          btnNext.setAttribute("aria-label", "Foto siguiente");
+          btnNext.textContent = "\u203a";
+          wrap.appendChild(btnNext);
+
+          /* Dots */
+          var dotsWrap = document.createElement("div");
+          dotsWrap.className = "lp-carousel__dots";
+          dotsWrap.setAttribute("aria-hidden", "true");
+          photos.forEach(function (_, i) {
+            var dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = "lp-carousel__dot" + (i === 0 ? " lp-carousel__dot--active" : "");
+            dotsWrap.appendChild(dot);
+          });
+          wrap.appendChild(dotsWrap);
+
+          /* Contador */
+          var counter = document.createElement("span");
+          counter.className = "lp-carousel__counter";
+          counter.textContent = "1 / " + photos.length;
+          wrap.appendChild(counter);
+
+          /* Estado y lógica */
+          var current = 0;
+          var slides = wrap.querySelectorAll(".lp-carousel__slide");
+          var dots = dotsWrap.querySelectorAll(".lp-carousel__dot");
+
+          function goTo(n) {
+            slides[current].classList.remove("lp-carousel__slide--active");
+            dots[current].classList.remove("lp-carousel__dot--active");
+            current = (n + photos.length) % photos.length;
+            slides[current].classList.add("lp-carousel__slide--active");
+            dots[current].classList.add("lp-carousel__dot--active");
+            counter.textContent = (current + 1) + " / " + photos.length;
+          }
+
+          btnPrev.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTo(current - 1); });
+          btnNext.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTo(current + 1); });
+          dots.forEach(function (dot, i) {
+            dot.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTo(i); });
+          });
+
+          return wrap;
+        }
+
         function renderRooms() {
           grid.innerHTML = "";
+          var apiBase = getApiBase();
           var visibleRooms = rooms.slice(0, visibleCount);
           visibleRooms.forEach(function (room, index) {
             var card = document.createElement("article");
             card.className = "casona-room-card";
 
-            var media = document.createElement("div");
-            media.className = "casona-room-card__media";
+            /* Fotos: galería por carpeta > imageUrl > fallback */
+            var photos = getGalleryPhotos(room.code, apiBase);
+            var fallbackSrc = fallbackImages[index % fallbackImages.length];
+            if (photos.length === 0) {
+              var rawUrl = String(room.imageUrl || "").trim();
+              if (rawUrl && !rawUrl.includes("images.unsplash.com")) {
+                photos = [/^https?:\/\//i.test(rawUrl) ? rawUrl : encodeAssetPath(apiBase + (rawUrl.startsWith("/") ? rawUrl : "/" + rawUrl.replace(/^\.?\//, "")))];
+              } else {
+                photos = [fallbackSrc];
+              }
+            }
 
-            var image = document.createElement("img");
-            image.loading = "lazy";
-            image.src = getImage(room, index);
-            image.alt = room.name || "Habitación";
-            image.onerror = function () {
-              this.src = fallbackImages[index % fallbackImages.length];
-            };
-            media.appendChild(image);
+            var media = buildCarousel(photos, room.name || ("Habitación " + room.code), fallbackSrc);
+            card.appendChild(media);
 
             var body = document.createElement("div");
             body.className = "casona-room-card__body";
+
+            /* Código + nombre árbol */
+            var codeWrap = document.createElement("p");
+            codeWrap.className = "casona-room-card__code";
+            codeWrap.textContent = "Hab. " + room.code;
+            var gallery = getGallery(room.code);
+            if (gallery) {
+              var treeBadge = document.createElement("span");
+              treeBadge.className = "casona-room-tree-badge";
+              treeBadge.textContent = "\uD83C\uDF3F " + gallery.treeName;
+              codeWrap.appendChild(treeBadge);
+            }
 
             var title = document.createElement("h3");
             title.className = "casona-room-card__title";
@@ -1052,12 +1167,12 @@
             var link = document.createElement("a");
             link.href = window.AdkiniqEnv ? window.AdkiniqEnv.getReservasPageUrl() : window.location.origin + "/reservas/";
             link.className = "casona-room-card__link";
-            link.textContent = "Ver detalles →";
+            link.textContent = "Reservar ahora →";
 
+            body.appendChild(codeWrap);
             body.appendChild(title);
             body.appendChild(meta);
             body.appendChild(link);
-            card.appendChild(media);
             card.appendChild(body);
             grid.appendChild(card);
           });

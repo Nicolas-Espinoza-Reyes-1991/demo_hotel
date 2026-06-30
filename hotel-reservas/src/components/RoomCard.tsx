@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
 import { publicAssetUrl } from "@/lib/api-path";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { cn } from "@/lib/utils";
+import { getPhotosForRoom, getTreeNameForRoom } from "@/lib/room-gallery";
 
 export type RoomCardData = {
   id: string;
@@ -59,7 +61,8 @@ function formatBathrooms(room: RoomCardData): string {
 
 const delayClasses = ["", "animate-delay-1", "animate-delay-2", "animate-delay-3", "animate-delay-4"];
 
-const BOYE_ROOM_IMAGES = [
+// Fallback genérico cuando no hay galería asignada
+const FALLBACK_IMAGES = [
   "/habitaciones/WhatsApp Image 2026-06-08 at 11.07.58.jpeg",
   "/habitaciones/WhatsApp Image 2026-06-08 at 11.06.02.jpeg",
   "/habitaciones/WhatsApp Image 2026-06-08 at 11.21.10.jpeg",
@@ -68,16 +71,109 @@ const BOYE_ROOM_IMAGES = [
   "/habitaciones/WhatsApp Image 2026-06-08 at 11.09.37.jpeg",
 ];
 
-function getRoomImage(room: RoomCardData): string | null {
-  if (room.imageUrl && !room.imageUrl.includes("images.unsplash.com")) {
-    return publicAssetUrl(room.imageUrl);
+function getResolvedPhotos(room: RoomCardData): string[] {
+  // 1. Intentar galería por carpeta de árbol
+  const galleryPhotos = getPhotosForRoom(room.code);
+  if (galleryPhotos.length > 0) {
+    return galleryPhotos.map((p) => publicAssetUrl(p) ?? p);
   }
 
-  const codeNumber = Number(room.code.replace(/\D/g, ""));
-  const index = Number.isFinite(codeNumber) ? codeNumber % BOYE_ROOM_IMAGES.length : 0;
-  return publicAssetUrl(BOYE_ROOM_IMAGES[index]);
+  // 2. imageUrl individual en BD (sin Unsplash)
+  if (room.imageUrl && !room.imageUrl.includes("images.unsplash.com")) {
+    return [publicAssetUrl(room.imageUrl) ?? room.imageUrl];
+  }
+
+  // 3. Fallback genérico rotativo
+  const codeNumber = parseInt(room.code.replace(/\D/g, ""), 10);
+  const index = Number.isFinite(codeNumber) ? codeNumber % FALLBACK_IMAGES.length : 0;
+  return [publicAssetUrl(FALLBACK_IMAGES[index]) ?? FALLBACK_IMAGES[index]];
 }
 
+// ── Carrusel de fotos ───────────────────────────────────────────────────────
+function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
+  const [current, setCurrent] = useState(0);
+
+  const prev = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setCurrent((c) => (c - 1 + photos.length) % photos.length);
+    },
+    [photos.length]
+  );
+
+  const next = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setCurrent((c) => (c + 1) % photos.length);
+    },
+    [photos.length]
+  );
+
+  return (
+    <div className="room-carousel">
+      {/* Imagen activa */}
+      {photos.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={`${name} — foto ${i + 1}`}
+          loading={i === 0 ? "eager" : "lazy"}
+          className={cn(
+            "room-carousel__slide",
+            i === current ? "room-carousel__slide--active" : ""
+          )}
+        />
+      ))}
+
+      {/* Controles prev / next */}
+      {photos.length > 1 && (
+        <>
+          <button
+            type="button"
+            className="room-carousel__btn room-carousel__btn--prev"
+            onClick={prev}
+            aria-label="Foto anterior"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            className="room-carousel__btn room-carousel__btn--next"
+            onClick={next}
+            aria-label="Foto siguiente"
+          >
+            ›
+          </button>
+
+          {/* Dots */}
+          <div className="room-carousel__dots" aria-hidden="true">
+            {photos.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrent(i);
+                }}
+                className={cn(
+                  "room-carousel__dot",
+                  i === current && "room-carousel__dot--active"
+                )}
+              />
+            ))}
+          </div>
+
+          {/* Contador */}
+          <span className="room-carousel__counter" aria-live="polite" aria-atomic="true">
+            {current + 1} / {photos.length}
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Card principal ──────────────────────────────────────────────────────────
 export function RoomCard({
   room,
   onReserve,
@@ -89,11 +185,8 @@ export function RoomCard({
   className?: string;
   animationDelay?: number;
 }) {
-  const displayImageUrl = getRoomImage(room);
-  const fallbackImage =
-    publicAssetUrl(
-      BOYE_ROOM_IMAGES[Number(room.code.replace(/\D/g, "")) % BOYE_ROOM_IMAGES.length]
-    ) ?? "";
+  const photos = getResolvedPhotos(room);
+  const treeName = getTreeNameForRoom(room.code);
 
   return (
     <article
@@ -103,38 +196,34 @@ export function RoomCard({
         className
       )}
     >
+      {/* ── Zona de imagen con carrusel ── */}
       <div className="relative aspect-[16/10] overflow-hidden bg-brand-800">
-        {displayImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={displayImageUrl}
-            alt={room.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-            onError={(event) => {
-              const target = event.currentTarget;
-              if (!fallbackImage || target.src === fallbackImage) return;
-              target.src = fallbackImage;
-            }}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-brand-500">Sin imagen</div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-100/30 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
-        <div className="absolute left-3 top-3">
+        <RoomCarousel photos={photos} name={room.name} />
+
+        {/* Badge de tipo */}
+        <div className="absolute left-3 top-3 z-10 pointer-events-none">
           <StatusBadge variant="available" label={room.type} />
         </div>
+
+        {/* Precio total (cuando se buscó disponibilidad) */}
         {room.totalAmount ? (
-          <div className="absolute bottom-3 right-3 rounded-xl bg-highlight/95 px-3 py-1.5 text-sm font-extrabold text-white shadow-lg">
+          <div className="absolute bottom-3 right-3 z-10 pointer-events-none rounded-xl bg-highlight/95 px-3 py-1.5 text-sm font-extrabold text-white shadow-lg">
             {formatCurrency(room.totalAmount)}
           </div>
         ) : null}
       </div>
 
+      {/* ── Cuerpo del card ── */}
       <div className="space-y-3 p-4 sm:p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-brand-500">
               Hab. {room.code}
+              {treeName && (
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-accent">
+                  🌿 {treeName}
+                </span>
+              )}
             </p>
             <h3 className="mt-1 text-xl font-bold text-brand-100">{room.name}</h3>
           </div>
