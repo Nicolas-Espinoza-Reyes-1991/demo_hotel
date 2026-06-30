@@ -191,76 +191,89 @@ export function RoomCard({
   return (
     <article
       className={cn(
-        "group animate-fade-in-up glass-panel overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:border-highlight/45 hover:shadow-lg hover:shadow-highlight/20",
+        "room-card group animate-fade-in-up",
         delayClasses[animationDelay % delayClasses.length],
         className
       )}
     >
-      {/* ── Zona de imagen con carrusel ── */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-brand-800">
+      {/* ── Zona de imagen ── */}
+      <div className="room-card__media">
         <RoomCarousel photos={photos} name={room.name} />
 
-        {/* Badge de tipo */}
-        <div className="absolute left-3 top-3 z-10 pointer-events-none">
-          <StatusBadge variant="available" label={room.type} />
+        {/* Precio por noche — top-left */}
+        <div className="room-card__price-badge pointer-events-none">
+          <span className="room-card__price-main">{formatCurrency(room.pricePerNight)}</span>
+          <span className="room-card__price-sub">/ noche</span>
         </div>
 
-        {/* Precio total (cuando se buscó disponibilidad) */}
+        {/* Precio total en estadía — top-right */}
         {room.totalAmount ? (
-          <div className="absolute bottom-3 right-3 z-10 pointer-events-none rounded-xl bg-highlight/95 px-3 py-1.5 text-sm font-extrabold text-white shadow-lg">
-            {formatCurrency(room.totalAmount)}
+          <div className="room-card__total-badge pointer-events-none">
+            <span className="room-card__total-main">{formatCurrency(room.totalAmount)}</span>
+            {room.nights ? <span className="room-card__total-sub">{formatNightsLabel(room.nights)}</span> : null}
           </div>
         ) : null}
+
+        {/* Overlay inferior: código + árbol + tipo */}
+        <div className="room-card__img-overlay pointer-events-none">
+          <div className="flex items-end gap-2">
+            <span className="room-card__img-code">Hab. {room.code}</span>
+            {treeName && (
+              <span className="room-card__img-tree">
+                <svg viewBox="0 0 14 16" fill="currentColor" className="h-2.5 w-2.5 shrink-0" aria-hidden="true">
+                  <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
+                </svg>
+                {treeName}
+              </span>
+            )}
+          </div>
+          <StatusBadge variant="available" label={room.type} />
+        </div>
       </div>
 
-      {/* ── Cuerpo del card ── */}
-      <div className="space-y-3 p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="flex flex-wrap items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand-500">
-              Hab. {room.code}
-              {treeName && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-accent/20 bg-accent/10 px-2 py-0.5 text-[10px] font-semibold normal-case tracking-normal text-accent">
-                  <svg viewBox="0 0 14 16" fill="currentColor" className="h-3 w-3 shrink-0" aria-hidden="true">
-                    <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
-                  </svg>
-                  {treeName}
-                </span>
-              )}
-            </p>
-            <h3 className="mt-1 text-xl font-bold text-brand-100">{room.name}</h3>
-          </div>
-          <div className="text-right">
-            <p className="price-tag">{formatCurrency(room.pricePerNight)}</p>
-            <p className="text-xs font-semibold text-brand-500">/ noche</p>
-          </div>
-        </div>
+      {/* ── Cuerpo ── */}
+      <div className="room-card__body">
+        {/* Nombre — héroe */}
+        <h3 className="room-card__title">{room.name}</h3>
 
+        {/* Características compactas */}
+        <ul className="room-card__meta" aria-label="Características">
+          <li>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
+              <circle cx="10" cy="6" r="3" /><path d="M4 17c.5-3 2.8-5 6-5s5.5 2 6 5" />
+            </svg>
+            Hasta {room.maxGuests} huéspedes
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
+              <rect x="2" y="9" width="16" height="8" rx="1.5" /><path d="M5 9V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M2 13h16" />
+            </svg>
+            {formatBeds(room)}
+          </li>
+          <li>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
+              <path d="M3 11h14M5 11V8a2 2 0 0 1 2-2h2.5" /><ellipse cx="12.5" cy="5.5" rx="1" ry="1" />
+              <path d="M5 11v3a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4v-3" />
+            </svg>
+            {formatBathrooms(room)}
+          </li>
+        </ul>
+
+        {/* Amenidades */}
         {room.amenities.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="room-card__amenities">
             {room.amenities.slice(0, 4).map((item) => (
-              <span
-                key={item}
-                className="rounded-md bg-accent/10 px-2 py-0.5 text-[11px] font-medium text-accent"
-              >
-                {item}
-              </span>
+              <span key={item} className="room-card__chip">{item}</span>
             ))}
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 border-t border-brand-700 pt-4">
-          <div className="space-y-1">
-            <p className="text-xs font-medium text-brand-500">Hasta {room.maxGuests} huéspedes</p>
-            <p className="text-xs font-medium text-brand-500">{formatBeds(room)}</p>
-            <p className="text-xs font-medium text-brand-500">{formatBathrooms(room)}</p>
-          </div>
-          {room.nights ? (
-            <p className="text-sm font-bold text-accent-bright">{formatNightsLabel(room.nights)}</p>
-          ) : null}
-        </div>
-
-        <button type="button" onClick={() => onReserve(room)} className="btn-primary w-full">
+        {/* CTA */}
+        <button
+          type="button"
+          onClick={() => onReserve(room)}
+          className="room-card__cta"
+        >
           Reservar ahora
         </button>
       </div>

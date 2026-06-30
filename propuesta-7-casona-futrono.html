@@ -82,7 +82,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.26.jpeg" fetchpriority="high" />
     <link rel="preload" as="image" href="./assets/logo-casona.png" />
-    <link rel="preload" href="./assets/casona-demo.css?v=20260630-3" as="style" />
+    <link rel="preload" href="./assets/casona-demo.css?v=20260630-4" as="style" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap"
       rel="stylesheet"
@@ -95,7 +95,7 @@
         rel="stylesheet"
       />
     </noscript>
-    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-3" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-4" />
     <style>
       html.casona-is-loading,
       html.casona-is-loading body {
@@ -1102,6 +1102,11 @@
           return wrap;
         }
 
+        function formatCLP(amount) {
+          if (!amount) return null;
+          return "$" + Number(amount).toLocaleString("es-CL", { maximumFractionDigits: 0 });
+        }
+
         function renderRooms() {
           grid.innerHTML = "";
           var apiBase = getApiBase();
@@ -1109,8 +1114,9 @@
           visibleRooms.forEach(function (room, index) {
             var card = document.createElement("article");
             card.className = "casona-room-card";
+            card.style.setProperty("--card-delay", (index * 70) + "ms");
 
-            /* Fotos: galería por carpeta > imageUrl > fallback */
+            /* ── Fotos ── */
             var photos = getGalleryPhotos(room.code, apiBase);
             var fallbackSrc = fallbackImages[index % fallbackImages.length];
             if (photos.length === 0) {
@@ -1122,41 +1128,62 @@
               }
             }
 
+            /* ── Media wrapper ── */
             var mediaWrap = document.createElement("div");
             mediaWrap.className = "casona-room-card__media";
             mediaWrap.appendChild(buildCarousel(photos, room.name || ("Habitación " + room.code), fallbackSrc));
-            card.appendChild(mediaWrap);
 
-            var body = document.createElement("div");
-            body.className = "casona-room-card__body";
+            /* ── Precio badge (top-left sobre imagen) ── */
+            var priceStr = formatCLP(room.pricePerNight);
+            if (priceStr) {
+              var priceBadge = document.createElement("div");
+              priceBadge.className = "casona-room-card__price-badge";
+              priceBadge.innerHTML =
+                '<span class="casona-room-card__price-main">' + priceStr + '</span>' +
+                '<span class="casona-room-card__price-sub">/ noche</span>';
+              mediaWrap.appendChild(priceBadge);
+            }
 
-            /* Código + nombre árbol */
-            var codeWrap = document.createElement("p");
-            codeWrap.className = "casona-room-card__code";
-            codeWrap.textContent = "Hab. " + room.code;
+            /* ── Overlay inferior: código + árbol ── */
             var gallery = getGallery(room.code);
+            var imgOverlay = document.createElement("div");
+            imgOverlay.className = "casona-room-card__img-overlay";
+            var codeSpan = document.createElement("span");
+            codeSpan.className = "casona-room-card__img-code";
+            codeSpan.textContent = "Hab. " + room.code;
+            imgOverlay.appendChild(codeSpan);
             if (gallery) {
               var treeBadge = document.createElement("span");
-              treeBadge.className = "casona-room-tree-badge";
+              treeBadge.className = "casona-room-card__img-tree";
               treeBadge.innerHTML =
                 '<svg viewBox="0 0 14 16" fill="currentColor" aria-hidden="true">' +
                   '<path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z"/>' +
-                "</svg>" +
-                gallery.treeName;
-              codeWrap.appendChild(treeBadge);
+                "</svg>" + gallery.treeName;
+              imgOverlay.appendChild(treeBadge);
             }
+            mediaWrap.appendChild(imgOverlay);
+            card.appendChild(mediaWrap);
 
+            /* ── Body ── */
+            var body = document.createElement("div");
+            body.className = "casona-room-card__body";
+
+            /* Nombre — elemento héroe */
             var title = document.createElement("h3");
             title.className = "casona-room-card__title";
             title.textContent = room.name || ("Habitación " + room.code);
+            body.appendChild(title);
 
+            /* Meta */
             var meta = document.createElement("ul");
             meta.className = "casona-room-card__meta";
             meta.setAttribute("aria-label", "Características");
             meta.appendChild(createMetaItem(iconGuest(), (room.maxGuests || 1) + " huéspedes"));
             meta.appendChild(createMetaItem(iconBed(), getBedLabel(room)));
             meta.appendChild(createMetaItem(iconBath(), getBathLabel(room)));
+            body.appendChild(meta);
 
+            /* Amenidades */
             var amenities = buildAmenities(room.amenities);
             if (amenities.length > 0) {
               var amenitiesWrap = document.createElement("div");
@@ -1170,15 +1197,18 @@
               body.appendChild(amenitiesWrap);
             }
 
+            /* Divisor */
+            var divider = document.createElement("div");
+            divider.className = "casona-room-card__body-divider";
+            body.appendChild(divider);
+
+            /* CTA */
             var link = document.createElement("a");
             link.href = window.AdkiniqEnv ? window.AdkiniqEnv.getReservasPageUrl() : window.location.origin + "/reservas/";
             link.className = "casona-room-card__link";
-            link.textContent = "Reservar ahora →";
-
-            body.appendChild(codeWrap);
-            body.appendChild(title);
-            body.appendChild(meta);
+            link.textContent = "Reservar ahora";
             body.appendChild(link);
+
             card.appendChild(body);
             grid.appendChild(card);
           });
