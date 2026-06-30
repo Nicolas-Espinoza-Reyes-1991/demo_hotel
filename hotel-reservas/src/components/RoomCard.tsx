@@ -214,27 +214,24 @@ export function RoomCard({
           </div>
         ) : null}
 
-        {/* Overlay inferior: código + árbol + tipo */}
+        {/* Overlay inferior: código + tipo (sin repetir el nombre) */}
         <div className="room-card__img-overlay pointer-events-none">
-          <div className="flex items-end gap-2">
-            <span className="room-card__img-code">Hab. {room.code}</span>
-            {treeName && (
-              <span className="room-card__img-tree">
-                <svg viewBox="0 0 14 16" fill="currentColor" className="h-2.5 w-2.5 shrink-0" aria-hidden="true">
-                  <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
-                </svg>
-                {treeName}
-              </span>
-            )}
-          </div>
+          <span className="room-card__img-code">Hab. {room.code}</span>
           <StatusBadge variant="available" label={room.type} />
         </div>
       </div>
 
       {/* ── Cuerpo ── */}
       <div className="room-card__body">
-        {/* Nombre — héroe */}
-        <h3 className="room-card__title">{room.name}</h3>
+        {/* Nombre — héroe con ícono árbol */}
+        <h3 className="room-card__title">
+          {treeName && (
+            <svg viewBox="0 0 14 16" fill="currentColor" className="room-card__title-tree" aria-hidden="true">
+              <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
+            </svg>
+          )}
+          {room.name}
+        </h3>
 
         {/* Características compactas */}
         <ul className="room-card__meta" aria-label="Características">
