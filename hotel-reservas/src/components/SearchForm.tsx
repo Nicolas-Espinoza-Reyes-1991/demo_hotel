@@ -59,10 +59,13 @@ export function SearchForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="glass-panel-elevated grid gap-4 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-4"
+      className="glass-panel-elevated grid gap-3 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto] lg:items-end lg:gap-3"
     >
+      {/* Entrada */}
       <label className="block space-y-1.5">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">Entrada</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+          Entrada
+        </span>
         <input
           type="date"
           value={checkIn}
@@ -73,8 +76,11 @@ export function SearchForm({
         />
       </label>
 
+      {/* Salida */}
       <label className="block space-y-1.5">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">Salida</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+          Salida
+        </span>
         <input
           type="date"
           value={checkOut}
@@ -88,8 +94,11 @@ export function SearchForm({
         />
       </label>
 
-      <label className="block space-y-1.5">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">Huéspedes</span>
+      {/* Huéspedes */}
+      <label className="block space-y-1.5 md:col-span-1 lg:col-span-1">
+        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+          Huéspedes
+        </span>
         <select
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value))}
@@ -103,17 +112,20 @@ export function SearchForm({
         </select>
       </label>
 
-      <div className="flex items-end sm:col-span-2 lg:col-span-1">
-        <button type="submit" disabled={loading} className="btn-primary w-full">
+      {/* Botón */}
+      <div className="flex items-end md:col-span-2 lg:col-span-1">
+        <button type="submit" disabled={loading} className="btn-primary w-full whitespace-nowrap">
           {loading ? "Buscando..." : "Buscar disponibilidad"}
         </button>
       </div>
 
-      {error && <p className="alert-error text-sm sm:col-span-2 lg:col-span-4">{error}</p>}
+      {error && (
+        <p className="alert-error text-sm md:col-span-2 lg:col-span-4">{error}</p>
+      )}
 
       {checkIn && checkOut && (
-        <p className="text-xs text-brand-500 sm:col-span-2 lg:col-span-4">
-          Buscando estadía del{" "}
+        <p className="text-xs text-brand-500 md:col-span-2 lg:col-span-4">
+          Estadía del{" "}
           <strong className="text-highlight">
             {format(new Date(checkIn + "T12:00:00"), "d MMM yyyy", { locale: es })}
           </strong>{" "}
