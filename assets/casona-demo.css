@@ -794,15 +794,13 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 
 /* ── Carrusel landing ──────────────────────────────────────────────── */
 /*
- * El div del carrusel ES el .casona-room-card__media (mismo elemento),
- * por eso debe quedarse en flujo normal (position: relative) para
- * que el aspect-ratio establezca la altura y los slides absolutos
- * puedan rellenarlo correctamente.
+ * .lp-carousel es hijo de .casona-room-card__media.
+ * El padre establece aspect-ratio + position:relative.
+ * El hijo (carrusel) llena el padre completamente con inset:0.
  */
 .lp-carousel {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
 }
 
 .lp-carousel__slide {

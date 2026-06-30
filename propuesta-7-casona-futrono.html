@@ -82,7 +82,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="./fotos_web/arquitectura_hotel_vista/WhatsApp Image 2026-06-08 at 11.02.26.jpeg" fetchpriority="high" />
     <link rel="preload" as="image" href="./assets/logo-casona.png" />
-    <link rel="preload" href="./assets/casona-demo.css?v=20260630-2" as="style" />
+    <link rel="preload" href="./assets/casona-demo.css?v=20260630-3" as="style" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap"
       rel="stylesheet"
@@ -95,7 +95,7 @@
         rel="stylesheet"
       />
     </noscript>
-    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-2" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260630-3" />
     <style>
       html.casona-is-loading,
       html.casona-is-loading body {
@@ -1030,7 +1030,7 @@
 
         function buildCarousel(photos, roomName, fallbackSrc) {
           var wrap = document.createElement("div");
-          wrap.className = "casona-room-card__media lp-carousel";
+          wrap.className = "lp-carousel";
 
           /* Slides */
           photos.forEach(function (src, i) {
@@ -1122,8 +1122,10 @@
               }
             }
 
-            var media = buildCarousel(photos, room.name || ("Habitación " + room.code), fallbackSrc);
-            card.appendChild(media);
+            var mediaWrap = document.createElement("div");
+            mediaWrap.className = "casona-room-card__media";
+            mediaWrap.appendChild(buildCarousel(photos, room.name || ("Habitación " + room.code), fallbackSrc));
+            card.appendChild(mediaWrap);
 
             var body = document.createElement("div");
             body.className = "casona-room-card__body";
