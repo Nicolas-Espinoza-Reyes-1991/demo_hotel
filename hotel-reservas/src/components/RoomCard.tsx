@@ -214,10 +214,14 @@ export function RoomCard({
           </div>
         ) : null}
 
-        {/* Overlay inferior: código + tipo (sin repetir el nombre) */}
+        {/* Overlay inferior: código + tipo */}
         <div className="room-card__img-overlay pointer-events-none">
           <span className="room-card__img-code">Hab. {room.code}</span>
-          <StatusBadge variant="available" label={room.type} />
+          <StatusBadge
+            variant="available"
+            label={room.type}
+            className="!bg-white/15 !text-white !ring-white/30 backdrop-blur-sm"
+          />
         </div>
       </div>
 
