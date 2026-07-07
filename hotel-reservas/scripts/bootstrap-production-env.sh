@@ -35,12 +35,12 @@ cat > "$TARGET" <<'EOF'
 # Generado por scripts/bootstrap-production-env.sh — no commitear
 
 NODE_ENV=production
-APP_URL=https://lacasonadefutrono.cl/reservas
-NEXT_PUBLIC_APP_URL=https://lacasonadefutrono.cl
-NEXT_PUBLIC_WEBSITE_URL=https://lacasonadefutrono.cl
+APP_URL=http://lacasonadefutrono.cl/reservas
+NEXT_PUBLIC_APP_URL=http://lacasonadefutrono.cl
+NEXT_PUBLIC_WEBSITE_URL=http://lacasonadefutrono.cl
 NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
-SESSION_COOKIE_SECURE=true
+SESSION_COOKIE_SECURE=false
 
 NEXT_PUBLIC_SHOW_DEMO_UI=false
 NEXT_PUBLIC_DISPLAY_CURRENCY=CLP

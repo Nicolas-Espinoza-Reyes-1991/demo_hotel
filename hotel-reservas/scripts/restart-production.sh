@@ -56,5 +56,5 @@ fi
 echo ""
 echo "Verificar:"
 echo "  curl -s http://127.0.0.1/reservas/api/health"
-echo "  curl -s http://178.104.214.147/reservas/api/health"
-echo "  Admin: http://178.104.214.147/reservas/login"
+echo "  curl -s http://lacasonadefutrono.cl/reservas/api/health"
+echo "  Admin: http://lacasonadefutrono.cl/reservas/login"

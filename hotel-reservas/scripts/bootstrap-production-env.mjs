@@ -16,8 +16,9 @@ const force = process.argv.includes("--force");
 const ENV_CONTENT = `# Generado por scripts/bootstrap-production-env.mjs — no commitear
 
 NODE_ENV=production
-APP_URL=http://178.104.214.147/reservas
-NEXT_PUBLIC_WEBSITE_URL=http://178.104.214.147
+APP_URL=http://lacasonadefutrono.cl/reservas
+NEXT_PUBLIC_APP_URL=http://lacasonadefutrono.cl
+NEXT_PUBLIC_WEBSITE_URL=http://lacasonadefutrono.cl
 NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
 SESSION_COOKIE_SECURE=false
@@ -44,8 +45,8 @@ SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
 SMTP_PASS=CAMBIAR_RE_API_KEY
-SMTP_FROM=Reservas La Casona de Futrono <reservas@adkiniq.cl>
-SMTP_BCC=contacto@adkiniq.cl
+SMTP_FROM=Reservas La Casona de Futrono <reservas@lacasonadefutrono.cl>
+SMTP_BCC=contacto@lacasonadefutrono.cl
 
 NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY=CAMBIAR_MP_PUBLIC_KEY
 MERCADOPAGO_ACCESS_TOKEN=CAMBIAR_MP_ACCESS_TOKEN
