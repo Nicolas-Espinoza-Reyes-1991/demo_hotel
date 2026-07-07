@@ -41,7 +41,7 @@ sh scripts/deploy-safe.sh
 
 echo ""
 echo "=== Listo ==="
-echo "Landing:  http://lacasonadefutrono.cl/"
-echo "Reservas: http://lacasonadefutrono.cl/reservas/"
+echo "Landing:  https://lacasonadefutrono.cl/"
+echo "Reservas: https://lacasonadefutrono.cl/reservas/"
 echo ""
 echo "Verificá logo y nombre en /reservas/ (forzá recarga: Ctrl+Shift+R)."

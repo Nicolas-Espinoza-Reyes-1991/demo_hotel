@@ -76,7 +76,7 @@ function LoginForm() {
           <div className="mb-7 text-center">
             <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-3xl border border-highlight/25 bg-white/78 shadow-[0_14px_35px_-20px_rgba(61,43,31,0.4)]">
               <img
-                src={apiPath("/logo-casona.png")}
+                src={apiPath("/logo-casona.webp")}
                 alt="La Casona de Futrono"
                 className="h-14 w-14 object-contain"
               />

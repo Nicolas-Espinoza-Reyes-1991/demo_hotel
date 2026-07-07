@@ -16,12 +16,12 @@ const force = process.argv.includes("--force");
 const ENV_CONTENT = `# Generado por scripts/bootstrap-production-env.mjs — no commitear
 
 NODE_ENV=production
-APP_URL=http://lacasonadefutrono.cl/reservas
-NEXT_PUBLIC_APP_URL=http://lacasonadefutrono.cl
-NEXT_PUBLIC_WEBSITE_URL=http://lacasonadefutrono.cl
+APP_URL=https://lacasonadefutrono.cl/reservas
+NEXT_PUBLIC_APP_URL=https://lacasonadefutrono.cl
+NEXT_PUBLIC_WEBSITE_URL=https://lacasonadefutrono.cl
 NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
 
 NEXT_PUBLIC_SHOW_DEMO_UI=false
 NEXT_PUBLIC_DISPLAY_CURRENCY=CLP
@@ -39,7 +39,7 @@ CRON_SECRET=6a6fe42a571fcd68f5c2427dcd13e40f5ad6aff11bedf6f9bac99587157efa8e
 RESERVATION_HOLD_MINUTES=30
 
 HOTEL_NAME=La Casona de Futrono
-NEXT_PUBLIC_WHATSAPP_NUMBER=56900000000
+NEXT_PUBLIC_WHATSAPP_NUMBER=56998218978
 
 SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
@@ -60,7 +60,7 @@ BANK_ACCOUNT_NUMBER=CAMBIAR_NUMERO_CUENTA
 BANK_ACCOUNT_TYPE=Cuenta corriente CLP
 BANK_CBU=CAMBIAR_CBU_O_CVU
 BANK_ALIAS=CAMBIAR_ALIAS
-BANK_CONTACT_EMAIL=reservas@adkiniq.cl
+BANK_CONTACT_EMAIL=reservas@lacasonadefutrono.cl
 BANK_TRANSFER_DEADLINE_HOURS=48
 BANK_TRANSFER_NOTES=Indica tu código de reserva en el concepto de la transferencia.
 

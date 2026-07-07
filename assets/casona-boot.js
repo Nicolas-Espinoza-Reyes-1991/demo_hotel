@@ -1,8 +1,8 @@
 (function () {
   var preloader = document.getElementById("casona-preloader");
   var progressBar = document.getElementById("casona-preloader-progress");
-  var MIN_MS = 850;
-  var MAX_MS = 9000;
+  var MIN_MS = 500;
+  var MAX_MS = 3000;
   var start = Date.now();
   var dismissed = false;
   var progress = 0;
@@ -41,26 +41,24 @@
     window.dispatchEvent(new Event("casona:ready"));
   }
 
-  function readinessScore() {
-    var score = 0;
-    if (document.readyState === "interactive" || document.readyState === "complete") score += 35;
-    if (document.readyState === "complete") score += 25;
-
+  function isReady() {
+    var domReady =
+      document.readyState === "interactive" || document.readyState === "complete";
     var heroImg = document.querySelector(".casona-hero__slide.is-active");
-    if (!heroImg || heroImg.complete) score += 25;
-
-    var logoImg = document.querySelector(".casona-hero__logo img");
-    if (!logoImg || logoImg.complete) score += 15;
-
-    return score;
+    var heroReady = !heroImg || heroImg.complete;
+    return domReady && heroReady;
   }
 
   function tickProgress() {
     var elapsed = Date.now() - start;
-    var target = Math.min(92, readinessScore() + Math.floor((elapsed / MIN_MS) * 18));
+    var base = 0;
+    if (document.readyState === "interactive" || document.readyState === "complete") base += 45;
+    var heroImg = document.querySelector(".casona-hero__slide.is-active");
+    if (!heroImg || heroImg.complete) base += 35;
+    var target = Math.min(95, base + Math.floor((elapsed / MIN_MS) * 20));
     setProgress(target);
 
-    if (elapsed >= MIN_MS && readinessScore() >= 95) {
+    if (elapsed >= MIN_MS && isReady()) {
       dismissPreloader();
     }
   }
@@ -79,6 +77,7 @@
   bindImage(document.querySelector(".casona-hero__logo img"), 10);
 
   document.addEventListener("readystatechange", tickProgress);
+  document.addEventListener("DOMContentLoaded", tickProgress);
   window.addEventListener("load", tickProgress);
   progressTimer = window.setInterval(tickProgress, 120);
   window.setTimeout(dismissPreloader, MAX_MS);

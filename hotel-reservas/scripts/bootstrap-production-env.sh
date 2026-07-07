@@ -35,12 +35,12 @@ cat > "$TARGET" <<'EOF'
 # Generado por scripts/bootstrap-production-env.sh — no commitear
 
 NODE_ENV=production
-APP_URL=http://lacasonadefutrono.cl/reservas
-NEXT_PUBLIC_APP_URL=http://lacasonadefutrono.cl
-NEXT_PUBLIC_WEBSITE_URL=http://lacasonadefutrono.cl
+APP_URL=https://lacasonadefutrono.cl/reservas
+NEXT_PUBLIC_APP_URL=https://lacasonadefutrono.cl
+NEXT_PUBLIC_WEBSITE_URL=https://lacasonadefutrono.cl
 NEXT_PUBLIC_BASE_PATH=/reservas
 APP_PORT=3000
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
 
 NEXT_PUBLIC_SHOW_DEMO_UI=false
 NEXT_PUBLIC_DISPLAY_CURRENCY=CLP
@@ -58,7 +58,7 @@ CRON_SECRET=6a6fe42a571fcd68f5c2427dcd13e40f5ad6aff11bedf6f9bac99587157efa8e
 RESERVATION_HOLD_MINUTES=30
 
 HOTEL_NAME=La Casona de Futrono
-NEXT_PUBLIC_WHATSAPP_NUMBER=56900000000
+NEXT_PUBLIC_WHATSAPP_NUMBER=56998218978
 
 SMTP_HOST=smtp.resend.com
 SMTP_PORT=587

@@ -31,7 +31,7 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
   || process.env.APP_URL?.trim()
   || "https://lacasonadefutrono.cl";
 const reservasUrl = `${siteUrl}/reservas`;
-const ogImage = `${siteUrl}/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.jpeg`;
+const ogImage = `${siteUrl}/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.webp`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(reservasUrl),

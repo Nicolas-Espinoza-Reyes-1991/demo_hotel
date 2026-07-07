@@ -1,5 +1,5 @@
 export function getWhatsAppNumber(): string {
-  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "15556563871").replace(/\D/g, "");
+  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "56998218978").replace(/\D/g, "");
 }
 
 export function buildWhatsAppUrl(message?: string): string {

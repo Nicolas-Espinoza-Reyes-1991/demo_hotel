@@ -4,7 +4,7 @@
  * En VPS por IP o lacasonadefutrono.cl: /reservas (mismo nginx)
  */
 (function (global) {
-  var PROD_RESERVAS = "http://lacasonadefutrono.cl/reservas";
+  var PROD_RESERVAS = "https://lacasonadefutrono.cl/reservas";
   var LOCAL_RESERVAS = "http://localhost:3000";
 
   function isLocalDev() {
@@ -59,7 +59,7 @@
   }
 
   global.AdkiniqEnv = {
-    productionHotelUrl: "http://lacasonadefutrono.cl",
+    productionHotelUrl: "https://lacasonadefutrono.cl",
     productionReservasUrl: PROD_RESERVAS,
     getReservasApiBase: getReservasApiBase,
     getReservasPageUrl: getReservasPageUrl,

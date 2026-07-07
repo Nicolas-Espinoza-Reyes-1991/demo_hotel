@@ -37,7 +37,7 @@ describe("AppHeader", () => {
 
   it("renderiza logo del hotel", () => {
     render(<AppHeader />);
-    expect(screen.getByRole("img", { name: /la casona de futrono/i })).toHaveAttribute("src", "/logo-casona.png");
+    expect(screen.getByRole("img", { name: /la casona de futrono/i })).toHaveAttribute("src", "/logo-casona.webp");
     cleanup();
   });
 });

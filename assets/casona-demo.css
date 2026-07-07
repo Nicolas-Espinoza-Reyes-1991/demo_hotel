@@ -166,7 +166,7 @@ body.casona-demo {
   line-height: 1.5;
 }
 
-body.casona-demo img:not(.casona-hero__slide):not(.casona-hero__logo img):not(.casona-momentos__item img):not(.casona-service__photo img):not(.casona-about__img img):not(.casona-carousel__photo):not(.casona-ambiente__item img) {
+body.casona-demo img:not(.casona-hero__slide):not(.casona-hero__logo img):not(.casona-momentos__item img):not(.casona-service__photo img):not(.casona-about__img img):not(.casona-ambiente__item img):not(.lp-carousel__slide) {
   display: block;
   max-width: 100%;
   height: auto;
@@ -544,214 +544,6 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   }
 }
 
-/* Carrusel clásico — imagen grande, flechas, dots, autoplay 3s */
-.casona-carousel--classic {
-  margin-top: clamp(2rem, 5vw, 3rem);
-}
-.casona-carousel__frame {
-  position: relative;
-  width: min(100%, 56rem);
-  margin-inline: auto;
-}
-
-.casona-carousel__viewport {
-  position: relative;
-  border-radius: 1rem;
-  overflow: hidden;
-  aspect-ratio: 16 / 8.6;
-  max-height: min(54vh, 430px);
-  background: #ebe3d6;
-  box-shadow: var(--casona-shadow-medium);
-}
-
-@media (min-width: 768px) {
-  .casona-carousel__viewport {
-    aspect-ratio: 16 / 8.1;
-    max-height: min(52vh, 410px);
-    border-radius: 1.25rem;
-  }
-}
-
-.casona-carousel--classic .boye-carousel__track {
-  height: 100%;
-}
-
-.casona-carousel--classic .boye-carousel__slide {
-  margin: 0;
-  border-radius: 0;
-  height: 100%;
-  background: #ebe3d6;
-}
-
-.casona-carousel--classic .boye-carousel__slide img,
-.casona-carousel--classic .casona-carousel__photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  aspect-ratio: unset;
-}
-
-.casona-carousel--classic[data-variant="fade"] .boye-carousel__track {
-  position: relative;
-  height: 100%;
-  min-height: 100%;
-}
-
-/* Evita colapso de altura cuando los slides son absolute */
-.casona-carousel--classic[data-variant="fade"] .boye-carousel__track::before {
-  content: "";
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 8.6;
-  pointer-events: none;
-}
-
-@media (min-width: 768px) {
-  .casona-carousel--classic[data-variant="fade"] .boye-carousel__track::before {
-    aspect-ratio: 16 / 8.1;
-  }
-}
-
-.casona-carousel--classic[data-variant="fade"] .boye-carousel__slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transform: none;
-  transition: opacity 0.65s ease;
-  z-index: 1;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.casona-carousel--classic[data-variant="fade"] .boye-carousel__slide.is-active {
-  position: absolute;
-  opacity: 1;
-  z-index: 2;
-  pointer-events: auto;
-}
-
-/* Flechas laterales (estilo wireframe) */
-.casona-carousel__arrow {
-  position: absolute;
-  top: 50%;
-  z-index: 5;
-  width: 2.55rem;
-  height: 2.55rem;
-  display: grid;
-  place-items: center;
-  border: none;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--casona-forest);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16);
-  cursor: pointer;
-  transform: translateY(-50%);
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.casona-carousel__arrow svg {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-
-.casona-carousel__arrow:hover {
-  background: #fff;
-  transform: translateY(-50%) scale(1.06);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
-}
-
-.casona-carousel--classic .boye-carousel__nav--prev {
-  left: 0.85rem;
-}
-
-.casona-carousel--classic .boye-carousel__nav--next {
-  right: 0.85rem;
-}
-
-@media (min-width: 768px) {
-  .casona-carousel__arrow {
-    width: 2.8rem;
-    height: 2.8rem;
-  }
-  .casona-carousel--classic .boye-carousel__nav--prev {
-    left: 1.25rem;
-  }
-  .casona-carousel--classic .boye-carousel__nav--next {
-    right: 1.25rem;
-  }
-}
-
-/* Dots centrados abajo */
-.casona-carousel__dots-wrap {
-  position: absolute;
-  left: 50%;
-  bottom: 1rem;
-  z-index: 5;
-  transform: translateX(-50%);
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  background: rgba(45, 32, 24, 0.35);
-  backdrop-filter: blur(6px);
-}
-
-.casona-carousel--classic .boye-carousel__dots {
-  margin-top: 0;
-  gap: 0.45rem;
-}
-
-.casona-carousel--classic .boye-carousel__dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.45);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.casona-carousel--classic .boye-carousel__dot.is-active {
-  width: 0.5rem;
-  background: var(--casona-gold);
-  transform: scale(1.15);
-  box-shadow: 0 0 0 2px rgba(193, 154, 107, 0.45);
-}
-
-.casona-carousel__caption {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  padding: 2.35rem 1.25rem 3rem;
-  background: linear-gradient(to top, rgba(45, 32, 24, 0.66) 0%, transparent 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.casona-carousel__name {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
-  color: var(--casona-cream);
-}
-
-.casona-carousel__meta {
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: rgba(250, 248, 244, 0.8);
-}
-
-.casona-rooms-cta {
-  margin-top: clamp(1.75rem, 4vw, 2.25rem);
-  text-align: center;
-}
-
 .casona-section--compact-top {
   padding-top: clamp(2.5rem, 6vw, 3.5rem);
 }
@@ -838,6 +630,7 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 }
 
 .lp-carousel__slide {
+  display: block;
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1325,6 +1118,21 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 
 /* ── Responsive cards mobile (≤639px) ── */
 @media (max-width: 639px) {
+  .casona-room-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.05rem;
+  }
+
+  .casona-room-card {
+    width: 100%;
+    min-width: 0;
+    border-radius: 1rem;
+  }
+
+  .casona-room-card__media {
+    aspect-ratio: 16 / 11;
+  }
+
   .casona-room-card__body {
     padding: 0.85rem 0.9rem 1rem;
     gap: 0.55rem;
@@ -1480,7 +1288,6 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
     backdrop-filter: blur(6px);
   }
 
-  .casona-carousel__viewport,
   .casona-about__img,
   .casona-quote {
     box-shadow: 0 12px 28px rgba(61, 43, 31, 0.08);
@@ -2829,23 +2636,6 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
     text-align: center;
   }
 
-  .casona-carousel--classic .boye-carousel__nav--prev {
-    left: 0.5rem;
-  }
-
-  .casona-carousel--classic .boye-carousel__nav--next {
-    right: 0.5rem;
-  }
-
-  .casona-carousel__arrow {
-    width: 2.35rem;
-    height: 2.35rem;
-  }
-
-  .casona-carousel__caption {
-    padding: 2rem 1rem 2.75rem;
-  }
-
   .casona-quote {
     padding: 1.25rem;
   }
@@ -3152,5 +2942,172 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
 
   .casona-preloader.is-hidden {
     display: none;
+  }
+}
+
+/* ============================================================= */
+/* Refinamiento UI/UX móvil — La Casona de Futrono               */
+/* Jerarquía, ritmo y detalles editoriales para pantallas chicas */
+/* ============================================================= */
+@media (max-width: 639px) {
+  /* Ritmo vertical más curado entre secciones */
+  .casona-section {
+    padding-block: clamp(2.85rem, 11vw, 3.85rem);
+  }
+
+  /* Encabezado de sección: eyebrow con acento dorado + jerarquía */
+  .casona-section__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+  }
+
+  .casona-section__eyebrow::before {
+    content: "";
+    flex: none;
+    width: 1.6rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--casona-gold), rgba(193, 154, 107, 0.12));
+  }
+
+  .casona-section__title {
+    margin-top: 0.5rem;
+    font-size: clamp(1.85rem, 8.6vw, 2.35rem);
+    line-height: 1.14;
+  }
+
+  .casona-section__lead {
+    margin-top: 0.8rem;
+    font-size: 0.98rem;
+    line-height: 1.68;
+  }
+
+  /* Servicios: acento superior dorado + tipografía más legible */
+  .casona-services {
+    gap: 0.85rem;
+  }
+
+  .casona-service--visual .casona-service__body {
+    position: relative;
+    min-height: 0;
+    padding-top: 1.15rem;
+  }
+
+  .casona-service--visual .casona-service__body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 1.35rem;
+    width: 2rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--casona-gold);
+    opacity: 0.7;
+  }
+
+  .casona-service__title {
+    font-size: 1.02rem;
+  }
+
+  .casona-service__text {
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  /* Momentos: carrusel full-bleed con desvanecido en los bordes */
+  .casona-momentos {
+    grid-auto-columns: min(76vw, 17rem);
+    gap: 0.85rem;
+    margin-inline: calc(var(--casona-gutter) * -1);
+    padding-inline: var(--casona-gutter);
+    scroll-padding-left: var(--casona-gutter);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 var(--casona-gutter),
+      #000 calc(100% - 2.25rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 var(--casona-gutter),
+      #000 calc(100% - 2.25rem),
+      transparent 100%
+    );
+  }
+
+  .casona-momentos__item {
+    border-radius: 1rem;
+    box-shadow: 0 10px 26px rgba(61, 43, 31, 0.12);
+  }
+
+  /* Galería del entorno: piezas más protagonistas y equilibradas */
+  .casona-ambiente {
+    gap: 0.7rem;
+  }
+
+  .casona-ambiente__item {
+    border-radius: 1.1rem;
+    box-shadow: 0 12px 30px rgba(61, 43, 31, 0.1);
+  }
+
+  .casona-ambiente__item--hero,
+  .casona-ambiente__item--featured {
+    aspect-ratio: 4 / 3;
+  }
+
+  .casona-ambiente__item figcaption {
+    padding: 2.2rem 0.9rem 0.8rem;
+    font-size: 0.72rem;
+  }
+
+  /* Citas: comilla decorativa y mejor lectura */
+  .casona-quote {
+    position: relative;
+    padding: 1.6rem 1.4rem 1.5rem;
+    overflow: hidden;
+  }
+
+  .casona-quote::before {
+    content: "\201C";
+    position: absolute;
+    top: -0.7rem;
+    right: 0.65rem;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 5rem;
+    line-height: 1;
+    color: var(--casona-gold);
+    opacity: 0.16;
+    pointer-events: none;
+  }
+
+  .casona-quote p {
+    position: relative;
+    font-size: 1.02rem;
+  }
+
+  /* Nosotros: imagen menos alta y con acabado cálido inferior */
+  .casona-about__img {
+    aspect-ratio: 4 / 3;
+  }
+
+  .casona-about__img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(to top, rgba(25, 13, 5, 0.26), transparent 45%);
+    pointer-events: none;
+  }
+
+  /* Feedback táctil coherente en botones principales */
+  .casona-hero__actions .casona-btn:active,
+  .casona-room-card__link:active,
+  .casona-btn--primary:active {
+    transform: translateY(1px) scale(0.985);
   }
 }
