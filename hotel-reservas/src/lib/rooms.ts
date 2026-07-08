@@ -9,6 +9,7 @@ export function serializeRoom(room: Room) {
     beds: Array.isArray(room.beds) ? (room.beds as unknown[]) : [],
     bathrooms: Array.isArray(room.bathrooms) ? (room.bathrooms as unknown[]) : [],
     amenities: Array.isArray(room.amenities) ? (room.amenities as string[]) : [],
+    photos: Array.isArray(room.photos) ? (room.photos as string[]) : [],
   };
 }
 
@@ -20,6 +21,9 @@ function normalizeRoomFields(data: UpdateRoomInput): Prisma.RoomUpdateInput {
     ...(data.code !== undefined ? { code: data.code.trim() } : {}),
     ...(data.name !== undefined ? { name: data.name.trim() } : {}),
     ...(data.type !== undefined ? { type: data.type } : {}),
+    ...(data.treeName !== undefined
+      ? { treeName: data.treeName?.trim() ? data.treeName.trim() : null }
+      : {}),
     ...(data.description !== undefined
       ? { description: data.description?.trim() ? data.description.trim() : null }
       : {}),
@@ -38,6 +42,7 @@ function normalizeRoomFields(data: UpdateRoomInput): Prisma.RoomUpdateInput {
     ...(data.imageUrl !== undefined
       ? { imageUrl: data.imageUrl?.trim() ? data.imageUrl.trim() : null }
       : {}),
+    ...(data.photos !== undefined ? { photos: data.photos } : {}),
     ...(data.amenities !== undefined ? { amenities: data.amenities } : {}),
   };
 }
@@ -47,6 +52,7 @@ export function normalizeRoomCreateInput(data: CreateRoomInput): Prisma.RoomCrea
     code: data.code.trim(),
     name: data.name.trim(),
     type: data.type,
+    treeName: data.treeName?.trim() ? data.treeName.trim() : null,
     description: data.description?.trim() ? data.description.trim() : null,
     bedType: data.bedType?.trim() ? data.bedType.trim() : null,
     bathroomDetail: data.bathroomDetail?.trim() ? data.bathroomDetail.trim() : null,
@@ -57,6 +63,7 @@ export function normalizeRoomCreateInput(data: CreateRoomInput): Prisma.RoomCrea
     floor: data.floor ?? null,
     status: data.status,
     imageUrl: data.imageUrl?.trim() ? data.imageUrl.trim() : null,
+    photos: data.photos,
     amenities: data.amenities,
   };
 }

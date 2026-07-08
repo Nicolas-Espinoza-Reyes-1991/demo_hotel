@@ -4,6 +4,7 @@ import { CasonaInitialPreloader } from "@/components/CasonaPreloader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { apiPath } from "@/lib/api-path";
 import { getHotelName, HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
+import { hotelConfig } from "@/config/hotel";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,9 +30,9 @@ const cormorant = Cormorant_Garamond({
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
   || process.env.APP_URL?.trim()
-  || "https://lacasonadefutrono.cl";
+  || hotelConfig.urls.site;
 const reservasUrl = `${siteUrl}/reservas`;
-const ogImage = `${siteUrl}/fotos_web/arquitectura_hotel_vista/frontis.webp`;
+const ogImage = `${siteUrl}${hotelConfig.assets.ogImagePath}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(reservasUrl),
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
     siteName: HOTEL_NAME,
     title: `${HOTEL_NAME} | Reserva tu estadía`,
     description: `Reserva en línea en ${HOTEL_NAME}, hotel boutique en Futrono a orillas del Lago Ranco.`,
-    images: [{ url: ogImage, width: 1448, height: 1086, alt: `Vista exterior de ${HOTEL_NAME}` }],
+    images: [{ url: ogImage, width: hotelConfig.assets.ogImageWidth, height: hotelConfig.assets.ogImageHeight, alt: `Vista exterior de ${HOTEL_NAME}` }],
   },
   twitter: {
     card: "summary_large_image",
@@ -80,7 +81,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#3d2b1f",
+  themeColor: hotelConfig.theme.themeColor,
   width: "device-width",
   initialScale: 1,
 };

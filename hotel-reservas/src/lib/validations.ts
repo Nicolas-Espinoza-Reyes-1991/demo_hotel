@@ -159,6 +159,7 @@ export const createRoomSchema = z.object({
     .regex(/^[A-Za-z0-9-]+$/, "Usá letras, números o guiones."),
   name: z.string().trim().min(2, "Nombre demasiado corto.").max(120),
   type: z.enum(["STANDARD", "SUPERIOR", "DELUXE", "SUITE", "FAMILY"]),
+  treeName: z.string().trim().max(60).optional().nullable(),
   description: z.string().trim().max(500).optional().nullable(),
   bedType: z.string().trim().max(120).optional().nullable(),
   bathroomDetail: z.string().trim().max(120).optional().nullable(),
@@ -196,6 +197,20 @@ export const createRoomSchema = z.object({
     .optional()
     .default([]),
   amenities: z.array(z.string().trim().min(1).max(80)).max(20).optional().default([]),
+  photos: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(1)
+        .max(500)
+        .refine((value) => /^https?:\/\/.+/i.test(value) || value.startsWith("/"), {
+          message: "Ruta de foto inválida.",
+        })
+    )
+    .max(20)
+    .optional()
+    .default([]),
 });
 
 /** Editar habitación — admin. */

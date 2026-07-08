@@ -1,3 +1,5 @@
+import { hotelConfig } from "@/config/hotel";
+
 /** URL de la landing / sitio institucional (fuera del módulo de reservas). */
 export function getWebsiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_WEBSITE_URL?.trim();
@@ -7,5 +9,5 @@ export function getWebsiteUrl(): string {
     return "http://localhost:5501/propuesta-7-casona-futrono.html";
   }
 
-  return "https://lacasonadefutrono.cl";
+  return hotelConfig.urls.site;
 }

@@ -1,5 +1,7 @@
+import { hotelConfig } from "@/config/hotel";
+
 export function getWhatsAppNumber(): string {
-  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "56998218978").replace(/\D/g, "");
+  return (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? hotelConfig.contact.whatsapp).replace(/\D/g, "");
 }
 
 export function buildWhatsAppUrl(message?: string): string {

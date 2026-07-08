@@ -1,5 +1,6 @@
 import { ADKINIQ_NAME, ADKINIQ_URL } from "@/lib/adkiniq";
 import { getHotelName } from "@/lib/brand";
+import { hotelConfig } from "@/config/hotel";
 import type { BankTransferConfig } from "@/types/payments";
 export type ReservationEmailPayload = {
   to: string;
@@ -224,7 +225,7 @@ function getContactInboxEmail(): string {
     process.env.CONTACT_INBOX_EMAIL?.trim() ||
     process.env.SMTP_BCC?.trim() ||
     process.env.BANK_CONTACT_EMAIL?.trim() ||
-    "reservas@hotelboyehouse.cl"
+    hotelConfig.contact.email
   );
 }
 

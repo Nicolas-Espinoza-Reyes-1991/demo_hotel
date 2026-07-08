@@ -11,6 +11,7 @@
  */
 
 import { PrismaClient, RoomStatus, RoomType } from "@prisma/client";
+import { getPhotosForRoom, getTreeNameForRoom } from "../src/lib/room-gallery";
 
 const prisma = new PrismaClient();
 
@@ -128,19 +129,26 @@ async function main() {
   console.log("\nSincronizando habitaciones oficiales de La Casona...\n");
 
   for (const room of officialRooms) {
+    // Galería completa (multi-foto) + nombre de árbol desde el mapeo por código.
+    // Así la landing (que lee room.photos de la API) muestra el carrusel completo.
+    const galleryPhotos = getPhotosForRoom(room.code);
+    const photos = galleryPhotos.length > 0 ? galleryPhotos : [room.imageUrl];
+    const treeName = getTreeNameForRoom(room.code);
+
+    const data = {
+      ...room,
+      photos,
+      treeName,
+      status: RoomStatus.AVAILABLE,
+    };
+
     await prisma.room.upsert({
       where: { code: room.code },
-      update: {
-        ...room,
-        status: RoomStatus.AVAILABLE,
-      },
-      create: {
-        ...room,
-        status: RoomStatus.AVAILABLE,
-      },
+      update: data,
+      create: data,
     });
 
-    console.log(`OK hab. ${room.code} - ${room.name}`);
+    console.log(`OK hab. ${room.code} - ${room.name} (${photos.length} fotos)`);
   }
 
   const extras = await prisma.room.findMany({

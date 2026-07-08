@@ -1,4 +1,5 @@
 import { RoomStatus, RoomType } from "@prisma/client";
+import { getPhotosForRoom, getTreeNameForRoom } from "../src/lib/room-gallery";
 
 /** Imágenes en public/habitaciones/ (disponibles en Docker). */
 const ROOM_IMAGES = [
@@ -18,9 +19,14 @@ export function buildEjemploRooms() {
     const n = index + 1;
     const code = String(n).padStart(2, "0");
 
+    const galleryPhotos = getPhotosForRoom(code);
+    const fallbackImage = ROOM_IMAGES[index % ROOM_IMAGES.length];
+    const photos = galleryPhotos.length > 0 ? galleryPhotos : [fallbackImage];
+
     return {
       code,
       name: `Ejemplo ${n}`,
+      treeName: getTreeNameForRoom(code),
       type: n <= 4 ? RoomType.STANDARD : n <= 6 ? RoomType.SUPERIOR : RoomType.DELUXE,
       description: `Habitación de demostración ${n} — La Casona de Futrono.`,
       pricePerNight: 75_000 + n * 5_000,
@@ -30,7 +36,8 @@ export function buildEjemploRooms() {
       bathroomDetail: "Baño privado",
       beds: [{ size: n >= 7 ? "KING" : "DOUBLE", count: 1 }],
       bathrooms: [{ type: "PRIVATE", count: 1 }],
-      imageUrl: ROOM_IMAGES[index % ROOM_IMAGES.length],
+      imageUrl: fallbackImage,
+      photos,
       amenities: ["WiFi", "A/C", "TV", "Baño privado"],
       status: RoomStatus.AVAILABLE,
     };

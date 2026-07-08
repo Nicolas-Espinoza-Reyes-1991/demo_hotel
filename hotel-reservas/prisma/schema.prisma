@@ -59,6 +59,10 @@ model Room {
   floor        Int?
   status       RoomStatus @default(AVAILABLE)
   imageUrl     String?
+  /// Galería de fotos de la habitación (rutas relativas a /public o URLs). Reemplaza el mapeo hardcodeado.
+  photos       Json       @default("[]")
+  /// Etiqueta corta opcional mostrada como badge sobre la imagen (ej. nombre de árbol nativo). Reemplaza el mapeo hardcodeado.
+  treeName     String?
   amenities    Json       @default("[]")
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

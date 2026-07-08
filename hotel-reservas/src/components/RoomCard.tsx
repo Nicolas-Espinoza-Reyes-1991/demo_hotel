@@ -14,6 +14,7 @@ export type RoomCardData = {
   name: string;
   type: string;
   description?: string | null;
+  treeName?: string | null;
   bedType?: string | null;
   bathroomDetail?: string | null;
   beds?: Array<{ size: "SINGLE" | "DOUBLE" | "KING"; count: number }>;
@@ -21,6 +22,7 @@ export type RoomCardData = {
   pricePerNight: number;
   maxGuests: number;
   imageUrl?: string | null;
+  photos?: string[];
   amenities: string[];
   nights?: number;
   totalAmount?: number;
@@ -73,18 +75,23 @@ const FALLBACK_IMAGES = [
 ];
 
 function getResolvedPhotos(room: RoomCardData): string[] {
-  // 1. Intentar galería por carpeta de árbol
+  // 1. Fotos almacenadas en la BD (fuente de verdad)
+  if (Array.isArray(room.photos) && room.photos.length > 0) {
+    return room.photos.map((p) => publicAssetUrl(p) ?? p);
+  }
+
+  // 2. Fallback: galería hardcodeada por carpeta de árbol (compatibilidad)
   const galleryPhotos = getPhotosForRoom(room.code);
   if (galleryPhotos.length > 0) {
     return galleryPhotos.map((p) => publicAssetUrl(p) ?? p);
   }
 
-  // 2. imageUrl individual en BD (sin Unsplash)
+  // 3. imageUrl individual en BD (sin Unsplash)
   if (room.imageUrl && !room.imageUrl.includes("images.unsplash.com")) {
     return [publicAssetUrl(room.imageUrl) ?? room.imageUrl];
   }
 
-  // 3. Fallback genérico rotativo
+  // 4. Fallback genérico rotativo
   const codeNumber = parseInt(room.code.replace(/\D/g, ""), 10);
   const index = Number.isFinite(codeNumber) ? codeNumber % FALLBACK_IMAGES.length : 0;
   return [publicAssetUrl(FALLBACK_IMAGES[index]) ?? FALLBACK_IMAGES[index]];
@@ -356,7 +363,7 @@ export function RoomCard({
   animationDelay?: number;
 }) {
   const photos = getResolvedPhotos(room);
-  const treeName = getTreeNameForRoom(room.code);
+  const treeName = room.treeName ?? getTreeNameForRoom(room.code);
 
   return (
     <article

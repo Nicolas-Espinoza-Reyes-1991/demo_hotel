@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  /* Paleta La Casona — alineada con propuesta-7-casona-futrono.html */
+  /* Paleta de marca — GENERADA desde hotel.config.json por scripts/generate-landing.mjs.
+     No editar estas líneas a mano; editá hotel.config.json y regenerá. */
+  /* HOTEL_THEME_START */
   --color-brand-950: #faf6f0;
   --color-brand-900: #fffdf9;
   --color-brand-800: #f3ebe0;
@@ -17,6 +19,7 @@
   --color-honey: #e8c99a;
   --color-gold: #8b5a2b;
   --color-bronze: #8b5a2b;
+  /* HOTEL_THEME_END */
   --color-warning: #b7791f;
   --color-danger: #dc2626;
   --color-wa: #25d366;

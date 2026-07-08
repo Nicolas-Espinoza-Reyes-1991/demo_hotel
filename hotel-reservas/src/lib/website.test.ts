@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { getWebsiteUrl } from "./website";
+import { hotelConfig } from "@/config/hotel";
 
 describe("getWebsiteUrl", () => {
   afterEach(() => {
@@ -19,10 +20,10 @@ describe("getWebsiteUrl", () => {
     expect(getWebsiteUrl()).toBe("http://localhost:5501/propuesta-7-casona-futrono.html");
   });
 
-  // Producción: fallback al dominio institucional.
-  it("en production usa hotelboyehouse.cl por defecto", () => {
+  // Producción: fallback al sitio del hotel definido en hotel.config.json.
+  it("en production usa el sitio del config por defecto", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NEXT_PUBLIC_WEBSITE_URL", "");
-    expect(getWebsiteUrl()).toBe("https://hotelboyehouse.cl");
+    expect(getWebsiteUrl()).toBe(hotelConfig.urls.site);
   });
 });
