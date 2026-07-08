@@ -30,9 +30,13 @@ services:
       - "3000:3000"
     env_file:
       - .env.production
+    volumes:
+      # Persiste las fotos subidas desde el panel admin entre rebuilds/recreates.
+      - uploads_data:/app/public/uploads
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  uploads_data:

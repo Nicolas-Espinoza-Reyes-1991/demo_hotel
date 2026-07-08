@@ -39,7 +39,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/scripts ./scripts
 COPY scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
-RUN mkdir -p .next/cache \
+RUN mkdir -p .next/cache public/uploads/rooms \
     && chmod +x docker-entrypoint.sh \
     && chown -R nextjs:nodejs /app
 
