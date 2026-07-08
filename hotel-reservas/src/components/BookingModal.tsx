@@ -13,6 +13,7 @@ import type { SearchParams } from "@/components/SearchForm";
 import type { SuccessReservation } from "@/components/ReservationSuccessModal";
 import type { BankTransferConfig, PaymentConfigResponse } from "@/types/payments";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
+import { InfoTooltip } from "@/components/InfoTooltip";
 import {
   formatChileanPhoneInput,
   formatRutInput,
@@ -104,6 +105,9 @@ function FieldError({ message }: { message?: string }) {
   return <p className="text-xs text-red-700">{message}</p>;
 }
 
+const DETAIL_STEP_LABELS = ["Datos de contacto", "Identificación", "Tu estadía"];
+const DETAIL_STEP_COUNT = DETAIL_STEP_LABELS.length;
+
 const CANCELLATION_POLICY =
   "Cancelación gratuita hasta 7 días antes del check-in. Después de ese plazo puede aplicarse cargo según política del hotel. Reembolsos se gestionan por WhatsApp o email de reservas.";
 
@@ -129,6 +133,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [guestsCount, setGuestsCount] = useState(1);
+  const [detailStep, setDetailStep] = useState(0);
   const demoUi = showDemoUi();
 
   useEffect(() => {
@@ -141,6 +146,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       setFieldErrors({});
       setAcceptedTerms(false);
       setGuestsCount(1);
+      setDetailStep(0);
       setLoading(false);
     }
   }, [open]);
@@ -228,6 +234,59 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       }
     }
     return errors;
+  }
+
+  function validateDetailStep(index: number): Record<string, string> {
+    const errors: Record<string, string> = {};
+    if (index === 0) {
+      if (fullName.trim().length < 2) errors.fullName = "Nombre demasiado corto.";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = "Email inválido.";
+      if (!isValidChileanPhone(phone)) {
+        errors.phone = "Ingresá un móvil chileno válido (+56 9 XXXX XXXX).";
+      }
+    } else if (index === 1) {
+      if (documentType === "RUT") {
+        if (!rut.trim()) errors.rut = "El RUT es obligatorio.";
+        else if (!isValidChileanRut(rut)) errors.rut = "RUT inválido. Verificá el dígito verificador.";
+      } else {
+        if (!passport.trim()) errors.passport = "El número de pasaporte es obligatorio.";
+        else if (!isValidPassport(passport)) {
+          errors.passport = "Pasaporte inválido (5 a 20 caracteres alfanuméricos).";
+        }
+      }
+      if (!birthDate || !isValidBirthDate(birthDate)) {
+        errors.birthDate = "Fecha de nacimiento inválida.";
+      }
+    } else if (index === 2) {
+      if (guestsCount < 1 || guestsCount > activeRoom.maxGuests) {
+        errors.guestsCount = `Esta habitación admite máximo ${activeRoom.maxGuests} huéspedes.`;
+      }
+    }
+    return errors;
+  }
+
+  function handleDetailBack() {
+    setError(null);
+    setDetailStep((current) => Math.max(0, current - 1));
+  }
+
+  function handleDetailSubmit(event: React.FormEvent) {
+    event.preventDefault();
+
+    const stepErrors = validateDetailStep(detailStep);
+    if (Object.keys(stepErrors).length > 0) {
+      setFieldErrors((prev) => ({ ...prev, ...stepErrors }));
+      setError("Revisá los campos marcados antes de continuar.");
+      return;
+    }
+
+    setError(null);
+    if (detailStep < DETAIL_STEP_COUNT - 1) {
+      setDetailStep((current) => current + 1);
+      return;
+    }
+
+    void handleContinueToPayment(event);
   }
 
   function completeSuccess(data: {
@@ -414,12 +473,14 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
         role="dialog"
         aria-modal="true"
         aria-labelledby="booking-title"
-        className="max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border-2 border-highlight/35 bg-brand-900 p-5 shadow-2xl shadow-accent/10 sm:rounded-3xl sm:p-6 animate-fade-in-up"
+        className="flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border-2 border-highlight/35 bg-brand-900 shadow-2xl shadow-accent/10 sm:rounded-3xl animate-fade-in-up"
       >
-        <div className="mb-5 flex items-start justify-between gap-4">
+        <div className="flex shrink-0 items-start justify-between gap-4 border-b border-brand-700/40 px-5 pt-5 pb-4 sm:px-6 sm:pt-6">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-              {step === "details" ? "Paso 1 de 2" : "Paso 2 de 2 · Elige cómo pagar"}
+              {step === "details"
+                ? `Paso ${detailStep + 1} de ${DETAIL_STEP_COUNT + 1} · ${DETAIL_STEP_LABELS[detailStep]}`
+                : `Paso ${DETAIL_STEP_COUNT + 1} de ${DETAIL_STEP_COUNT + 1} · Elige cómo pagar`}
             </p>
             <h2 id="booking-title" className="mt-1 text-xl font-bold text-brand-100">
               {room.name}
@@ -437,6 +498,19 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             {room.description && (
               <p className="mt-2 line-clamp-2 text-xs text-brand-500">{room.description}</p>
             )}
+            <div className="mt-3 flex gap-1.5" aria-hidden="true">
+              {Array.from({ length: DETAIL_STEP_COUNT + 1 }).map((_, i) => (
+                <span
+                  key={i}
+                  className={cn(
+                    "h-1 flex-1 rounded-full transition-colors",
+                    i <= (step === "details" ? detailStep : DETAIL_STEP_COUNT)
+                      ? "bg-accent"
+                      : "bg-brand-700/40"
+                  )}
+                />
+              ))}
+            </div>
           </div>
           <button
             type="button"
@@ -449,222 +523,277 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
         </div>
 
         {step === "details" ? (
-          <form onSubmit={handleContinueToPayment} className="space-y-4">
-            {paymentConfig && !emailNotificationsEnabled && (
-              <p className="alert-warning text-xs leading-relaxed">
-                Los correos automáticos no están activos. Al finalizar, guardá tu código de confirmación o
-                consultá tu reserva en <strong>Mi reserva</strong>.
-              </p>
-            )}
-
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Huéspedes</span>
-              <select
-                value={guestsCount}
-                onChange={(e) => handleGuestsCountChange(Number(e.target.value))}
-                className="input-field"
-              >
-                {Array.from({ length: activeRoom.maxGuests }, (_, index) => index + 1).map((count) => (
-                  <option key={count} value={count}>
-                    {count} {count === 1 ? "huésped" : "huéspedes"}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-brand-500">
-                Capacidad máxima de {activeRoom.name}: {activeRoom.maxGuests}{" "}
-                {activeRoom.maxGuests === 1 ? "huésped" : "huéspedes"}.
-              </p>
-              <FieldError message={fieldErrors.guestsCount} />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Nombre completo</span>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  setFieldErrors((prev) => ({ ...prev, fullName: "" }));
-                }}
-                className="input-field"
-                required
-                autoComplete="name"
-              />
-              <FieldError message={fieldErrors.fullName} />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Email</span>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setFieldErrors((prev) => ({ ...prev, email: "" }));
-                }}
-                className="input-field"
-                required
-                autoComplete="email"
-              />
-              <FieldError message={fieldErrors.email} />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Teléfono móvil</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(formatChileanPhoneInput(e.target.value));
-                  setFieldErrors((prev) => ({ ...prev, phone: "" }));
-                }}
-                className="input-field"
-                autoComplete="tel"
-                placeholder="+56 9 1234 5678"
-                required
-                inputMode="tel"
-              />
-              <FieldError message={fieldErrors.phone} />
-            </label>
-
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Fecha de nacimiento</span>
-              <input
-                type="date"
-                value={birthDate}
-                onChange={(e) => {
-                  setBirthDate(e.target.value);
-                  setFieldErrors((prev) => ({ ...prev, birthDate: "" }));
-                }}
-                className="input-field"
-                required
-                max={maxBirthDate}
-                min="1900-01-01"
-              />
-              <FieldError message={fieldErrors.birthDate} />
-            </label>
-
-            <div className="space-y-2">
-              <span className="text-sm font-medium text-brand-100">Documento de identidad</span>
-              <div className="grid grid-cols-2 gap-2 rounded-2xl border border-brand-700 bg-brand-800 p-1.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDocumentType("RUT");
-                    setPassport("");
-                    setError(null);
-                  }}
-                  className={cn(
-                    "min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition",
-                    documentType === "RUT"
-                      ? "tab-active-accent"
-                      : "text-brand-500 hover:bg-brand-800 hover:text-brand-100"
-                  )}
-                >
-                  RUT chileno
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDocumentType("PASSPORT");
-                    setRut("");
-                    setError(null);
-                  }}
-                  className={cn(
-                    "min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition",
-                    documentType === "PASSPORT"
-                      ? "tab-active-accent"
-                      : "text-brand-500 hover:bg-brand-800 hover:text-brand-100"
-                  )}
-                >
-                  Pasaporte
-                </button>
-              </div>
-              {documentType === "RUT" ? (
+          <form onSubmit={handleDetailSubmit} className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4 sm:px-6">
+              {detailStep === 0 && (
                 <>
-                  <input
-                    type="text"
-                    value={rut}
-                    onChange={(e) => {
-                      setRut(formatRutInput(e.target.value));
-                      setFieldErrors((prev) => ({ ...prev, rut: "" }));
-                    }}
-                    className="input-field"
-                    placeholder="12.345.678-9"
-                    autoComplete="off"
-                    required
-                    inputMode="text"
-                  />
-                  <FieldError message={fieldErrors.rut} />
+                  {paymentConfig && !emailNotificationsEnabled && (
+                    <p className="alert-warning text-xs leading-relaxed">
+                      Los correos automáticos no están activos. Al finalizar, guardá tu código de
+                      confirmación o consultá tu reserva en <strong>Mi reserva</strong>.
+                    </p>
+                  )}
+
+                  <label className="block space-y-1.5">
+                    <span className="text-sm font-medium text-brand-100">Nombre completo</span>
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, fullName: "" }));
+                      }}
+                      className="input-field"
+                      required
+                      autoComplete="name"
+                    />
+                    <FieldError message={fieldErrors.fullName} />
+                  </label>
+
+                  <label className="block space-y-1.5">
+                    <span className="text-sm font-medium text-brand-100">Email</span>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, email: "" }));
+                      }}
+                      className="input-field"
+                      required
+                      autoComplete="email"
+                    />
+                    <FieldError message={fieldErrors.email} />
+                  </label>
+
+                  <label className="block space-y-1.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
+                      Teléfono móvil
+                      <InfoTooltip label="Te contactaremos por WhatsApp solo si hay algún cambio en tu reserva." />
+                    </span>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(formatChileanPhoneInput(e.target.value));
+                        setFieldErrors((prev) => ({ ...prev, phone: "" }));
+                      }}
+                      className="input-field"
+                      autoComplete="tel"
+                      placeholder="+56 9 1234 5678"
+                      required
+                      inputMode="tel"
+                    />
+                    <FieldError message={fieldErrors.phone} />
+                  </label>
                 </>
-              ) : (
+              )}
+
+              {detailStep === 1 && (
                 <>
-                  <input
-                    type="text"
-                    value={passport}
-                    onChange={(e) => {
-                      setPassport(
-                        e.target.value
-                          .toUpperCase()
-                          .replace(/[^A-Z0-9]/g, "")
-                          .slice(0, 20)
-                      );
-                      setFieldErrors((prev) => ({ ...prev, passport: "" }));
-                    }}
-                    className="input-field font-mono uppercase"
-                    placeholder="AB1234567"
-                    autoComplete="off"
-                    required
-                  />
-                  <FieldError message={fieldErrors.passport} />
+                  <div className="space-y-2">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
+                      Tipo de documento
+                      <InfoTooltip label="Requerido por ley para el registro de huéspedes en el alojamiento." />
+                    </span>
+                    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-brand-700 bg-brand-800 p-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDocumentType("RUT");
+                          setPassport("");
+                          setError(null);
+                        }}
+                        className={cn(
+                          "min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition",
+                          documentType === "RUT"
+                            ? "tab-active-accent"
+                            : "text-brand-500 hover:bg-brand-800 hover:text-brand-100"
+                        )}
+                      >
+                        RUT chileno
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDocumentType("PASSPORT");
+                          setRut("");
+                          setError(null);
+                        }}
+                        className={cn(
+                          "min-h-10 rounded-xl px-3 py-2 text-sm font-semibold transition",
+                          documentType === "PASSPORT"
+                            ? "tab-active-accent"
+                            : "text-brand-500 hover:bg-brand-800 hover:text-brand-100"
+                        )}
+                      >
+                        Pasaporte
+                      </button>
+                    </div>
+                  </div>
+
+                  <label className="block space-y-1.5">
+                    <span className="text-sm font-medium text-brand-100">
+                      {documentType === "RUT" ? "Número de RUT" : "N° de pasaporte"}
+                    </span>
+                    {documentType === "RUT" ? (
+                      <input
+                        type="text"
+                        value={rut}
+                        onChange={(e) => {
+                          setRut(formatRutInput(e.target.value));
+                          setFieldErrors((prev) => ({ ...prev, rut: "" }));
+                        }}
+                        className="input-field"
+                        placeholder="12.345.678-9"
+                        autoComplete="off"
+                        required
+                        inputMode="text"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={passport}
+                        onChange={(e) => {
+                          setPassport(
+                            e.target.value
+                              .toUpperCase()
+                              .replace(/[^A-Z0-9]/g, "")
+                              .slice(0, 20)
+                          );
+                          setFieldErrors((prev) => ({ ...prev, passport: "" }));
+                        }}
+                        className="input-field font-mono uppercase"
+                        placeholder="AB1234567"
+                        autoComplete="off"
+                        required
+                      />
+                    )}
+                    <FieldError
+                      message={documentType === "RUT" ? fieldErrors.rut : fieldErrors.passport}
+                    />
+                  </label>
+
+                  <label className="block space-y-1.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
+                      Fecha de nacimiento
+                      <InfoTooltip label="La usamos para el registro de check-in. Debés ser mayor de edad para reservar." />
+                    </span>
+                    <input
+                      type="date"
+                      value={birthDate}
+                      onChange={(e) => {
+                        setBirthDate(e.target.value);
+                        setFieldErrors((prev) => ({ ...prev, birthDate: "" }));
+                      }}
+                      className="input-field"
+                      required
+                      max={maxBirthDate}
+                      min="1900-01-01"
+                    />
+                    <FieldError message={fieldErrors.birthDate} />
+                  </label>
+                </>
+              )}
+
+              {detailStep === 2 && (
+                <>
+                  <label className="block space-y-1.5">
+                    <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
+                      Huéspedes
+                      <InfoTooltip
+                        label={`Esta habitación admite un máximo de ${activeRoom.maxGuests} ${
+                          activeRoom.maxGuests === 1 ? "huésped" : "huéspedes"
+                        }.`}
+                      />
+                    </span>
+                    <select
+                      value={guestsCount}
+                      onChange={(e) => handleGuestsCountChange(Number(e.target.value))}
+                      className="input-field"
+                    >
+                      {Array.from({ length: activeRoom.maxGuests }, (_, index) => index + 1).map((count) => (
+                        <option key={count} value={count}>
+                          {count} {count === 1 ? "huésped" : "huéspedes"}
+                        </option>
+                      ))}
+                    </select>
+                    <FieldError message={fieldErrors.guestsCount} />
+                  </label>
+
+                  <label className="block space-y-1.5">
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
+                        Solicitudes especiales
+                        <InfoTooltip label="Cama extra, cuna, llegada tardía, celebración... haremos lo posible por cumplirlas." />
+                      </span>
+                      <span className="text-xs font-normal text-brand-500">Opcional</span>
+                    </span>
+                    <textarea
+                      value={specialRequests}
+                      onChange={(e) => setSpecialRequests(e.target.value)}
+                      className="input-field min-h-20 resize-y"
+                      rows={2}
+                      placeholder="Ej.: llegada después de las 20:00, cama adicional…"
+                    />
+                  </label>
+
+                  <label className="flex items-start gap-3 rounded-xl border border-brand-700 bg-brand-800/50 p-3 text-sm text-brand-500">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => {
+                        setAcceptedTerms(e.target.checked);
+                        if (e.target.checked) setError(null);
+                      }}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-accent"
+                      required
+                    />
+                    <span>
+                      Acepto los{" "}
+                      <Link href="/terminos" className="font-semibold text-accent hover:underline" target="_blank">
+                        términos y condiciones
+                      </Link>{" "}
+                      y la{" "}
+                      <Link href="/privacidad" className="font-semibold text-accent hover:underline" target="_blank">
+                        política de privacidad
+                      </Link>
+                      .
+                    </span>
+                  </label>
                 </>
               )}
             </div>
 
-            <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-brand-100">Solicitudes especiales</span>
-              <textarea
-                value={specialRequests}
-                onChange={(e) => setSpecialRequests(e.target.value)}
-                className="input-field min-h-20 resize-y"
-                rows={2}
-              />
-            </label>
+            <div className="shrink-0 space-y-3 border-t border-brand-700/50 bg-brand-900 px-5 py-4 sm:px-6">
+              {error && <div className="alert-error">{error}</div>}
 
-            <label className="flex items-start gap-3 rounded-xl border border-brand-700 bg-brand-800/50 p-3 text-sm text-brand-500">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => {
-                  setAcceptedTerms(e.target.checked);
-                  if (e.target.checked) setError(null);
-                }}
-                className="mt-0.5 h-4 w-4 shrink-0 accent-accent"
-                required
-              />
-              <span>
-                Acepto los{" "}
-                <Link href="/terminos" className="font-semibold text-accent hover:underline" target="_blank">
-                  términos y condiciones
-                </Link>{" "}
-                y la{" "}
-                <Link href="/privacidad" className="font-semibold text-accent hover:underline" target="_blank">
-                  política de privacidad
-                </Link>
-                .
-              </span>
-            </label>
+              <div className="flex gap-3">
+                {detailStep > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleDetailBack}
+                    disabled={loading}
+                    className="btn-secondary w-full"
+                  >
+                    Atrás
+                  </button>
+                )}
+                <button type="submit" disabled={loading} className="btn-primary w-full">
+                  {loading
+                    ? "Verificando..."
+                    : detailStep < DETAIL_STEP_COUNT - 1
+                      ? "Siguiente"
+                      : "Continuar al pago"}
+                </button>
+              </div>
 
-            {error && <div className="alert-error">{error}</div>}
-
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? "Verificando..." : "Continuar al pago"}
-            </button>
-
-            <WhatsAppSupport variant="compact" guestName={fullName || undefined} />
+              <WhatsAppSupport variant="compact" guestName={fullName || undefined} />
+            </div>
           </form>
         ) : (
-          <div className="space-y-4">
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-5 py-3 sm:px-6">
             {paymentConfig && !emailNotificationsEnabled && (
               <p className="alert-warning text-xs leading-relaxed">
                 No enviaremos correo de confirmación. Anotá tu código al terminar o usá{" "}
@@ -672,15 +801,14 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
               </p>
             )}
 
-            <p className="text-xs text-brand-500">
-              La reserva se confirma al completar el pago. Si cerrás esta ventana antes, no se
-              agendará nada en el calendario.
+            <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-brand-500">
+              Se confirma al pagar
+              <span className="text-brand-700">·</span>
+              <span className="inline-flex items-center gap-1 font-medium text-brand-100">
+                Política de cancelación
+                <InfoTooltip label={CANCELLATION_POLICY} />
+              </span>
             </p>
-
-            <div className="rounded-xl border border-brand-700 bg-brand-800/40 px-3 py-2.5 text-xs text-brand-500">
-              <p className="font-semibold text-brand-100">Política de cancelación</p>
-              <p className="mt-1">{CANCELLATION_POLICY}</p>
-            </div>
 
             {bankTransferAvailable && onlineAvailable && (
               <div className="grid grid-cols-2 gap-2 rounded-2xl border border-brand-700 bg-brand-800 p-1.5">
@@ -724,6 +852,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                 guestEmail={email}
                 loading={loading}
                 onConfirm={handleBankTransferConfirm}
+                showConfirmButton={false}
               />
             ) : paymentConfig?.online.provider === "mercadopago" &&
               paymentConfig.online.enabled &&
@@ -751,11 +880,13 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             ) : paymentConfig?.online.provider === "simulated" &&
               paymentConfig.online.enabled &&
               checkoutMeta ? (
-              <form onSubmit={handleSimulatedPayment} className="space-y-4">
+              <form
+                id="simulated-payment-form"
+                onSubmit={handleSimulatedPayment}
+                className="space-y-3"
+              >
                 {demoUi && (
-                  <p className="alert-warning text-xs">
-                    Modo demo: pago con tarjeta simulada para pruebas internas.
-                  </p>
+                  <p className="alert-warning text-xs">Modo demo: tarjeta simulada.</p>
                 )}
 
                 <label className="block space-y-1.5">
@@ -811,11 +942,6 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                   </label>
                 </div>
 
-                <button type="submit" disabled={loading} className="btn-primary w-full">
-                  {loading
-                    ? "Procesando pago..."
-                    : `Pagar ${formatCurrency(checkoutMeta.totalAmount)}`}
-                </button>
               </form>
             ) : paymentConfig && !onlineAvailable && !bankTransferAvailable ? (
               <div className="alert-error space-y-2 text-sm">
@@ -830,20 +956,42 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             )}
 
             {error && <div className="alert-error">{error}</div>}
+            </div>
 
-            <WhatsAppSupport variant="banner" guestName={fullName} roomName={room.name} />
-
-            <button
-              type="button"
-              onClick={() => {
-                setStep("details");
-                setError(null);
-              }}
-              className="btn-secondary w-full"
-              disabled={loading}
-            >
-              Volver
-            </button>
+            <div className="shrink-0 space-y-2.5 border-t border-brand-700/50 bg-brand-900 px-5 py-4 sm:px-6">
+              {paymentMethod === "bank_transfer" && paymentConfig?.bankTransfer && checkoutMeta ? (
+                <button
+                  type="button"
+                  onClick={handleBankTransferConfirm}
+                  disabled={loading}
+                  className="btn-primary w-full"
+                >
+                  {loading ? "Registrando reserva..." : "Confirmar reserva con transferencia"}
+                </button>
+              ) : paymentConfig?.online.provider === "simulated" &&
+                paymentConfig.online.enabled &&
+                checkoutMeta ? (
+                <button
+                  type="submit"
+                  form="simulated-payment-form"
+                  disabled={loading}
+                  className="btn-primary w-full"
+                >
+                  {loading ? "Procesando pago..." : `Pagar ${formatCurrency(checkoutMeta.totalAmount)}`}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("details");
+                  setError(null);
+                }}
+                className="btn-secondary w-full"
+                disabled={loading}
+              >
+                Volver
+              </button>
+            </div>
           </div>
         )}
       </div>

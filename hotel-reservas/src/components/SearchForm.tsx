@@ -59,7 +59,7 @@ export function SearchForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="glass-panel-elevated grid gap-3 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto] lg:items-end lg:gap-3"
+      className="glass-panel-elevated grid grid-cols-2 gap-3 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto] lg:items-end lg:gap-3"
     >
       {/* Entrada */}
       <label className="block space-y-1.5">
@@ -95,7 +95,7 @@ export function SearchForm({
       </label>
 
       {/* Huéspedes */}
-      <label className="block space-y-1.5 md:col-span-1 lg:col-span-1">
+      <label className="block space-y-1.5 col-span-2 md:col-span-1 lg:col-span-1">
         <span className="text-xs font-bold uppercase tracking-wider text-accent">
           Huéspedes
         </span>
@@ -113,18 +113,18 @@ export function SearchForm({
       </label>
 
       {/* Botón */}
-      <div className="flex items-end md:col-span-2 lg:col-span-1">
+      <div className="flex items-end col-span-2 md:col-span-2 lg:col-span-1">
         <button type="submit" disabled={loading} className="btn-primary w-full whitespace-nowrap">
           {loading ? "Buscando..." : "Buscar disponibilidad"}
         </button>
       </div>
 
       {error && (
-        <p className="alert-error text-sm md:col-span-2 lg:col-span-4">{error}</p>
+        <p className="alert-error text-sm col-span-2 md:col-span-2 lg:col-span-4">{error}</p>
       )}
 
       {checkIn && checkOut && (
-        <p className="text-xs text-brand-500 md:col-span-2 lg:col-span-4">
+        <p className="text-xs text-brand-500 col-span-2 md:col-span-2 lg:col-span-4">
           Estadía del{" "}
           <strong className="text-highlight">
             {format(new Date(checkIn + "T12:00:00"), "d MMM yyyy", { locale: es })}

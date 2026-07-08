@@ -129,10 +129,6 @@ export default function HomePage() {
             <SearchForm onSearch={handleSearch} loading={loading} />
           </div>
 
-          <div className="animate-fade-in-up animate-delay-4 mb-8">
-            <WhatsAppSupport variant="banner" />
-          </div>
-
           {error && <div className="alert-error animate-fade-in mt-6">{error}</div>}
 
           <section className="mt-8">

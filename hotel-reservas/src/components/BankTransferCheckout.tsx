@@ -10,6 +10,8 @@ type BankTransferCheckoutProps = {
   guestEmail: string;
   loading: boolean;
   onConfirm: () => void;
+  /** Cuando es false, el botón de confirmar se renderiza fuera (pie fijo del modal). */
+  showConfirmButton?: boolean;
 };
 
 function CopyRow({ label, value }: { label: string; value: string }) {
@@ -22,15 +24,18 @@ function CopyRow({ label, value }: { label: string; value: string }) {
   }
 
   return (
-    <div className="flex items-start justify-between gap-3 rounded-xl border border-brand-700 bg-brand-800 px-3 py-2.5">
+    <div className="flex items-center justify-between gap-2 px-3 py-1">
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-brand-500">{label}</p>
-        <p className="mt-0.5 break-all font-mono text-sm text-brand-100">{value}</p>
+        <p className="text-[10px] font-semibold uppercase leading-none tracking-wider text-brand-500">
+          {label}
+        </p>
+        <p className="mt-0.5 break-all font-mono text-xs leading-none text-brand-100">{value}</p>
       </div>
       <button
         type="button"
         onClick={copyValue}
-        className="shrink-0 rounded-lg border border-brand-700 bg-brand-900 px-2 py-1 text-[11px] font-semibold text-brand-500 hover:text-accent"
+        aria-label={`Copiar ${label}`}
+        className="shrink-0 rounded-lg border border-brand-700 bg-brand-900 px-2 py-0.5 text-[11px] font-semibold text-brand-500 hover:text-accent"
       >
         Copiar
       </button>
@@ -45,24 +50,23 @@ export function BankTransferCheckout({
   guestEmail,
   loading,
   onConfirm,
+  showConfirmButton = true,
 }: BankTransferCheckoutProps) {
   return (
-    <div className="space-y-4">
-      <p className="alert-info text-xs leading-relaxed">
-        Transfiere <strong>{formatCurrency(totalAmount)}</strong>
+    <div className="space-y-2">
+      <p className="text-xs leading-snug text-brand-500">
+        Transfiere <strong className="text-brand-100">{formatCurrency(totalAmount)}</strong> con{" "}
         {confirmationCode ? (
           <>
-            {" "}
-            y usa el código <strong className="font-mono">{confirmationCode}</strong> como referencia
-            o concepto.
+            el código <strong className="font-mono text-brand-100">{confirmationCode}</strong>
           </>
         ) : (
-          <> y usa el código de confirmación que recibirás al registrar la reserva.</>
+          <>tu código de reserva</>
         )}{" "}
-        El hotel confirmará tu pago manualmente en un plazo de {config.deadlineHours} horas.
+        como referencia. Confirmamos en ~{config.deadlineHours} h.
       </p>
 
-      <div className="space-y-2">
+      <div className="overflow-hidden rounded-xl border border-brand-700 bg-brand-800 divide-y divide-brand-700/60">
         <CopyRow label="Banco" value={config.bankName} />
         <CopyRow label="Titular" value={config.accountHolder} />
         <CopyRow label="Tipo de cuenta" value={config.accountType} />
@@ -71,28 +75,31 @@ export function BankTransferCheckout({
         {config.alias && <CopyRow label="Alias" value={config.alias} />}
         {config.swift && <CopyRow label="SWIFT / BIC" value={config.swift} />}
         {confirmationCode && <CopyRow label="Referencia obligatoria" value={confirmationCode} />}
-        <CopyRow label="Monto exacto" value={formatCurrency(totalAmount)} />
       </div>
 
-      {config.notes && (
-        <p className="rounded-xl border border-brand-700 bg-brand-800 px-4 py-3 text-xs text-brand-500">
-          {config.notes}
+      {(config.notes || config.contactEmail) && (
+        <p className="text-xs leading-snug text-brand-500">
+          {config.notes ? `${config.notes} ` : null}
+          {config.contactEmail && (
+            <>
+              Envía el comprobante a{" "}
+              <a
+                href={`mailto:${config.contactEmail}`}
+                className="font-semibold text-accent hover:underline"
+              >
+                {config.contactEmail}
+              </a>{" "}
+              con tu código y <strong className="text-brand-100">{guestEmail}</strong>.
+            </>
+          )}
         </p>
       )}
 
-      {config.contactEmail && (
-        <p className="text-xs text-brand-500">
-          Envía el comprobante a{" "}
-          <a href={`mailto:${config.contactEmail}`} className="font-semibold text-accent hover:underline">
-            {config.contactEmail}
-          </a>{" "}
-          indicando tu código y el email <strong className="text-brand-100">{guestEmail}</strong>.
-        </p>
+      {showConfirmButton && (
+        <button type="button" disabled={loading} onClick={onConfirm} className="btn-primary w-full">
+          {loading ? "Registrando reserva..." : "Confirmar reserva con transferencia"}
+        </button>
       )}
-
-      <button type="button" disabled={loading} onClick={onConfirm} className="btn-primary w-full">
-        {loading ? "Registrando reserva..." : "Confirmar reserva con transferencia"}
-      </button>
     </div>
   );
 }

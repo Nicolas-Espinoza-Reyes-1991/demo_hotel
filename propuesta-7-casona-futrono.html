@@ -17,17 +17,17 @@
     <meta property="og:site_name" content="La Casona de Futrono" />
     <meta property="og:title" content="La Casona de Futrono | Hotel Boutique Futrono — Lago Ranco" />
     <meta property="og:description" content="Hotel boutique en Futrono, Los Ríos. Casona de madera nativa a orillas del Lago Ranco. Reserva directa online." />
-    <meta property="og:image" content="https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.webp" />
+    <meta property="og:image" content="https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/frontis.webp" />
     <meta property="og:image:alt" content="Fachada de La Casona de Futrono con jardín y árboles nativos" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:width" content="1448" />
+    <meta property="og:image:height" content="1086" />
     <meta property="og:url" content="https://lacasonadefutrono.cl/" />
     <meta property="og:locale" content="es_CL" />
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="La Casona de Futrono | Hotel Boutique Futrono" />
     <meta name="twitter:description" content="Hotel boutique en Futrono, Los Ríos. Casona de madera nativa a orillas del Lago Ranco." />
-    <meta name="twitter:image" content="https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.webp" />
+    <meta name="twitter:image" content="https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/frontis.webp" />
     <!-- JSON-LD: Hotel + LocalBusiness -->
     <script type="application/ld+json">
     {
@@ -39,7 +39,7 @@
       "telephone": "+56998218978",
       "email": "reservas@lacasonadefutrono.cl",
       "logo": "https://lacasonadefutrono.cl/assets/logo-casona.png",
-      "image": "https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.webp",
+      "image": "https://lacasonadefutrono.cl/fotos_web/arquitectura_hotel_vista/frontis.webp",
       "priceRange": "$$",
       "starRating": { "@type": "Rating", "ratingValue": "4" },
       "checkinTime": "15:00",
@@ -1101,6 +1101,25 @@
             if (event.target === lightbox) close();
           };
 
+          /* Swipe táctil (móvil) */
+          var lbTouchX = null, lbTouchY = null;
+          lightbox.ontouchstart = function (event) {
+            var t = event.changedTouches[0];
+            lbTouchX = t.clientX;
+            lbTouchY = t.clientY;
+          };
+          lightbox.ontouchend = function (event) {
+            if (lbTouchX === null) return;
+            var t = event.changedTouches[0];
+            var dx = t.clientX - lbTouchX;
+            var dy = t.clientY - lbTouchY;
+            if (photos.length > 1 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+              goTo(current + (dx < 0 ? 1 : -1));
+            }
+            lbTouchX = null;
+            lbTouchY = null;
+          };
+
           render();
           lightbox.classList.add("is-open");
           document.body.style.overflow = "hidden";
@@ -1110,6 +1129,8 @@
         function buildCarousel(photos, roomName, fallbackSrc) {
           var wrap = document.createElement("div");
           wrap.className = "lp-carousel";
+
+          var swiped = false;
 
           /* Slides */
           photos.forEach(function (src, i) {
@@ -1122,6 +1143,7 @@
             img.addEventListener("click", function (e) {
               e.preventDefault();
               e.stopPropagation();
+              if (swiped) { swiped = false; return; }
               openRoomLightbox(photos, i, roomName);
             });
             wrap.appendChild(img);
@@ -1182,6 +1204,30 @@
           dots.forEach(function (dot, i) {
             dot.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); goTo(i); });
           });
+
+          /* Swipe táctil (móvil) */
+          var touchStartX = null, touchStartY = null;
+          wrap.addEventListener("touchstart", function (e) {
+            var t = e.changedTouches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            swiped = false;
+          }, { passive: true });
+          wrap.addEventListener("touchmove", function (e) {
+            if (touchStartX === null) return;
+            if (Math.abs(e.changedTouches[0].clientX - touchStartX) > 10) swiped = true;
+          }, { passive: true });
+          wrap.addEventListener("touchend", function (e) {
+            if (touchStartX === null) return;
+            var t = e.changedTouches[0];
+            var dx = t.clientX - touchStartX;
+            var dy = t.clientY - touchStartY;
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+              goTo(current + (dx < 0 ? 1 : -1));
+            }
+            touchStartX = null;
+            touchStartY = null;
+          }, { passive: true });
 
           return wrap;
         }

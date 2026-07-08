@@ -31,7 +31,7 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
   || process.env.APP_URL?.trim()
   || "https://lacasonadefutrono.cl";
 const reservasUrl = `${siteUrl}/reservas`;
-const ogImage = `${siteUrl}/fotos_web/arquitectura_hotel_vista/WhatsApp%20Image%202026-06-08%20at%2011.07.34.webp`;
+const ogImage = `${siteUrl}/fotos_web/arquitectura_hotel_vista/frontis.webp`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(reservasUrl),
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     siteName: HOTEL_NAME,
     title: `${HOTEL_NAME} | Reserva tu estadía`,
     description: `Reserva en línea en ${HOTEL_NAME}, hotel boutique en Futrono a orillas del Lago Ranco.`,
-    images: [{ url: ogImage, width: 1200, height: 630, alt: `Vista exterior de ${HOTEL_NAME}` }],
+    images: [{ url: ogImage, width: 1448, height: 1086, alt: `Vista exterior de ${HOTEL_NAME}` }],
   },
   twitter: {
     card: "summary_large_image",

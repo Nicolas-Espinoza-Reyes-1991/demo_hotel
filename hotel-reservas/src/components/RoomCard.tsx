@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
 import { publicAssetUrl } from "@/lib/api-path";
@@ -96,6 +96,47 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  // Gestos de swipe (móvil)
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const swipedRef = useRef(false);
+  const lbTouchX = useRef<number | null>(null);
+  const lbTouchY = useRef<number | null>(null);
+
+  const step = useCallback(
+    (dir: number) => {
+      setCurrent((c) => (c + dir + photos.length) % photos.length);
+    },
+    [photos.length]
+  );
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartX.current = t.clientX;
+    touchStartY.current = t.clientY;
+    swipedRef.current = false;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    if (Math.abs(e.touches[0].clientX - touchStartX.current) > 10) swipedRef.current = true;
+  }, []);
+
+  const onTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartX.current == null) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStartX.current;
+      const dy = t.clientY - (touchStartY.current ?? 0);
+      if (photos.length > 1 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        step(dx < 0 ? 1 : -1);
+      }
+      touchStartX.current = null;
+      touchStartY.current = null;
+    },
+    [photos.length, step]
+  );
+
   const closeLightbox = useCallback(() => {
     setLightboxOpen(false);
   }, []);
@@ -143,7 +184,12 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
   );
 
   return (
-    <div className="room-carousel">
+    <div
+      className="room-carousel"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Imagen activa */}
       {photos.map((src, i) => (
         <img
@@ -153,6 +199,10 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
           loading={i === 0 ? "eager" : "lazy"}
           onClick={(e) => {
             e.stopPropagation();
+            if (swipedRef.current) {
+              swipedRef.current = false;
+              return;
+            }
             setLightboxIndex(i);
             setLightboxOpen(true);
           }}
@@ -216,6 +266,22 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
               aria-modal="true"
               aria-label={`Imagen ampliada de ${name}`}
               onClick={closeLightbox}
+              onTouchStart={(e) => {
+                const t = e.touches[0];
+                lbTouchX.current = t.clientX;
+                lbTouchY.current = t.clientY;
+              }}
+              onTouchEnd={(e) => {
+                if (lbTouchX.current == null) return;
+                const t = e.changedTouches[0];
+                const dx = t.clientX - lbTouchX.current;
+                const dy = t.clientY - (lbTouchY.current ?? 0);
+                if (photos.length > 1 && Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+                  goLightbox(lightboxIndex + (dx < 0 ? 1 : -1));
+                }
+                lbTouchX.current = null;
+                lbTouchY.current = null;
+              }}
             >
               <button
                 type="button"
