@@ -417,7 +417,6 @@ type RoomFormState = {
   maxGuests: string;
   floor: string;
   status: string;
-  imageUrl: string;
   photos: string[];
   selectedAmenities: string[];
   otherAmenities: string;
@@ -437,7 +436,6 @@ const EMPTY_ROOM_FORM: RoomFormState = {
   maxGuests: "2",
   floor: "",
   status: "AVAILABLE",
-  imageUrl: "",
   photos: [],
   selectedAmenities: [],
   otherAmenities: "",
@@ -464,8 +462,12 @@ function roomToForm(room: AdminRoom): RoomFormState {
     maxGuests: String(room.maxGuests),
     floor: room.floor != null ? String(room.floor) : "",
     status: room.status,
-    imageUrl: room.imageUrl ?? "",
-    photos: Array.isArray(room.photos) ? room.photos : [],
+    photos:
+      Array.isArray(room.photos) && room.photos.length > 0
+        ? room.photos
+        : room.imageUrl && !room.imageUrl.includes("images.unsplash.com")
+          ? [room.imageUrl]
+          : [],
     selectedAmenities: room.amenities.filter((item) =>
       AMENITY_OPTIONS.includes(item as (typeof AMENITY_OPTIONS)[number])
     ),
@@ -480,6 +482,8 @@ function formToPayload(form: RoomFormState) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+
+  const cleanedPhotos = form.photos.map((item) => item.trim()).filter(Boolean).slice(0, 20);
 
   return {
     code: form.code.trim(),
@@ -500,8 +504,8 @@ function formToPayload(form: RoomFormState) {
     maxGuests: Number(form.maxGuests),
     floor: form.floor.trim() ? Number(form.floor) : null,
     status: form.status,
-    imageUrl: form.imageUrl.trim() || null,
-    photos: form.photos.map((item) => item.trim()).filter(Boolean).slice(0, 20),
+    imageUrl: cleanedPhotos[0] ?? null,
+    photos: cleanedPhotos,
     amenities: [...form.selectedAmenities, ...otherAmenities],
   };
 }
@@ -556,9 +560,6 @@ export function AdminRoomsPanel() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<RoomFormState>(EMPTY_ROOM_FORM);
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState<string | null>(null);
 
@@ -591,21 +592,9 @@ export function AdminRoomsPanel() {
     void load();
   }, [load]);
 
-  useEffect(() => {
-    if (selectedImageFile) {
-      const objectUrl = URL.createObjectURL(selectedImageFile);
-      setImagePreviewUrl(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    }
-
-    const currentImageUrl = form.imageUrl.trim();
-    setImagePreviewUrl(currentImageUrl ? publicAssetUrl(currentImageUrl) : null);
-  }, [selectedImageFile, form.imageUrl]);
-
   function openCreateForm() {
     setEditingId(null);
     setForm(EMPTY_ROOM_FORM);
-    setSelectedImageFile(null);
     setGalleryError(null);
     setShowForm(true);
     setMessage(null);
@@ -614,7 +603,6 @@ export function AdminRoomsPanel() {
   function openEditForm(room: AdminRoom) {
     setEditingId(room.id);
     setForm(roomToForm(room));
-    setSelectedImageFile(null);
     setGalleryError(null);
     setShowForm(true);
     setMessage(null);
@@ -624,7 +612,6 @@ export function AdminRoomsPanel() {
     setShowForm(false);
     setEditingId(null);
     setForm(EMPTY_ROOM_FORM);
-    setSelectedImageFile(null);
     setGalleryError(null);
   }
 
@@ -734,27 +721,7 @@ export function AdminRoomsPanel() {
         throw new Error(validationError);
       }
 
-      let uploadedImageUrl = form.imageUrl.trim() || null;
-      if (selectedImageFile) {
-        setUploadingImage(true);
-        const formData = new FormData();
-        formData.append("file", selectedImageFile);
-
-        const uploadResponse = await fetch(apiPath("/api/uploads/rooms"), {
-          method: "POST",
-          body: formData,
-        });
-        const uploadData = await uploadResponse.json();
-        if (!uploadResponse.ok) {
-          throw new Error(uploadData.error ?? "No se pudo subir la imagen.");
-        }
-        uploadedImageUrl = uploadData.url ?? null;
-      }
-
-      const payload = {
-        ...formToPayload(form),
-        imageUrl: uploadedImageUrl,
-      };
+      const payload = formToPayload(form);
       const response = await fetch(editingId ? apiPath(`/api/rooms/${editingId}`) : apiPath("/api/rooms"), {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -773,7 +740,6 @@ export function AdminRoomsPanel() {
         type: "success",
         text: data.message ?? (editingId ? "Habitación actualizada." : "Habitación creada."),
       });
-      setSelectedImageFile(null);
       closeForm();
     } catch (err) {
       setMessage({
@@ -781,7 +747,6 @@ export function AdminRoomsPanel() {
         text: err instanceof Error ? err.message : "Error al guardar.",
       });
     } finally {
-      setUploadingImage(false);
       setSaving(false);
     }
   }
@@ -1061,53 +1026,16 @@ export function AdminRoomsPanel() {
                 />
               </div>
             </div>
-            <label className="space-y-1.5 sm:col-span-2 lg:col-span-3">
-              <span className="text-xs font-medium text-brand-500">Imagen de la habitación</span>
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={(e) => setSelectedImageFile(e.target.files?.[0] ?? null)}
-                className="input-field file:mr-3 file:rounded-lg file:border-0 file:bg-accent/15 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-accent"
-              />
-              <p className="text-[11px] text-brand-500">
-                Formatos permitidos: JPG, PNG o WEBP (máx. 8 MB).
-              </p>
-              {(selectedImageFile || form.imageUrl) && (
-                <p className="text-[11px] text-brand-500">
-                  {selectedImageFile
-                    ? `Archivo seleccionado: ${selectedImageFile.name}`
-                    : `Imagen actual: ${form.imageUrl}`}
-                </p>
-              )}
-              {imagePreviewUrl && (
-                <div className="mt-2 overflow-hidden rounded-xl border border-brand-700/60 bg-brand-900/30">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imagePreviewUrl}
-                    alt="Vista previa de la habitación"
-                    className="h-40 w-full object-cover"
-                  />
-                </div>
-              )}
-              {form.imageUrl && !selectedImageFile && (
-                <button
-                  type="button"
-                  onClick={() => updateField("imageUrl", "")}
-                  className="text-xs font-semibold text-red-900 underline-offset-2 hover:underline"
-                >
-                  Quitar imagen actual
-                </button>
-              )}
-            </label>
             <div className="space-y-2 sm:col-span-2 lg:col-span-3">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-xs font-medium text-brand-500">
-                  Galería de fotos ({form.photos.length}/20)
+                  Fotos de la habitación ({form.photos.length}/20)
                 </span>
               </div>
               <p className="text-[11px] text-brand-500">
-                Estas fotos se muestran en el carrusel de la habitación (sitio y reservas). La primera
-                es la principal; usa las flechas para reordenar.
+                Se muestran en el carrusel de la habitación (sitio y reservas). La primera es la
+                principal (portada); usa las flechas para reordenar. Formatos: JPG, PNG o WEBP (máx.
+                8 MB).
               </p>
               <label className="block">
                 <span className="sr-only">Subir fotos a la galería</span>
@@ -1222,16 +1150,16 @@ export function AdminRoomsPanel() {
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
-              disabled={saving || uploadingImage || uploadingGallery}
+              disabled={saving || uploadingGallery}
               className="btn-primary min-h-10 px-4 text-sm disabled:opacity-60"
             >
-              {saving || uploadingImage || uploadingGallery
-                ? uploadingImage || uploadingGallery
-                  ? "Subiendo imagen..."
-                  : "Guardando…"
-                : editingId
-                  ? "Guardar cambios"
-                  : "Crear habitación"}
+              {uploadingGallery
+                ? "Subiendo fotos..."
+                : saving
+                  ? "Guardando…"
+                  : editingId
+                    ? "Guardar cambios"
+                    : "Crear habitación"}
             </button>
             <button type="button" onClick={closeForm} className="btn-secondary min-h-10 px-4 text-sm">
               Cancelar
