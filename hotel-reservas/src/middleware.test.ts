@@ -71,4 +71,16 @@ describe("middleware — rutas protegidas", () => {
     const response = await middleware(request("/api/webhooks/mercadopago", undefined, "POST"));
     expect(response.status).toBe(200);
   });
+
+  // Seguridad: el upload de fotos ahora exige sesión admin.
+  it("responde 401 en POST /api/uploads/rooms sin sesión", async () => {
+    const response = await middleware(request("/api/uploads/rooms", undefined, "POST"));
+    expect(response.status).toBe(401);
+  });
+
+  it("permite POST /api/uploads/rooms con sesión válida", async () => {
+    mockVerifySession.mockResolvedValue({ username: "admin", role: "admin" });
+    const response = await middleware(request("/api/uploads/rooms", "valid-jwt", "POST"));
+    expect(response.status).toBe(200);
+  });
 });

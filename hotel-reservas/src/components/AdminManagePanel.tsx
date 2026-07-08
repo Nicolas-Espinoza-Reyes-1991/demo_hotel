@@ -388,6 +388,7 @@ type AdminRoom = {
   code: string;
   name: string;
   type: string;
+  treeName: string | null;
   description: string | null;
   bedType: string | null;
   bathroomDetail: string | null;
@@ -398,6 +399,7 @@ type AdminRoom = {
   floor: number | null;
   status: string;
   imageUrl: string | null;
+  photos: string[];
   amenities: string[];
 };
 
@@ -405,6 +407,7 @@ type RoomFormState = {
   code: string;
   name: string;
   type: string;
+  treeName: string;
   description: string;
   bedType: string;
   bathroomDetail: string;
@@ -415,6 +418,7 @@ type RoomFormState = {
   floor: string;
   status: string;
   imageUrl: string;
+  photos: string[];
   selectedAmenities: string[];
   otherAmenities: string;
 };
@@ -423,6 +427,7 @@ const EMPTY_ROOM_FORM: RoomFormState = {
   code: "",
   name: "",
   type: "STANDARD",
+  treeName: "",
   description: "",
   bedType: "",
   bathroomDetail: "",
@@ -433,6 +438,7 @@ const EMPTY_ROOM_FORM: RoomFormState = {
   floor: "",
   status: "AVAILABLE",
   imageUrl: "",
+  photos: [],
   selectedAmenities: [],
   otherAmenities: "",
 };
@@ -442,6 +448,7 @@ function roomToForm(room: AdminRoom): RoomFormState {
     code: room.code,
     name: room.name,
     type: room.type,
+    treeName: room.treeName ?? "",
     description: room.description ?? "",
     bedType: room.bedType ?? "",
     bathroomDetail: room.bathroomDetail ?? "",
@@ -458,6 +465,7 @@ function roomToForm(room: AdminRoom): RoomFormState {
     floor: room.floor != null ? String(room.floor) : "",
     status: room.status,
     imageUrl: room.imageUrl ?? "",
+    photos: Array.isArray(room.photos) ? room.photos : [],
     selectedAmenities: room.amenities.filter((item) =>
       AMENITY_OPTIONS.includes(item as (typeof AMENITY_OPTIONS)[number])
     ),
@@ -477,6 +485,7 @@ function formToPayload(form: RoomFormState) {
     code: form.code.trim(),
     name: form.name.trim(),
     type: form.type,
+    treeName: form.treeName.trim() || null,
     description: form.description.trim() || null,
     bedType: form.bedType.trim() || null,
     bathroomDetail: form.bathroomDetail.trim() || null,
@@ -492,6 +501,7 @@ function formToPayload(form: RoomFormState) {
     floor: form.floor.trim() ? Number(form.floor) : null,
     status: form.status,
     imageUrl: form.imageUrl.trim() || null,
+    photos: form.photos.map((item) => item.trim()).filter(Boolean).slice(0, 20),
     amenities: [...form.selectedAmenities, ...otherAmenities],
   };
 }
@@ -549,6 +559,8 @@ export function AdminRoomsPanel() {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -594,6 +606,7 @@ export function AdminRoomsPanel() {
     setEditingId(null);
     setForm(EMPTY_ROOM_FORM);
     setSelectedImageFile(null);
+    setGalleryError(null);
     setShowForm(true);
     setMessage(null);
   }
@@ -602,6 +615,7 @@ export function AdminRoomsPanel() {
     setEditingId(room.id);
     setForm(roomToForm(room));
     setSelectedImageFile(null);
+    setGalleryError(null);
     setShowForm(true);
     setMessage(null);
   }
@@ -611,6 +625,7 @@ export function AdminRoomsPanel() {
     setEditingId(null);
     setForm(EMPTY_ROOM_FORM);
     setSelectedImageFile(null);
+    setGalleryError(null);
   }
 
   function updateField<K extends keyof RoomFormState>(key: K, value: RoomFormState[K]) {
@@ -654,6 +669,57 @@ export function AdminRoomsPanel() {
           ? prev.selectedAmenities.filter((item) => item !== value)
           : [...prev.selectedAmenities, value],
       };
+    });
+  }
+
+  async function uploadGalleryFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setGalleryError(null);
+
+    const remaining = 20 - form.photos.length;
+    if (remaining <= 0) {
+      setGalleryError("Máximo 20 fotos por habitación.");
+      return;
+    }
+
+    const selected = Array.from(files).slice(0, remaining);
+    setUploadingGallery(true);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of selected) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadResponse = await fetch(apiPath("/api/uploads/rooms"), {
+          method: "POST",
+          body: formData,
+        });
+        const uploadData = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+          throw new Error(uploadData.error ?? `No se pudo subir ${file.name}.`);
+        }
+        if (uploadData.url) uploadedUrls.push(uploadData.url as string);
+      }
+      if (uploadedUrls.length > 0) {
+        setForm((prev) => ({ ...prev, photos: [...prev.photos, ...uploadedUrls].slice(0, 20) }));
+      }
+    } catch (err) {
+      setGalleryError(err instanceof Error ? err.message : "No se pudieron subir las fotos.");
+    } finally {
+      setUploadingGallery(false);
+    }
+  }
+
+  function removePhoto(index: number) {
+    setForm((prev) => ({ ...prev, photos: prev.photos.filter((_, i) => i !== index) }));
+  }
+
+  function movePhoto(index: number, direction: -1 | 1) {
+    setForm((prev) => {
+      const target = index + direction;
+      if (target < 0 || target >= prev.photos.length) return prev;
+      const next = [...prev.photos];
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, photos: next };
     });
   }
 
@@ -884,6 +950,19 @@ export function AdminRoomsPanel() {
                 ))}
               </select>
             </label>
+            <label className="space-y-1.5">
+              <span className="text-xs font-medium text-brand-500">Etiqueta / badge</span>
+              <input
+                value={form.treeName}
+                onChange={(e) => updateField("treeName", e.target.value)}
+                className="input-field"
+                placeholder="Ej: Coihue"
+                maxLength={60}
+              />
+              <span className="block text-[11px] text-brand-500">
+                Texto corto que se muestra sobre la foto (opcional).
+              </span>
+            </label>
             <label className="space-y-1.5 sm:col-span-2 lg:col-span-3">
               <span className="text-xs font-medium text-brand-500">Descripción</span>
               <textarea
@@ -1020,6 +1099,87 @@ export function AdminRoomsPanel() {
                 </button>
               )}
             </label>
+            <div className="space-y-2 sm:col-span-2 lg:col-span-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-medium text-brand-500">
+                  Galería de fotos ({form.photos.length}/20)
+                </span>
+              </div>
+              <p className="text-[11px] text-brand-500">
+                Estas fotos se muestran en el carrusel de la habitación (sitio y reservas). La primera
+                es la principal; usa las flechas para reordenar.
+              </p>
+              <label className="block">
+                <span className="sr-only">Subir fotos a la galería</span>
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  multiple
+                  disabled={uploadingGallery || form.photos.length >= 20}
+                  onChange={(e) => {
+                    void uploadGalleryFiles(e.target.files);
+                    e.target.value = "";
+                  }}
+                  className="input-field file:mr-3 file:rounded-lg file:border-0 file:bg-accent/15 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-accent disabled:opacity-60"
+                />
+              </label>
+              {uploadingGallery && (
+                <p className="text-[11px] text-brand-500">Subiendo fotos…</p>
+              )}
+              {galleryError && <p className="alert-error text-xs">{galleryError}</p>}
+              {form.photos.length > 0 && (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                  {form.photos.map((photo, index) => (
+                    <div
+                      key={`${photo}-${index}`}
+                      className="group relative overflow-hidden rounded-xl border border-brand-700/60 bg-brand-900/30"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={publicAssetUrl(photo) ?? undefined}
+                        alt={`Foto ${index + 1}`}
+                        className="h-24 w-full object-cover"
+                      />
+                      {index === 0 && (
+                        <span className="absolute left-1 top-1 rounded bg-accent/90 px-1.5 py-0.5 text-[10px] font-semibold text-brand-900">
+                          Principal
+                        </span>
+                      )}
+                      <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-brand-900/70 px-1.5 py-1">
+                        <div className="flex gap-1">
+                          <button
+                            type="button"
+                            onClick={() => movePhoto(index, -1)}
+                            disabled={index === 0}
+                            className="rounded bg-brand-800/80 px-1.5 text-xs text-brand-100 disabled:opacity-40"
+                            aria-label="Mover foto a la izquierda"
+                          >
+                            ‹
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => movePhoto(index, 1)}
+                            disabled={index === form.photos.length - 1}
+                            className="rounded bg-brand-800/80 px-1.5 text-xs text-brand-100 disabled:opacity-40"
+                            aria-label="Mover foto a la derecha"
+                          >
+                            ›
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(index)}
+                          className="rounded bg-red-900/80 px-1.5 text-xs font-semibold text-white"
+                          aria-label="Eliminar foto"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {editingId && (
               <p className="alert-warning text-xs sm:col-span-2 lg:col-span-3">
                 Cambiar el precio afecta solo búsquedas y reservas nuevas. Las reservas existentes
@@ -1062,11 +1222,11 @@ export function AdminRoomsPanel() {
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
-              disabled={saving || uploadingImage}
+              disabled={saving || uploadingImage || uploadingGallery}
               className="btn-primary min-h-10 px-4 text-sm disabled:opacity-60"
             >
-              {saving || uploadingImage
-                ? uploadingImage
+              {saving || uploadingImage || uploadingGallery
+                ? uploadingImage || uploadingGallery
                   ? "Subiendo imagen..."
                   : "Guardando…"
                 : editingId

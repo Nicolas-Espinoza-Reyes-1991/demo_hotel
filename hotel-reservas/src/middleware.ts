@@ -7,6 +7,7 @@ function requiresAuth(pathname: string, method: string): boolean {
   if (pathname === "/api/calendar") return true;
   if (pathname === "/api/room-blocks" || pathname.startsWith("/api/room-blocks/")) return true;
   if (pathname === "/api/rooms" || pathname.startsWith("/api/rooms/")) return true;
+  if (pathname === "/api/uploads/rooms" || pathname.startsWith("/api/uploads/")) return true;
 
   if (pathname === "/api/reservations" && method === "GET") return true;
 
@@ -41,10 +42,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/api/uploads/rooms") {
-    return NextResponse.next();
-  }
-
   if (!requiresAuth(pathname, request.method)) {
     return NextResponse.next();
   }
@@ -72,6 +69,7 @@ export const config = {
     "/api/room-blocks",
     "/api/room-blocks/:path*",
     "/api/rooms/:path*",
+    "/api/uploads/:path*",
     "/api/reservations",
     "/api/reservations/:path*",
   ],
