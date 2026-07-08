@@ -37,6 +37,7 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/lib/room-gallery.ts ./src/lib/room-gallery.ts
 COPY scripts/docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN mkdir -p .next/cache public/uploads/rooms \
