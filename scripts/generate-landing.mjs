@@ -42,14 +42,14 @@ function renderStars(rating) {
   }).join("");
 }
 
-const GOOGLE_G_SVG = `<svg class="casona-reviews__google-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+const GOOGLE_G_SVG = `<svg class="casona-reviews-box__g" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
 </svg>`;
 
-/** Bloque de reseñas destacadas (estilo Google, alineado a la marca). */
+/** Bloque compacto de reseñas Google con carrusel automático. */
 function buildReviewsSection() {
   const reviews = cfg.reviews;
   if (!reviews?.items?.length) {
@@ -61,56 +61,67 @@ function buildReviewsSection() {
   const mapsUrl = reviews.mapsUrl || `https://www.google.com/maps/search/?api=1&query=${mapQ}`;
   const source = reviews.source || "Google";
 
-  const cards = reviews.items
-    .map((item) => {
+  const slides = reviews.items
+    .map((item, index) => {
       const author = escapeHtml(item.author || "Huésped");
       const location = item.location ? ` · ${escapeHtml(item.location)}` : "";
       const text = escapeHtml(item.text || "");
-      const date = item.relativeDate ? `<span class="casona-review__date">${escapeHtml(item.relativeDate)}</span>` : "";
+      const active = index === 0 ? " casona-reviews-box__slide--active" : "";
 
-      return `              <article class="casona-review">
-                <header class="casona-review__head">
-                  <div class="casona-review__avatar" aria-hidden="true">${author.charAt(0).toUpperCase()}</div>
-                  <div class="casona-review__meta">
-                    <p class="casona-review__author">${author}${location}</p>
-                    <div class="casona-review__stars" role="img" aria-label="${item.rating || 5} de 5 estrellas">
-                      ${renderStars(item.rating ?? 5)}
+      return `                <article class="casona-reviews-box__slide${active}" data-reviews-slide>
+                  <header class="casona-reviews-box__author">
+                    <span class="casona-reviews-box__avatar" aria-hidden="true">${author.charAt(0).toUpperCase()}</span>
+                    <div class="casona-reviews-box__author-meta">
+                      <p class="casona-reviews-box__name">${author}${location}</p>
+                      <div class="casona-reviews-box__stars" role="img" aria-label="${item.rating || 5} de 5 estrellas">
+                        ${renderStars(item.rating ?? 5)}
+                      </div>
                     </div>
-                  </div>
-                </header>
-                <blockquote class="casona-review__quote">
-                  <p>${text}</p>
-                </blockquote>
-                <footer class="casona-review__foot">
-                  ${GOOGLE_G_SVG}
-                  <span class="casona-review__source">${escapeHtml(source)}</span>
-                  ${date}
-                </footer>
-              </article>`;
+                  </header>
+                  <blockquote class="casona-reviews-box__quote">
+                    <p>${text}</p>
+                  </blockquote>
+                </article>`;
     })
     .join("\n");
 
-  return `            <aside class="casona-reviews" aria-labelledby="casona-reviews-title">
-              <div class="casona-reviews__header">
-                <p class="casona-reviews__eyebrow">Opiniones de huéspedes</p>
-                <h3 class="casona-reviews__title" id="casona-reviews-title">Lo que dicen en ${escapeHtml(source)}</h3>
-                <div class="casona-reviews__summary">
-                  <div class="casona-reviews__score" aria-label="Calificación promedio ${rating} de 5">${rating.toFixed(1)}</div>
-                  <div class="casona-reviews__summary-text">
-                    <div class="casona-reviews__stars casona-reviews__stars--lg" role="img" aria-label="${rating} de 5 estrellas">
-                      ${renderStars(rating)}
+  const dots = reviews.items
+    .map((_, index) => {
+      const active = index === 0 ? " casona-reviews-box__dot--active" : "";
+      return `<button type="button" class="casona-reviews-box__dot${active}" data-reviews-dot aria-label="Reseña ${index + 1} de ${reviews.items.length}"></button>`;
+    })
+    .join("");
+
+  return `            <aside class="casona-reviews-box" aria-label="Reseñas en ${escapeHtml(source)}">
+              <div class="casona-reviews-box__card">
+                <header class="casona-reviews-box__header">
+                  <div class="casona-reviews-box__brand">
+                    ${GOOGLE_G_SVG}
+                    <span>${escapeHtml(source)}</span>
+                  </div>
+                  <div class="casona-reviews-box__scoreline" aria-label="Calificación ${rating.toFixed(1)} de 5, basada en ${count} reseñas">
+                    <strong class="casona-reviews-box__score">${rating.toFixed(1)}</strong>
+                    <span class="casona-reviews-box__stars casona-reviews-box__stars--summary">${renderStars(rating)}</span>
+                    <span class="casona-reviews-box__count">${count}+ reseñas</span>
+                  </div>
+                </header>
+                <div class="casona-reviews-box__carousel" data-reviews-carousel>
+                  <div class="casona-reviews-box__viewport">
+${slides}
+                  </div>
+                  <div class="casona-reviews-box__controls">
+                    <button type="button" class="casona-reviews-box__nav" data-reviews-prev aria-label="Reseña anterior">‹</button>
+                    <div class="casona-reviews-box__dots" role="tablist" aria-label="Seleccionar reseña">
+                      ${dots}
                     </div>
-                    <p class="casona-reviews__count">Basado en ${count}+ reseñas</p>
+                    <button type="button" class="casona-reviews-box__nav" data-reviews-next aria-label="Siguiente reseña">›</button>
                   </div>
                 </div>
+                <a class="casona-reviews-box__link" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer">
+                  Ver todas en Google
+                  <span aria-hidden="true">→</span>
+                </a>
               </div>
-              <div class="casona-reviews__list">
-${cards}
-              </div>
-              <a class="casona-reviews__cta" href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener noreferrer">
-                Ver todas las reseñas en Google
-                <span class="casona-reviews__cta-arrow" aria-hidden="true">→</span>
-              </a>
             </aside>`;
 }
 

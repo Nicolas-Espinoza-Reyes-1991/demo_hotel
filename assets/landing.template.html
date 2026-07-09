@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="image" href="./fotos_web/arquitectura_hotel_vista/frontis.webp" fetchpriority="high" />
     <link rel="preload" as="image" href="./assets/logo-casona.webp" />
-    <link rel="preload" href="./assets/casona-demo.css?v=20260707-2" as="style" />
+    <link rel="preload" href="./assets/casona-demo.css?v=20260709-2" as="style" />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap"
       rel="stylesheet"
@@ -21,7 +21,7 @@
         rel="stylesheet"
       />
     </noscript>
-    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260707-2" />
+    <link rel="stylesheet" href="./assets/casona-demo.css?v=20260709-2" />
     {{THEME_STYLE}}
     <style>
       html.casona-is-loading,
@@ -1351,6 +1351,103 @@
         }
 
         window.addEventListener("casona:ready", scheduleRoomsLoad, { once: true });
+      })();
+    </script>
+    <script>
+      (function () {
+        function initReviewsCarousel() {
+          var root = document.querySelector("[data-reviews-carousel]");
+          if (!root) return;
+
+          var slides = root.querySelectorAll("[data-reviews-slide]");
+          if (!slides.length) return;
+
+          var dots = root.querySelectorAll("[data-reviews-dot]");
+          var prev = root.querySelector("[data-reviews-prev]");
+          var next = root.querySelector("[data-reviews-next]");
+          var current = 0;
+          var timer = null;
+          var AUTO_MS = 5200;
+
+          function goTo(index) {
+            slides[current].classList.remove("casona-reviews-box__slide--active");
+            if (dots[current]) dots[current].classList.remove("casona-reviews-box__dot--active");
+            current = (index + slides.length) % slides.length;
+            slides[current].classList.add("casona-reviews-box__slide--active");
+            if (dots[current]) dots[current].classList.add("casona-reviews-box__dot--active");
+          }
+
+          function stopAutoplay() {
+            if (timer) {
+              clearInterval(timer);
+              timer = null;
+            }
+          }
+
+          function startAutoplay() {
+            if (slides.length < 2) return;
+            stopAutoplay();
+            timer = setInterval(function () {
+              goTo(current + 1);
+            }, AUTO_MS);
+          }
+
+          if (prev) {
+            prev.addEventListener("click", function () {
+              goTo(current - 1);
+              startAutoplay();
+            });
+          }
+
+          if (next) {
+            next.addEventListener("click", function () {
+              goTo(current + 1);
+              startAutoplay();
+            });
+          }
+
+          dots.forEach(function (dot, index) {
+            dot.addEventListener("click", function () {
+              goTo(index);
+              startAutoplay();
+            });
+          });
+
+          root.addEventListener("mouseenter", stopAutoplay);
+          root.addEventListener("mouseleave", startAutoplay);
+          root.addEventListener("focusin", stopAutoplay);
+          root.addEventListener("focusout", startAutoplay);
+
+          var touchStartX = null;
+          root.addEventListener(
+            "touchstart",
+            function (event) {
+              touchStartX = event.changedTouches[0].clientX;
+            },
+            { passive: true }
+          );
+          root.addEventListener(
+            "touchend",
+            function (event) {
+              if (touchStartX === null) return;
+              var delta = event.changedTouches[0].clientX - touchStartX;
+              if (Math.abs(delta) > 42) {
+                goTo(current + (delta < 0 ? 1 : -1));
+                startAutoplay();
+              }
+              touchStartX = null;
+            },
+            { passive: true }
+          );
+
+          startAutoplay();
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initReviewsCarousel);
+        } else {
+          initReviewsCarousel();
+        }
       })();
     </script>
   </body>

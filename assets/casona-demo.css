@@ -1937,79 +1937,77 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   color: var(--casona-stone);
 }
 
-.casona-quotes,
-.casona-reviews {
+.casona-quotes {
   display: grid;
   gap: 1.25rem;
 }
 
-/* ── Reseñas Google (integradas a la marca) ── */
-.casona-reviews {
-  align-content: start;
+/* ── Reseñas Google: cajita compacta + carrusel ── */
+.casona-reviews-box {
+  width: 100%;
+  align-self: start;
 }
 
-.casona-reviews__header {
-  padding: 1.35rem 1.4rem 1.25rem;
-  background: linear-gradient(145deg, var(--casona-paper) 0%, var(--casona-cream) 100%);
+.casona-reviews-box__card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1rem 0.9rem;
+  background: linear-gradient(160deg, var(--casona-paper) 0%, var(--casona-cream) 100%);
   border: 1px solid var(--casona-line);
   border-radius: 1rem;
-  box-shadow: 0 10px 28px rgba(61, 43, 31, 0.05);
+  box-shadow: 0 14px 34px rgba(61, 43, 31, 0.08);
 }
 
-.casona-reviews__eyebrow {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--casona-earth);
-}
-
-.casona-reviews__title {
-  margin: 0.35rem 0 0;
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--casona-forest);
-}
-
-.casona-reviews__summary {
+.casona-reviews-box__header {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--casona-line);
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--casona-line);
 }
 
-.casona-reviews__score {
+.casona-reviews-box__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--casona-stone);
+}
+
+.casona-reviews-box__g {
   flex: none;
+}
+
+.casona-reviews-box__scoreline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.casona-reviews-box__score {
   font-family: "Playfair Display", Georgia, serif;
-  font-size: 2rem;
+  font-size: 1.35rem;
   font-weight: 700;
   line-height: 1;
   color: var(--casona-wood);
 }
 
-.casona-reviews__summary-text {
-  min-width: 0;
-}
-
-.casona-reviews__count {
-  margin: 0.25rem 0 0;
-  font-size: 0.78rem;
-  color: var(--casona-stone);
-}
-
-.casona-reviews__list {
-  display: grid;
-  gap: 0.85rem;
+.casona-reviews-box__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--casona-stone-light);
+  white-space: nowrap;
 }
 
 .casona-star {
   color: #d4cfc6;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   line-height: 1;
 }
 
@@ -2017,139 +2015,174 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
   color: #e8a317;
 }
 
-.casona-reviews__stars {
+.casona-reviews-box__stars {
   display: inline-flex;
-  gap: 0.1rem;
-  letter-spacing: 0.02em;
+  gap: 0.05rem;
+  letter-spacing: 0.01em;
 }
 
-.casona-reviews__stars--lg .casona-star {
-  font-size: 1.05rem;
+.casona-reviews-box__stars--summary .casona-star {
+  font-size: 0.78rem;
 }
 
-.casona-review {
+.casona-reviews-box__carousel {
   display: grid;
-  gap: 0.75rem;
-  padding: 1.15rem 1.2rem 1rem;
-  background: var(--casona-cream);
-  border: 1px solid var(--casona-line);
-  border-radius: 0.95rem;
-  box-shadow: 0 8px 22px rgba(61, 43, 31, 0.04);
+  gap: 0.55rem;
 }
 
-.casona-review__head {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+.casona-reviews-box__viewport {
+  position: relative;
+  min-height: 7.25rem;
 }
 
-.casona-review__avatar {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--casona-wood-soft), var(--casona-wood));
-  color: #fffdf9;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.casona-review__meta {
-  min-width: 0;
-}
-
-.casona-review__author {
+.casona-reviews-box__slide {
+  display: none;
   margin: 0;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--casona-forest);
-  line-height: 1.3;
+  animation: casonaReviewFade 0.42s ease;
 }
 
-.casona-review__stars {
-  margin-top: 0.2rem;
+.casona-reviews-box__slide--active {
+  display: block;
 }
 
-.casona-review__quote {
-  margin: 0;
-}
-
-.casona-review__quote p {
-  margin: 0;
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 0.98rem;
-  line-height: 1.55;
-  font-style: italic;
-  color: var(--casona-forest);
-}
-
-.casona-review__foot {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--casona-stone);
-}
-
-.casona-reviews__google-icon {
-  flex: none;
-}
-
-.casona-review__date {
-  margin-left: auto;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--casona-stone-light);
-}
-
-.casona-reviews__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  width: 100%;
-  padding: 0.85rem 1rem;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(92, 64, 51, 0.18);
-  background: var(--casona-paper);
-  color: var(--casona-wood);
-  font-size: 0.84rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-.casona-reviews__cta:hover {
-  background: var(--casona-cream);
-  border-color: rgba(92, 64, 51, 0.32);
-  transform: translateY(-1px);
-}
-
-.casona-reviews__cta-arrow {
-  transition: transform 0.2s ease;
-}
-
-.casona-reviews__cta:hover .casona-reviews__cta-arrow {
-  transform: translateX(3px);
-}
-
-@media (min-width: 640px) and (max-width: 1023px) {
-  .casona-reviews__list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@keyframes casonaReviewFade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+.casona-reviews-box__author {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.55rem;
+}
+
+.casona-reviews-box__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--casona-wood-soft), var(--casona-wood));
+  color: #fffdf9;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.casona-reviews-box__author-meta {
+  min-width: 0;
+}
+
+.casona-reviews-box__name {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--casona-forest);
+  line-height: 1.25;
+}
+
+.casona-reviews-box__quote {
+  margin: 0;
+}
+
+.casona-reviews-box__quote p {
+  margin: 0;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--casona-forest);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.casona-reviews-box__controls {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.casona-reviews-box__nav {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  padding: 0;
+  border: 1px solid rgba(92, 64, 51, 0.16);
+  border-radius: 999px;
+  background: var(--casona-paper);
+  color: var(--casona-wood);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.casona-reviews-box__nav:hover {
+  background: var(--casona-cream);
+  border-color: rgba(92, 64, 51, 0.3);
+  transform: translateY(-1px);
+}
+
+.casona-reviews-box__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.casona-reviews-box__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #d8d0c4;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, width 0.2s ease;
+}
+
+.casona-reviews-box__dot--active {
+  width: 1.15rem;
+  background: var(--casona-wood);
+}
+
+.casona-reviews-box__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.62rem 0.75rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(92, 64, 51, 0.14);
+  background: rgba(255, 253, 249, 0.72);
+  color: var(--casona-wood);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.casona-reviews-box__link:hover {
+  background: var(--casona-paper);
+  border-color: rgba(92, 64, 51, 0.28);
+}
+
 @media (min-width: 1024px) {
-  .casona-reviews__list {
-    grid-template-columns: 1fr;
+  .casona-reviews-box__card {
+    max-width: 22.5rem;
+    margin-left: auto;
   }
 }
 
@@ -3276,52 +3309,27 @@ body.casona-nav-open .casona-nav-toggle__bar:nth-child(3) {
     font-size: 0.72rem;
   }
 
-  /* Reseñas: tarjetas más compactas en móvil */
-  .casona-reviews__header {
-    padding: 1.15rem 1.1rem 1rem;
+  /* Reseñas: cajita compacta en móvil */
+  .casona-reviews-box__card {
+    padding: 0.9rem 0.9rem 0.8rem;
   }
 
-  .casona-reviews__summary {
-    gap: 0.7rem;
+  .casona-reviews-box__header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .casona-reviews__score {
-    font-size: 1.75rem;
+  .casona-reviews-box__scoreline {
+    justify-content: flex-start;
   }
 
-  .casona-reviews__list {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+  .casona-reviews-box__viewport {
+    min-height: 6.5rem;
   }
 
-  .casona-review {
-    position: relative;
-    padding: 1.05rem 1rem 0.95rem;
-    overflow: hidden;
-  }
-
-  .casona-review::after {
-    content: "\201C";
-    position: absolute;
-    top: -0.55rem;
-    right: 0.55rem;
-    font-family: "Playfair Display", Georgia, serif;
-    font-size: 4.2rem;
-    line-height: 1;
-    color: var(--casona-gold);
-    opacity: 0.14;
-    pointer-events: none;
-  }
-
-  .casona-review__quote p {
-    position: relative;
-    font-size: 0.94rem;
-  }
-
-  .casona-review__date {
-    margin-left: 0;
-    width: 100%;
-    margin-top: 0.15rem;
+  .casona-reviews-box__quote p {
+    -webkit-line-clamp: 3;
+    font-size: 0.88rem;
   }
 
   .casona-quote {
