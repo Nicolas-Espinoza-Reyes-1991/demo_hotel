@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MobilePeriodList } from "@/components/admin/AdminCalendarMobile";
+import { ADMIN_CALENDAR_HELP } from "@/components/admin/admin-help";
+import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
+import { InfoTooltip } from "@/components/InfoTooltip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { paymentStatusLabel } from "@/lib/reservation-history";
@@ -240,6 +243,26 @@ function LegendSwatch({
   };
 
   return <span className={cn("inline-block h-3 w-5 shrink-0 rounded-sm", styles[variant])} />;
+}
+
+function CalendarStat({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: number | string;
+  tone?: "default" | "paid" | "pending";
+}) {
+  const valueClass =
+    tone === "paid" ? "text-accent" : tone === "pending" ? "text-amber-800" : "text-brand-100";
+
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+      <span className="text-brand-500">{label}</span>
+      <strong className={cn("text-sm font-bold", valueClass)}>{value}</strong>
+    </span>
+  );
 }
 
 const CALENDAR_LANE_HEIGHT_MIN = 72;
@@ -964,29 +987,30 @@ export function AdminCalendar() {
   if (!data) return null;
 
   return (
-    <div className="space-y-5" onClick={() => setPinnedReservationId(null)}>
-      <div className="glass-panel p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gold">
-              {viewMode === "month" ? "Ocupación mensual" : "Ocupación semanal"}
+    <div className="space-y-3" onClick={() => setPinnedReservationId(null)}>
+      <div className="glass-panel overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-brand-700/50 px-3 py-3 sm:px-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">
+              {viewMode === "month" ? "Calendario mensual" : "Calendario semanal"}
             </p>
-            <h2 className="mt-1 text-2xl font-bold capitalize text-brand-100">{periodLabel}</h2>
-            <p className="mt-1 text-sm text-brand-500">
-              {isMobile
-                ? "Vista móvil en lista · tocá una reserva para ver detalle y copiar código"
-                : "Vista completa en pantalla · clic en una reserva para ver detalle y copiar código"}
-            </p>
+            <AdminHintLabel
+              as="h2"
+              hint={ADMIN_CALENDAR_HELP.section}
+              className="text-xl font-bold capitalize text-brand-100 sm:text-2xl"
+            >
+              {periodLabel}
+            </AdminHintLabel>
           </div>
 
-          <div className="admin-toolbar flex flex-wrap items-center gap-2">
-            <div className="flex overflow-hidden rounded-xl border border-brand-700">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex overflow-hidden rounded-lg border border-brand-700">
               {!isMobile && (
                 <button
                   type="button"
                   onClick={() => setViewMode("month")}
                   className={cn(
-                    "min-h-10 px-3 text-xs font-semibold transition",
+                    "min-h-9 px-3 text-xs font-semibold transition",
                     viewMode === "month" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
                   )}
                 >
@@ -997,7 +1021,7 @@ export function AdminCalendar() {
                 type="button"
                 onClick={() => setViewMode("week")}
                 className={cn(
-                  "min-h-10 px-3 text-xs font-semibold transition",
+                  "min-h-9 px-3 text-xs font-semibold transition",
                   !isMobile && "border-l border-brand-700",
                   viewMode === "week" || isMobile ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
                 )}
@@ -1006,28 +1030,11 @@ export function AdminCalendar() {
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={goToToday}
-              title="Volver al período actual"
-              className="btn-secondary min-h-10 px-3 text-xs"
-            >
-              {viewMode === "month" ? "Mes actual" : "Semana actual"}
-            </button>
-            <button
-              type="button"
-              onClick={loadCalendar}
-              disabled={loading}
-              className="btn-secondary min-h-10 px-3 text-xs disabled:opacity-60"
-            >
-              {loading ? "Actualizando…" : "Actualizar"}
-            </button>
-
-            <div className="flex overflow-hidden rounded-xl border border-brand-700">
+            <div className="flex overflow-hidden rounded-lg border border-brand-700">
               <button
                 type="button"
                 onClick={() => (viewMode === "week" ? shiftWeek(-1) : shiftMonth(-1))}
-                className="min-h-10 border-r border-brand-700 bg-brand-800 px-3 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
+                className="min-h-9 border-r border-brand-700 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
                 aria-label={viewMode === "week" ? "Semana anterior" : "Mes anterior"}
               >
                 ‹
@@ -1035,23 +1042,63 @@ export function AdminCalendar() {
               <button
                 type="button"
                 onClick={() => (viewMode === "week" ? shiftWeek(1) : shiftMonth(1))}
-                className="min-h-10 bg-brand-800 px-3 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
+                className="min-h-9 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
                 aria-label={viewMode === "week" ? "Semana siguiente" : "Mes siguiente"}
               >
                 ›
               </button>
             </div>
+
+            <button type="button" onClick={goToToday} className="btn-secondary min-h-9 px-3 text-xs">
+              Hoy
+            </button>
+            <button
+              type="button"
+              onClick={loadCalendar}
+              disabled={loading}
+              className="btn-secondary min-h-9 px-3 text-xs disabled:opacity-60"
+            >
+              {loading ? "…" : "Actualizar"}
+            </button>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        {stats && (
+          <div className="flex flex-col gap-2 border-b border-brand-700/40 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              <CalendarStat label="Hab." value={data.rooms.length} />
+              <span className="text-brand-700/40">·</span>
+              <CalendarStat label="Reservas" value={visibleReservations.length} />
+              <span className="text-brand-700/40">·</span>
+              <CalendarStat label="Pagadas" value={stats.paidCount} tone="paid" />
+              <span className="text-brand-700/40">·</span>
+              <CalendarStat label="Pendientes" value={stats.pendingCount} tone="pending" />
+            </div>
+            <div className="flex min-w-[10rem] items-center gap-2 sm:max-w-xs sm:flex-1 sm:justify-end">
+              <span className="shrink-0 text-[11px] font-medium text-brand-500">Ocupación</span>
+              <div className="h-1.5 min-w-[5rem] flex-1 overflow-hidden rounded-full bg-brand-800">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-highlight transition-all duration-500"
+                  style={{ width: `${Math.min(100, stats.occupancy)}%` }}
+                />
+              </div>
+              <span className="shrink-0 text-xs font-bold text-brand-100">{stats.occupancy}%</span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 sm:px-4">
+          <span className="mr-1 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-500">
+            Filtros
+            <InfoTooltip label={ADMIN_CALENDAR_HELP.filters} variant="accent" width={260} />
+          </span>
           {(
             [
               { id: "active", label: "Activas" },
-              { id: "paid", label: "Solo pagadas" },
-              { id: "pending", label: "Solo pendientes" },
+              { id: "paid", label: "Pagadas" },
+              { id: "pending", label: "Pendientes" },
               { id: "history", label: "Historial" },
-              { id: "all", label: "Activas + historial" },
+              { id: "all", label: "Todas" },
             ] as const
           ).map((item) => (
             <button
@@ -1059,7 +1106,7 @@ export function AdminCalendar() {
               type="button"
               onClick={() => setPaymentFilter(item.id)}
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition",
                 paymentFilter === item.id
                   ? "border-accent/40 bg-honey/40 text-accent-hover"
                   : "border-brand-700 bg-white/55 text-brand-500 hover:border-brand-600 hover:bg-white/75 hover:text-brand-100"
@@ -1070,66 +1117,38 @@ export function AdminCalendar() {
           ))}
         </div>
 
-        {stats && (
-          <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div className="rounded-xl border border-brand-700 bg-white/65 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Habitaciones</p>
-              <p className="mt-0.5 text-2xl font-bold text-brand-100">{data.rooms.length}</p>
-            </div>
-            <div className="rounded-xl border border-brand-700 bg-white/65 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Reservas visibles</p>
-              <p className="mt-0.5 text-2xl font-bold text-brand-100">{visibleReservations.length}</p>
-            </div>
-            <div className="rounded-xl border border-accent/30 bg-honey/30 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-accent">Pagadas</p>
-              <p className="mt-0.5 text-2xl font-bold text-accent-hover">{stats.paidCount}</p>
-            </div>
-            <div className="rounded-xl border border-amber-500/30 bg-amber-50/80 px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-amber-800">Pendientes</p>
-              <p className="mt-0.5 text-2xl font-bold text-amber-900">{stats.pendingCount}</p>
-            </div>
-          </div>
-        )}
-
-        {stats && (
-          <div className="mt-4">
-            <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-brand-500">
-              <span>Ocupación del período</span>
-              <span className="font-bold text-brand-100">{stats.occupancy}%</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-brand-800">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-accent to-highlight transition-all duration-500"
-                style={{ width: `${Math.min(100, stats.occupancy)}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 overflow-x-auto rounded-xl border border-brand-700 bg-white/68 px-4 py-3 text-xs text-brand-500 md:flex-wrap">
-        <span className="font-semibold text-brand-100">Leyenda</span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="paid" /> Pagado
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="pending" /> Pendiente
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="history" /> Cancelada
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="refunded" /> Reembolsada
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="weekend" /> Fin de semana
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="today" /> Hoy
-        </span>
-        <span className="inline-flex items-center gap-2">
-          <LegendSwatch variant="unavailable" /> No disponible
-        </span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-brand-700/40 bg-brand-800/25 px-3 py-1.5 text-[10px] text-brand-500 sm:px-4">
+          <span className="inline-flex items-center gap-1 font-semibold text-brand-100">
+            Leyenda
+            <InfoTooltip label={ADMIN_CALENDAR_HELP.legend} variant="accent" width={272} />
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="paid" /> Pagado
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="pending" /> Pendiente
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="history" /> Cancelada
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="refunded" /> Reembolsada
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="weekend" /> Fin de semana
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="today" /> Hoy
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="unavailable" /> No disponible
+          </span>
+          {!isMobile && (
+            <span className="ml-auto hidden text-[10px] italic text-brand-500/90 lg:inline">
+              Clic en una reserva para ver detalle
+            </span>
+          )}
+        </div>
       </div>
 
       {isMobile && (
@@ -1297,24 +1316,23 @@ export function AdminCalendar() {
       </div>
 
       <div className="glass-panel hidden overflow-hidden md:block">
-        <div className="border-b border-brand-700 px-4 py-3">
-          <h3 className="text-sm font-bold text-brand-100">Lista del período</h3>
-          <p className="mt-0.5 text-xs text-brand-500">
-            Tabla con códigos seleccionables para copiar y pegar fácilmente
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-700 px-3 py-2.5 sm:px-4">
+          <AdminHintLabel as="h3" hint={ADMIN_CALENDAR_HELP.periodList} className="text-sm font-bold text-brand-100">
+            Lista del período
+          </AdminHintLabel>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2 sm:max-w-xl">
             <input
               value={periodSearch}
               onChange={(event) => setPeriodSearch(event.target.value)}
-              className="input-field max-w-md"
-              placeholder="Buscar por huésped, email, teléfono, RUT, habitación o código..."
+              className="input-field min-w-[12rem] flex-1 py-2 text-sm"
+              placeholder="Buscar huésped, habitación, código…"
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck={false}
               name="search-period-list"
             />
-            <span className="text-xs text-brand-500">{periodReservations.length} resultados</span>
+            <span className="shrink-0 text-xs text-brand-500">{periodReservations.length} resultados</span>
           </div>
         </div>
 

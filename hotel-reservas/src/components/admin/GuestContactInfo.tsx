@@ -9,6 +9,8 @@ type GuestContactInfoProps = {
   passport?: string | null;
   birthDate?: string | null;
   compact?: boolean;
+  /** Tabla admin: menos líneas y sin etiquetas largas. */
+  dense?: boolean;
 };
 
 function ContactLine({
@@ -51,10 +53,37 @@ export function GuestContactInfo({
   passport,
   birthDate,
   compact,
+  dense,
 }: GuestContactInfoProps) {
   const docType = documentType === "PASSPORT" ? "PASSPORT" : "RUT";
   const documentValue = docType === "PASSPORT" ? passport : rut;
   const documentLabel = docType === "PASSPORT" ? "Pasaporte" : "RUT";
+
+  if (dense) {
+    const birth = birthDate ? formatBirthDateForDisplay(birthDate) : null;
+    return (
+      <div className="space-y-0.5 text-[11px] leading-snug text-brand-500">
+        {email ? (
+          <a href={`mailto:${email}`} className="block truncate text-accent hover:underline" title={email}>
+            {email}
+          </a>
+        ) : (
+          <span className="block italic">Sin email</span>
+        )}
+        {phone ? (
+          <a href={`tel:${phone.replace(/\s/g, "")}`} className="block text-brand-100/85 hover:underline">
+            {phone}
+          </a>
+        ) : (
+          <span className="block italic">Sin teléfono</span>
+        )}
+        <p className="truncate text-brand-500" title={documentValue ?? undefined}>
+          {documentValue ? `${documentLabel} ${documentValue}` : `Sin ${documentLabel}`}
+          {birth ? ` · Nac. ${birth}` : ""}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className={compact ? "space-y-0.5" : "space-y-1"}>

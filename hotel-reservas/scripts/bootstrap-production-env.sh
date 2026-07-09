@@ -84,6 +84,7 @@ BANK_TRANSFER_DEADLINE_HOURS=48
 BANK_TRANSFER_NOTES=Indica tu código de reserva en el concepto de la transferencia.
 
 ALLOW_SIMULATED_PAYMENT=false
+ONLINE_PAYMENT_ENABLED=false
 EOF
 
 echo "[env] Listo: $TARGET"

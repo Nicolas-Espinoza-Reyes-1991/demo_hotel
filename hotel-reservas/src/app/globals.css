@@ -946,17 +946,38 @@
   }
 
   .admin-toolbar {
-    @apply rounded-2xl border p-2 shadow-sm;
+    @apply rounded-xl border shadow-sm;
     border-color: rgba(160, 120, 90, 0.32);
     background-color: rgba(255, 253, 249, 0.78);
     backdrop-filter: blur(8px);
   }
 
   .admin-table-shell {
-    @apply overflow-x-auto rounded-2xl border shadow-sm;
+    @apply overflow-x-auto rounded-2xl border shadow-sm xl:overflow-x-visible;
     border-color: rgba(160, 120, 90, 0.3);
     background-color: rgba(255, 253, 249, 0.78);
     backdrop-filter: blur(6px);
+  }
+
+  .admin-table {
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .admin-table--reservations th,
+  .admin-table--reservations td {
+    padding-inline: 0.5rem;
+    padding-block: 0.625rem;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 1024px) {
+    .admin-table--reservations th,
+    .admin-table--reservations td {
+      padding-inline: 0.75rem;
+      vertical-align: middle;
+    }
   }
 
   .admin-table-head {

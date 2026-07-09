@@ -8,6 +8,7 @@ import {
   getReservationHoldMinutes,
   isReservationHoldExpired,
   isSimulatedPaymentAllowed,
+  isOnlinePaymentEnabled,
 } from "./reservation-holds";
 
 const { mockDb } = vi.hoisted(() => ({
@@ -90,5 +91,12 @@ describe("reservation-holds", () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("ALLOW_SIMULATED_PAYMENT", "");
     expect(isSimulatedPaymentAllowed()).toBe(false);
+  });
+
+  it("isOnlinePaymentEnabled requiere ONLINE_PAYMENT_ENABLED=true", () => {
+    vi.stubEnv("ONLINE_PAYMENT_ENABLED", "");
+    expect(isOnlinePaymentEnabled()).toBe(false);
+    vi.stubEnv("ONLINE_PAYMENT_ENABLED", "true");
+    expect(isOnlinePaymentEnabled()).toBe(true);
   });
 });

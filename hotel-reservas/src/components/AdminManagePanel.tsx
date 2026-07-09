@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
+import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
+import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import { InfoTooltip } from "@/components/InfoTooltip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
 import { paymentStatusLabel, type ReservationScope } from "@/lib/reservation-history";
@@ -53,6 +56,12 @@ const STATUS_OPTIONS = [
 type PanelMessage = { type: "success" | "error"; text: string };
 const DEFAULT_PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 500;
+
+function formatShortStayDate(iso: string): string {
+  const [year, month, day] = iso.slice(0, 10).split("-");
+  if (!year || !month || !day) return iso;
+  return `${day}/${month}/${year.slice(2)}`;
+}
 
 function useDebouncedValue<T>(value: T, delayMs = 300): T {
   const [debounced, setDebounced] = useState(value);
@@ -160,7 +169,17 @@ export function AdminReservationsPanel() {
     <div className="space-y-4">
       {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <AdminHintLabel as="h2" hint={ADMIN_RESERVATIONS_HELP.section} className="text-base font-bold text-brand-100">
+          Reservas
+        </AdminHintLabel>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="mr-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-500">
+          Vista
+          <InfoTooltip label={ADMIN_RESERVATIONS_HELP.scope} variant="accent" width={260} />
+        </span>
         {SCOPE_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -170,7 +189,7 @@ export function AdminReservationsPanel() {
               setPage(1);
             }}
             className={cn(
-              "min-h-10 rounded-xl px-4 py-2 text-sm font-semibold transition",
+              "min-h-9 rounded-xl px-3 py-1.5 text-sm font-semibold transition",
               scope === tab.id
                 ? "tab-active-admin"
                 : "border border-brand-700 bg-white/55 text-brand-500 hover:bg-white/75 hover:text-brand-100"
@@ -180,12 +199,6 @@ export function AdminReservationsPanel() {
           </button>
         ))}
       </div>
-
-      {scope === "history" && (
-        <p className="text-xs text-brand-500">
-          Reservas canceladas o reembolsadas. Se conservan en el sistema para consulta y auditoría.
-        </p>
-      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -206,18 +219,48 @@ export function AdminReservationsPanel() {
       </div>
 
       <div className="admin-table-shell">
-        <table className="min-w-[1040px] w-full text-left text-sm">
-          <thead className="admin-table-head text-xs uppercase text-brand-500">
+        <div className="flex items-center gap-1.5 border-b border-brand-700/50 px-3 py-2 text-xs font-semibold text-brand-500">
+          Detalle de reservas
+          <InfoTooltip label={ADMIN_RESERVATIONS_HELP.table} variant="accent" width={272} />
+        </div>
+        <table className="admin-table admin-table--reservations w-full text-left text-xs sm:text-sm">
+          <colgroup>
+            {scope === "history" ? (
+              <>
+                <col className="w-[7%]" />
+                <col className="w-[10%]" />
+                <col className="w-[18%]" />
+                <col className="w-[7%]" />
+                <col className="w-[9%]" />
+                <col className="w-[10%]" />
+                <col className="w-[7%]" />
+                <col className="w-[14%]" />
+                <col className="w-[18%]" />
+              </>
+            ) : (
+              <>
+                <col className="w-[8%]" />
+                <col className="w-[11%]" />
+                <col className="w-[22%]" />
+                <col className="w-[8%]" />
+                <col className="w-[10%]" />
+                <col className="w-[8%]" />
+                <col className="w-[16%]" />
+                <col className="w-[17%]" />
+              </>
+            )}
+          </colgroup>
+          <thead className="admin-table-head text-[11px] uppercase tracking-wide text-brand-500 sm:text-xs">
             <tr>
-              <th className="px-4 py-3">Código</th>
-              <th className="px-4 py-3">Huésped</th>
-              <th className="px-4 py-3">Contacto</th>
-              <th className="px-4 py-3">Habitación</th>
-              <th className="px-4 py-3">Fechas</th>
-              {scope === "history" && <th className="px-4 py-3">Última actualización</th>}
-              <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3">Pago</th>
-              <th className="px-4 py-3">Estado</th>
+              <th className="py-3">Código</th>
+              <th className="py-3">Huésped</th>
+              <th className="py-3">Contacto</th>
+              <th className="py-3">Hab.</th>
+              <th className="py-3">Fechas</th>
+              {scope === "history" && <th className="py-3">Actualización</th>}
+              <th className="py-3">Total</th>
+              <th className="py-3">Pago</th>
+              <th className="py-3">Estado</th>
             </tr>
           </thead>
           <tbody>
@@ -239,13 +282,17 @@ export function AdminReservationsPanel() {
                       "opacity-90"
                   )}
                 >
-                  <td className="px-4 py-3 align-middle font-mono text-xs text-gold">{row.confirmationCode.slice(0, 10)}…</td>
-                  <td className="px-4 py-3 align-middle">
-                    <p className="font-medium text-brand-100 whitespace-nowrap">
+                  <td className="align-middle font-mono text-[11px] text-gold sm:text-xs">
+                    <span className="break-all" title={row.confirmationCode}>
+                      {row.confirmationCode}
+                    </span>
+                  </td>
+                  <td className="align-middle">
+                    <p className="font-medium leading-snug text-brand-100">
                       {row.guestFullName ?? row.guest.fullName}
                     </p>
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="align-middle">
                     <GuestContactInfo
                       email={row.guest.email}
                       phone={row.guest.phone}
@@ -259,62 +306,65 @@ export function AdminReservationsPanel() {
                             ? String(row.guest.birthDate).slice(0, 10)
                             : null
                       }
-                      compact
+                      dense
                     />
                   </td>
-                  <td className="px-4 py-3 align-middle text-brand-100 whitespace-nowrap">
-                    {row.room.code}
-                    <span className="block text-xs text-brand-500">{row.room.name}</span>
+                  <td className="align-middle text-brand-100">
+                    <span className="font-semibold">{row.room.code}</span>
+                    <span className="mt-0.5 block text-[11px] leading-tight text-brand-500">{row.room.name}</span>
                   </td>
-                  <td className="px-4 py-3 align-middle text-brand-100 whitespace-nowrap">
-                    {row.checkIn} → {row.checkOut}
+                  <td className="align-middle text-[11px] leading-snug text-brand-100 sm:text-xs">
+                    <span className="block">{formatShortStayDate(row.checkIn)}</span>
+                    <span className="text-brand-500">→ {formatShortStayDate(row.checkOut)}</span>
                   </td>
                   {scope === "history" && (
-                    <td className="px-4 py-3 align-middle text-xs text-brand-500 whitespace-nowrap">
+                    <td className="align-middle text-[11px] leading-snug text-brand-500 sm:text-xs">
                       {row.updatedAt
-                        ? new Date(row.updatedAt).toLocaleString("es-AR", {
+                        ? new Date(row.updatedAt).toLocaleString("es-CL", {
                             day: "2-digit",
-                            month: "short",
-                            year: "numeric",
+                            month: "2-digit",
+                            year: "2-digit",
                             hour: "2-digit",
                             minute: "2-digit",
                           })
                         : "—"}
                     </td>
                   )}
-                  <td className="px-4 py-3 align-middle font-semibold text-accent whitespace-nowrap">
+                  <td className="align-middle text-xs font-semibold text-accent sm:text-sm">
                     {formatCurrency(row.totalAmount)}
                   </td>
-                  <td className="px-4 py-3 align-middle">
-                    {row.paymentProvider === "BANK_TRANSFER" && (
-                      <span className="mb-1.5 inline-block rounded-full bg-sky-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700">
-                        Transferencia
-                      </span>
-                    )}
-                    {row.paymentProvider === "MERCADO_PAGO" && (
-                      <span className="mb-1.5 inline-block rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-                        Mercado Pago
-                      </span>
-                    )}
-                    <select
-                      value={row.paymentStatus}
-                      disabled={savingId === row.id}
-                      onChange={(e) => updateReservation(row.id, { paymentStatus: e.target.value })}
-                      className="input-field min-h-9 min-w-[130px] py-1.5 text-xs"
-                    >
+                  <td className="align-middle">
+                    <div className="space-y-1">
+                      {row.paymentProvider === "BANK_TRANSFER" && (
+                        <span className="inline-block rounded-full bg-sky-100/70 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-sky-700">
+                          Transferencia
+                        </span>
+                      )}
+                      {row.paymentProvider === "MERCADO_PAGO" && (
+                        <span className="inline-block rounded-full bg-accent/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-accent">
+                          MP
+                        </span>
+                      )}
+                      <select
+                        value={row.paymentStatus}
+                        disabled={savingId === row.id}
+                        onChange={(e) => updateReservation(row.id, { paymentStatus: e.target.value })}
+                        className="input-field min-h-8 w-full min-w-0 py-1 text-[11px] sm:text-xs"
+                      >
                       {PAYMENT_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>
                           {o.label}
                         </option>
                       ))}
                     </select>
+                    </div>
                   </td>
-                  <td className="px-4 py-3 align-middle">
+                  <td className="align-middle">
                     <select
                       value={row.status}
                       disabled={savingId === row.id}
                       onChange={(e) => updateReservation(row.id, { status: e.target.value })}
-                      className="input-field min-h-9 min-w-[140px] py-1.5 text-xs"
+                      className="input-field min-h-8 w-full min-w-0 py-1 text-[11px] sm:text-xs"
                     >
                       {STATUS_OPTIONS.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -785,12 +835,9 @@ export function AdminRoomsPanel() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold text-brand-100">Inventario de habitaciones</h2>
-          <p className="mt-1 text-sm text-brand-500">
-            Creá, editá o eliminá habitaciones. No se pueden borrar si tienen reservas asociadas.
-          </p>
-        </div>
+        <AdminHintLabel as="h2" hint={ADMIN_ROOMS_HELP.section} className="text-lg font-bold text-brand-100">
+          Inventario de habitaciones
+        </AdminHintLabel>
         <button type="button" onClick={openCreateForm} className="btn-primary min-h-10 px-4 text-sm">
           + Nueva habitación
         </button>
@@ -820,9 +867,9 @@ export function AdminRoomsPanel() {
       {showForm && (
         <form onSubmit={saveRoom} className="glass-panel-elevated space-y-4 p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="text-base font-bold text-brand-100">
+            <AdminHintLabel as="h3" hint={ADMIN_ROOMS_HELP.form} className="text-base font-bold text-brand-100">
               {editingId ? "Editar habitación" : "Nueva habitación"}
-            </h3>
+            </AdminHintLabel>
             <button
               type="button"
               onClick={closeForm}
@@ -1173,9 +1220,8 @@ export function AdminRoomsPanel() {
           No hay habitaciones cargadas. Creá la primera con el botón de arriba.
         </div>
       ) : (
-        <div className="overflow-hidden admin-table-shell">
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+        <div className="admin-table-shell">
+            <table className="admin-table w-full text-left text-sm">
               <thead className="admin-table-head text-xs uppercase tracking-wide text-brand-500">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Código</th>
@@ -1230,7 +1276,6 @@ export function AdminRoomsPanel() {
                 ))}
               </tbody>
             </table>
-          </div>
         </div>
       )}
       <div className="flex items-center justify-end gap-2">
@@ -1390,10 +1435,9 @@ export function AdminRoomBlocksPanel() {
       {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
 
       <form onSubmit={createBlock} className="glass-panel space-y-4 p-5">
-        <h2 className="text-lg font-semibold text-brand-100">Nuevo bloqueo por fechas</h2>
-        <p className="text-sm text-brand-500">
-          Bloquea una habitación en un rango (mantenimiento programado, eventos, etc.).
-        </p>
+        <AdminHintLabel as="h2" hint={ADMIN_BLOCKS_HELP.section} className="text-lg font-semibold text-brand-100">
+          Nuevo bloqueo por fechas
+        </AdminHintLabel>
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block space-y-1.5 sm:col-span-2">
             <span className="text-sm font-medium text-brand-100">Habitación</span>
@@ -1458,6 +1502,10 @@ export function AdminRoomBlocksPanel() {
       </div>
 
       <div className="admin-table-shell">
+        <div className="flex items-center gap-1.5 border-b border-brand-700/50 px-3 py-2 text-xs font-semibold text-brand-500">
+          Bloqueos programados
+          <InfoTooltip label={ADMIN_BLOCKS_HELP.list} variant="accent" width={260} />
+        </div>
         <table className="min-w-[720px] w-full text-left text-sm">
           <thead className="admin-table-head text-xs uppercase text-brand-500">
             <tr>

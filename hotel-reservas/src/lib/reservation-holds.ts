@@ -70,6 +70,11 @@ export function isSimulatedPaymentAllowed(): boolean {
   return process.env.NODE_ENV !== "production";
 }
 
+/** Pago online (Mercado Pago / tarjeta). Activar cuando esté listo en producción. */
+export function isOnlinePaymentEnabled(): boolean {
+  return process.env.ONLINE_PAYMENT_ENABLED?.trim().toLowerCase() === "true";
+}
+
 /** Hold activo del mismo huésped para habitación y fechas (reanudar checkout abandonado). */
 export async function findActiveGuestHold(
   db: DbClient,

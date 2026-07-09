@@ -113,7 +113,7 @@ const CANCELLATION_POLICY =
 
 export function BookingModal({ open, room, search, onClose, onSuccess }: BookingModalProps) {
   const [step, setStep] = useState<Step>("details");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank_transfer");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -139,7 +139,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
   useEffect(() => {
     if (!open) {
       setStep("details");
-      setPaymentMethod("online");
+      setPaymentMethod("bank_transfer");
       setCheckoutMeta(null);
       setPaymentConfig(null);
       setError(null);
@@ -173,14 +173,22 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       .then((response) => response.json())
       .then((data: PaymentConfigResponse) => {
         setPaymentConfig(data);
-        if (step === "payment" && !data.online.enabled && data.bankTransfer?.enabled) {
+        if (data.bankTransfer?.enabled) {
           setPaymentMethod("bank_transfer");
+        } else if (data.online.enabled) {
+          setPaymentMethod("online");
         }
       })
       .catch(() =>
         setPaymentConfig({
           currency: "CLP",
-          online: { enabled: true, provider: "simulated", publicKey: null, label: "Tarjeta (demo)" },
+          online: {
+            enabled: false,
+            comingSoon: true,
+            provider: "disabled",
+            publicKey: null,
+            label: "Pago online · Pronto",
+          },
           bankTransfer: null,
           notifications: { emailEnabled: false },
         })
@@ -200,6 +208,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
   const bankTransferAvailable = Boolean(paymentConfig?.bankTransfer?.enabled);
   const onlineAvailable = Boolean(paymentConfig?.online.enabled);
+  const onlineComingSoon = Boolean(paymentConfig?.online.comingSoon);
+  const showPaymentMethodTabs =
+    bankTransferAvailable && (onlineAvailable || onlineComingSoon);
   const emailNotificationsEnabled = paymentConfig?.notifications?.emailEnabled ?? false;
 
   function handleGuestsCountChange(value: number) {
@@ -810,22 +821,30 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
               </span>
             </p>
 
-            {bankTransferAvailable && onlineAvailable && (
+            {showPaymentMethodTabs && (
               <div className="grid grid-cols-2 gap-2 rounded-2xl border border-brand-700 bg-brand-800 p-1.5">
                 <button
                   type="button"
+                  disabled={onlineComingSoon}
                   onClick={() => {
+                    if (onlineComingSoon) return;
                     setPaymentMethod("online");
                     setError(null);
                   }}
                   className={cn(
-                    "min-h-11 rounded-xl px-3 py-2 text-sm font-semibold transition",
-                    paymentMethod === "online"
+                    "flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-xl px-3 py-2 text-sm font-semibold transition",
+                    onlineComingSoon && "cursor-not-allowed opacity-60",
+                    !onlineComingSoon && paymentMethod === "online"
                       ? "tab-active-accent"
                       : "text-brand-500 hover:bg-brand-800 hover:text-brand-100"
                   )}
                 >
-                  Pago online
+                  <span>Pago online</span>
+                  {onlineComingSoon && (
+                    <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-500">
+                      Pronto
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"
@@ -843,6 +862,13 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                   Transferencia
                 </button>
               </div>
+            )}
+
+            {onlineComingSoon && bankTransferAvailable && (
+              <p className="rounded-xl border border-brand-700/70 bg-brand-800/70 px-3 py-2.5 text-xs leading-relaxed text-brand-500">
+                El pago con tarjeta estará disponible <strong className="text-brand-100">pronto</strong>.
+                Por ahora podés confirmar tu reserva por transferencia bancaria.
+              </p>
             )}
 
             {paymentMethod === "bank_transfer" && paymentConfig?.bankTransfer && checkoutMeta ? (

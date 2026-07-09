@@ -7,16 +7,26 @@ import { cn } from "@/lib/utils";
 type InfoTooltipProps = {
   label: string;
   className?: string;
+  variant?: "default" | "accent";
+  /** Evita activar controles padre (p. ej. pestañas del admin). */
+  stopPropagation?: boolean;
+  width?: number;
 };
 
-const TOOLTIP_WIDTH = 224;
+const DEFAULT_TOOLTIP_WIDTH = 224;
 
 /**
  * Icono de ayuda accesible. Abre por hover/focus en escritorio y por tap en
  * móvil (toggle). El globo se renderiza en un portal con posición fija para no
  * recortarse dentro de contenedores con scroll (como el modal de reserva).
  */
-export function InfoTooltip({ label, className }: InfoTooltipProps) {
+export function InfoTooltip({
+  label,
+  className,
+  variant = "default",
+  stopPropagation = false,
+  width = DEFAULT_TOOLTIP_WIDTH,
+}: InfoTooltipProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
@@ -36,8 +46,8 @@ export function InfoTooltip({ label, className }: InfoTooltipProps) {
       const left = Math.max(
         margin,
         Math.min(
-          rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2,
-          window.innerWidth - TOOLTIP_WIDTH - margin
+          rect.left + rect.width / 2 - width / 2,
+          window.innerWidth - width - margin
         )
       );
       setCoords({ top: rect.bottom + 8, left });
@@ -50,12 +60,13 @@ export function InfoTooltip({ label, className }: InfoTooltipProps) {
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
     };
-  }, [open]);
+  }, [open, width]);
 
   useEffect(() => {
     if (!open) return;
     function onPointerDown(event: MouseEvent | TouchEvent) {
-      if (btnRef.current && !btnRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (btnRef.current && !btnRef.current.contains(target)) {
         setOpen(false);
       }
     }
@@ -80,7 +91,13 @@ export function InfoTooltip({ label, className }: InfoTooltipProps) {
         aria-label="Más información"
         aria-expanded={open}
         aria-describedby={open ? id : undefined}
-        onClick={() => setOpen((value) => !value)}
+        onClick={(event) => {
+          if (stopPropagation) event.stopPropagation();
+          setOpen((value) => !value);
+        }}
+        onPointerDown={(event) => {
+          if (stopPropagation) event.stopPropagation();
+        }}
         onPointerEnter={(e) => {
           if (e.pointerType === "mouse") setOpen(true);
         }}
@@ -89,9 +106,20 @@ export function InfoTooltip({ label, className }: InfoTooltipProps) {
         }}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        className="flex h-[18px] w-[18px] items-center justify-center rounded-full border border-brand-700 bg-brand-800 text-[10px] font-bold leading-none text-brand-600 transition hover:border-highlight hover:text-accent"
+        className={cn(
+          "flex shrink-0 items-center justify-center rounded-full border font-bold leading-none transition",
+          variant === "accent"
+            ? "h-5 w-5 border-2 border-gold bg-accent-hover text-brand-900 shadow-[0_1px_4px_rgba(61,43,31,0.3)] hover:border-highlight hover:bg-accent hover:shadow-md"
+            : "h-[18px] w-[18px] border border-brand-700 bg-brand-800 text-[10px] text-brand-600 hover:border-highlight hover:text-accent"
+        )}
       >
-        i
+        {variant === "accent" ? (
+          <span className="font-serif text-[11px] font-extrabold not-italic leading-none" aria-hidden="true">
+            i
+          </span>
+        ) : (
+          "i"
+        )}
       </button>
       {open &&
         mounted &&
@@ -104,7 +132,7 @@ export function InfoTooltip({ label, className }: InfoTooltipProps) {
               position: "fixed",
               top: coords.top,
               left: coords.left,
-              width: TOOLTIP_WIDTH,
+              width: width,
             }}
             className="z-[60] rounded-xl border border-highlight/30 bg-[#3d2b1f] px-3 py-2 text-xs font-normal leading-relaxed text-brand-900 shadow-xl shadow-accent/30"
           >

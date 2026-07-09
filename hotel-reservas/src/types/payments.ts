@@ -16,6 +16,7 @@ export type PaymentConfigResponse = {
   currency: string;
   online: {
     enabled: boolean;
+    comingSoon?: boolean;
     provider: "mercadopago" | "simulated" | "disabled";
     publicKey: string | null;
     label: string;
