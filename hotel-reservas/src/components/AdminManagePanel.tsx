@@ -4,6 +4,12 @@ import { useCallback, useEffect, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import {
+  AdminBlocksMobileList,
+  AdminReservationsMobileList,
+  AdminRoomsMobileList,
+} from "@/components/admin/mobile/AdminManageMobile";
+import { AdminMobileFilterScroll } from "@/components/admin/mobile/AdminMobilePrimitives";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
@@ -175,29 +181,51 @@ export function AdminReservationsPanel() {
         </AdminHintLabel>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="mr-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-500">
+      <div className="space-y-2">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-500">
           Vista
           <InfoTooltip label={ADMIN_RESERVATIONS_HELP.scope} variant="accent" width={260} />
         </span>
-        {SCOPE_TABS.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => {
-              setScope(tab.id);
-              setPage(1);
-            }}
-            className={cn(
-              "min-h-9 rounded-xl px-3 py-1.5 text-sm font-semibold transition",
-              scope === tab.id
-                ? "tab-active-admin"
-                : "border border-brand-700 bg-white/55 text-brand-500 hover:bg-white/75 hover:text-brand-100"
-            )}
-          >
-            {tab.label}
-          </button>
-        ))}
+        <AdminMobileFilterScroll className="md:hidden">
+          {SCOPE_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setScope(tab.id);
+                setPage(1);
+              }}
+              className={cn(
+                "shrink-0 min-h-9 rounded-xl px-3 py-1.5 text-sm font-semibold transition",
+                scope === tab.id
+                  ? "tab-active-admin"
+                  : "border border-brand-700 bg-white/55 text-brand-500"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </AdminMobileFilterScroll>
+        <div className="hidden flex-wrap items-center gap-2 md:flex">
+          {SCOPE_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => {
+                setScope(tab.id);
+                setPage(1);
+              }}
+              className={cn(
+                "min-h-9 rounded-xl px-3 py-1.5 text-sm font-semibold transition",
+                scope === tab.id
+                  ? "tab-active-admin"
+                  : "border border-brand-700 bg-white/55 text-brand-500 hover:bg-white/75 hover:text-brand-100"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -207,7 +235,7 @@ export function AdminReservationsPanel() {
             setPage(1);
             setSearch(e.target.value);
           }}
-          className="input-field max-w-md"
+          className="input-field w-full max-w-md"
           placeholder="Buscar por código, huésped, email, teléfono, RUT o habitación..."
           autoComplete="off"
           autoCorrect="off"
@@ -218,7 +246,20 @@ export function AdminReservationsPanel() {
         <span className="text-xs text-brand-500">{totalRows} resultados</span>
       </div>
 
-      <div className="admin-table-shell">
+      <AdminReservationsMobileList
+        rows={rows}
+        scope={scope}
+        savingId={savingId}
+        paymentOptions={PAYMENT_OPTIONS}
+        statusOptions={STATUS_OPTIONS}
+        page={page}
+        totalPages={totalPages}
+        onUpdate={updateReservation}
+        onPrevPage={() => setPage((prev) => Math.max(1, prev - 1))}
+        onNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+      />
+
+      <div className="admin-table-shell hidden md:block">
         <div className="flex items-center gap-1.5 border-b border-brand-700/50 px-3 py-2 text-xs font-semibold text-brand-500">
           Detalle de reservas
           <InfoTooltip label={ADMIN_RESERVATIONS_HELP.table} variant="accent" width={272} />
@@ -379,7 +420,7 @@ export function AdminReservationsPanel() {
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-end gap-2">
+      <div className="hidden items-center justify-end gap-2 md:flex">
         <button
           type="button"
           className="btn-secondary min-h-9 px-3 text-xs"
@@ -838,7 +879,7 @@ export function AdminRoomsPanel() {
         <AdminHintLabel as="h2" hint={ADMIN_ROOMS_HELP.section} className="text-lg font-bold text-brand-100">
           Inventario de habitaciones
         </AdminHintLabel>
-        <button type="button" onClick={openCreateForm} className="btn-primary min-h-10 px-4 text-sm">
+        <button type="button" onClick={openCreateForm} className="btn-primary min-h-10 w-full px-4 text-sm sm:w-auto">
           + Nueva habitación
         </button>
       </div>
@@ -853,7 +894,7 @@ export function AdminRoomsPanel() {
             setPage(1);
             setSearch(e.target.value);
           }}
-          className="input-field max-w-md"
+          className="input-field w-full max-w-md"
           placeholder="Buscar por código, nombre o descripción..."
           autoComplete="off"
           autoCorrect="off"
@@ -1220,7 +1261,25 @@ export function AdminRoomsPanel() {
           No hay habitaciones cargadas. Creá la primera con el botón de arriba.
         </div>
       ) : (
-        <div className="admin-table-shell">
+        <>
+          <AdminRoomsMobileList
+            rooms={rooms}
+            typeLabels={Object.fromEntries(ROOM_TYPE_OPTIONS.map((option) => [option.value, option.label]))}
+            deletingId={deletingId}
+            onEdit={(room) => {
+              const full = rooms.find((item) => item.id === room.id);
+              if (full) openEditForm(full);
+            }}
+            onDelete={(room) => {
+              const full = rooms.find((item) => item.id === room.id);
+              if (full) void deleteRoom(full);
+            }}
+            page={page}
+            totalPages={totalPages}
+            onPrevPage={() => setPage((prev) => Math.max(1, prev - 1))}
+            onNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+          />
+          <div className="admin-table-shell hidden md:block">
             <table className="admin-table w-full text-left text-sm">
               <thead className="admin-table-head text-xs uppercase tracking-wide text-brand-500">
                 <tr>
@@ -1277,8 +1336,9 @@ export function AdminRoomsPanel() {
               </tbody>
             </table>
         </div>
+        </>
       )}
-      <div className="flex items-center justify-end gap-2">
+      <div className="hidden items-center justify-end gap-2 md:flex">
         <button
           type="button"
           className="btn-secondary min-h-9 px-3 text-xs"
@@ -1490,7 +1550,7 @@ export function AdminRoomBlocksPanel() {
             setPage(1);
             setSearch(e.target.value);
           }}
-          className="input-field max-w-md"
+          className="input-field w-full max-w-md"
           placeholder="Buscar por habitación o motivo..."
           autoComplete="off"
           autoCorrect="off"
@@ -1501,7 +1561,17 @@ export function AdminRoomBlocksPanel() {
         <span className="text-xs text-brand-500">{totalRows} resultados</span>
       </div>
 
-      <div className="admin-table-shell">
+      <AdminBlocksMobileList
+        blocks={blocks}
+        deletingId={deletingId}
+        onDelete={deleteBlock}
+        page={page}
+        totalPages={totalPages}
+        onPrevPage={() => setPage((prev) => Math.max(1, prev - 1))}
+        onNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+      />
+
+      <div className="admin-table-shell hidden md:block">
         <div className="flex items-center gap-1.5 border-b border-brand-700/50 px-3 py-2 text-xs font-semibold text-brand-500">
           Bloqueos programados
           <InfoTooltip label={ADMIN_BLOCKS_HELP.list} variant="accent" width={260} />
@@ -1549,7 +1619,7 @@ export function AdminRoomBlocksPanel() {
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-end gap-2">
+      <div className="hidden items-center justify-end gap-2 md:flex">
         <button
           type="button"
           className="btn-secondary min-h-9 px-3 text-xs"

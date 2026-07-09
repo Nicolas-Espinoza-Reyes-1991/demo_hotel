@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MobilePeriodList } from "@/components/admin/AdminCalendarMobile";
+import { AdminMobileFilterScroll } from "@/components/admin/mobile/AdminMobilePrimitives";
+import { AdminMobileLegend } from "@/components/admin/mobile/AdminMobileLegend";
+import { AdminWeekStrip, dayKey } from "@/components/admin/mobile/AdminWeekStrip";
 import { ADMIN_CALENDAR_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
@@ -720,6 +723,7 @@ export function AdminCalendar() {
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("active");
   const [pinnedReservationId, setPinnedReservationId] = useState<string | null>(null);
   const [periodSearch, setPeriodSearch] = useState("");
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [periodPage, setPeriodPage] = useState(1);
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -796,6 +800,7 @@ export function AdminCalendar() {
 
   useEffect(() => {
     setPinnedReservationId(null);
+    setSelectedDayKey(null);
   }, [year, month, viewMode, weekAnchor, paymentFilter]);
 
   const allReservations = useMemo(() => {
@@ -829,9 +834,15 @@ export function AdminCalendar() {
 
   const periodReservations = useMemo(() => {
     const q = periodSearch.trim().toLowerCase();
-    const sorted = visibleReservations
+    let sorted = visibleReservations
       .slice()
       .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+
+    if (selectedDayKey) {
+      const [y, m, d] = selectedDayKey.split("-").map(Number);
+      const filterDay: VisibleDay = { year: y, month: m, day: d };
+      sorted = sorted.filter((reservation) => reservationOverlapsDay(reservation, filterDay));
+    }
 
     if (!q) return sorted;
 
@@ -850,7 +861,37 @@ export function AdminCalendar() {
         formatShortDate(reservation.checkOut).toLowerCase().includes(q)
       );
     });
-  }, [visibleReservations, periodSearch, roomCodeById]);
+  }, [visibleReservations, periodSearch, roomCodeById, selectedDayKey]);
+
+  const mobileWeekDays = useMemo(() => {
+    if (visibleDays.length === 7) return visibleDays;
+    return buildVisibleDays("week", year, month, weekAnchor);
+  }, [visibleDays, year, month, weekAnchor]);
+
+  const mobileOccupiedByDay = useMemo(() => {
+    const map = new Map<string, number>();
+    const active = visibleReservations.filter((reservation) => !reservation.historical);
+
+    mobileWeekDays.forEach((day) => {
+      const key = dayKey(day);
+      const roomsOccupied = new Set<string>();
+      active.forEach((reservation) => {
+        if (reservationOverlapsDay(reservation, day)) {
+          roomsOccupied.add(reservation.roomId);
+        }
+      });
+      map.set(key, roomsOccupied.size);
+    });
+
+    return map;
+  }, [mobileWeekDays, visibleReservations]);
+
+  const mobileTodayKey = useMemo(() => {
+    const today = mobileWeekDays.find(
+      (day) => day.year === todayYear && day.month === todayMonth && day.day === todayDay
+    );
+    return today ? dayKey(today) : null;
+  }, [mobileWeekDays, todayYear, todayMonth, todayDay]);
 
   const periodTotalPages = Math.max(1, Math.ceil(periodReservations.length / PERIOD_LIST_PAGE_SIZE));
 
@@ -862,7 +903,7 @@ export function AdminCalendar() {
 
   useEffect(() => {
     setPeriodPage(1);
-  }, [periodSearch, year, month, viewMode, weekAnchor, paymentFilter]);
+  }, [periodSearch, year, month, viewMode, weekAnchor, paymentFilter, selectedDayKey]);
 
   useEffect(() => {
     if (periodPage > periodTotalPages) {
@@ -1065,16 +1106,19 @@ export function AdminCalendar() {
 
         {stats && (
           <div className="flex flex-col gap-2 border-b border-brand-700/40 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            <div className="hidden flex-wrap items-center gap-x-3 gap-y-1 text-xs md:flex">
               <CalendarStat label="Hab." value={data.rooms.length} />
-              <span className="text-brand-700/40">·</span>
+              <span className="hidden text-brand-700/40 sm:inline">·</span>
               <CalendarStat label="Reservas" value={visibleReservations.length} />
-              <span className="text-brand-700/40">·</span>
+              <span className="hidden text-brand-700/40 sm:inline">·</span>
               <CalendarStat label="Pagadas" value={stats.paidCount} tone="paid" />
-              <span className="text-brand-700/40">·</span>
+              <span className="hidden text-brand-700/40 sm:inline">·</span>
               <CalendarStat label="Pendientes" value={stats.pendingCount} tone="pending" />
             </div>
-            <div className="flex min-w-[10rem] items-center gap-2 sm:max-w-xs sm:flex-1 sm:justify-end">
+            <p className="text-[11px] text-brand-500 md:hidden">
+              {data.rooms.length} hab. · {visibleReservations.length} res. · {stats.occupancy}% ocupación
+            </p>
+            <div className="hidden min-w-[10rem] items-center gap-2 sm:flex sm:max-w-xs sm:flex-1 sm:justify-end">
               <span className="shrink-0 text-[11px] font-medium text-brand-500">Ocupación</span>
               <div className="h-1.5 min-w-[5rem] flex-1 overflow-hidden rounded-full bg-brand-800">
                 <div
@@ -1087,37 +1131,66 @@ export function AdminCalendar() {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 sm:px-4">
-          <span className="mr-1 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-500">
+        <div className="border-b border-brand-700/40 px-3 py-2 sm:px-4">
+          <span className="mb-1.5 inline-flex items-center gap-1 text-[11px] font-semibold text-brand-500 md:mb-0 md:mr-1">
             Filtros
             <InfoTooltip label={ADMIN_CALENDAR_HELP.filters} variant="accent" width={260} />
           </span>
-          {(
-            [
-              { id: "active", label: "Activas" },
-              { id: "paid", label: "Pagadas" },
-              { id: "pending", label: "Pendientes" },
-              { id: "history", label: "Historial" },
-              { id: "all", label: "Todas" },
-            ] as const
-          ).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPaymentFilter(item.id)}
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition",
-                paymentFilter === item.id
-                  ? "border-accent/40 bg-honey/40 text-accent-hover"
-                  : "border-brand-700 bg-white/55 text-brand-500 hover:border-brand-600 hover:bg-white/75 hover:text-brand-100"
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
+          <AdminMobileFilterScroll className="md:hidden">
+            {(
+              [
+                { id: "active", label: "Activas" },
+                { id: "paid", label: "Pagadas" },
+                { id: "pending", label: "Pendientes" },
+                { id: "history", label: "Historial" },
+                { id: "all", label: "Todas" },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setPaymentFilter(item.id)}
+                className={cn(
+                  "shrink-0 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition",
+                  paymentFilter === item.id
+                    ? "border-accent/40 bg-honey/40 text-accent-hover"
+                    : "border-brand-700 bg-white/55 text-brand-500"
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </AdminMobileFilterScroll>
+          <div className="hidden flex-wrap items-center gap-1.5 md:flex">
+            {(
+              [
+                { id: "active", label: "Activas" },
+                { id: "paid", label: "Pagadas" },
+                { id: "pending", label: "Pendientes" },
+                { id: "history", label: "Historial" },
+                { id: "all", label: "Todas" },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setPaymentFilter(item.id)}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-[11px] font-semibold transition",
+                  paymentFilter === item.id
+                    ? "border-accent/40 bg-honey/40 text-accent-hover"
+                    : "border-brand-700 bg-white/55 text-brand-500 hover:border-brand-600 hover:bg-white/75 hover:text-brand-100"
+                )}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-brand-700/40 bg-brand-800/25 px-3 py-1.5 text-[10px] text-brand-500 sm:px-4">
+        <AdminMobileLegend helpText={ADMIN_CALENDAR_HELP.legend} />
+
+        <div className="hidden flex-wrap items-center gap-x-3 gap-y-1 border-t border-brand-700/40 bg-brand-800/25 px-3 py-1.5 text-[10px] text-brand-500 sm:px-4 md:flex">
           <span className="inline-flex items-center gap-1 font-semibold text-brand-100">
             Leyenda
             <InfoTooltip label={ADMIN_CALENDAR_HELP.legend} variant="accent" width={272} />
@@ -1151,44 +1224,54 @@ export function AdminCalendar() {
         </div>
       </div>
 
-      {isMobile && (
-        <div className="space-y-3 md:hidden">
-          <div className="rounded-2xl border border-brand-700 bg-white/72 p-4 shadow-sm">
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-500">
-              Buscar reservas
-            </label>
-            <input
-              value={periodSearch}
-              onChange={(event) => setPeriodSearch(event.target.value)}
-              className="input-field"
-              placeholder="Huésped, habitación, código..."
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="none"
-              spellCheck={false}
-              name="search-mobile-period"
-            />
-            <p className="mt-2 text-xs text-brand-500">{periodReservations.length} en este período</p>
-          </div>
+      <div className="space-y-3 md:hidden">
+        <AdminWeekStrip
+          days={mobileWeekDays}
+          occupiedByDay={mobileOccupiedByDay}
+          totalRooms={data.rooms.length}
+          todayKey={mobileTodayKey}
+          selectedDayKey={selectedDayKey}
+          onSelectDay={setSelectedDayKey}
+        />
 
-          {periodReservations.length === 0 ? (
-            <div className="rounded-2xl border border-brand-700 bg-white/72 px-4 py-10 text-center text-sm text-brand-500">
-              No hay reservas en este período con el filtro actual.
-            </div>
-          ) : (
-            <MobilePeriodList
-              rows={periodPageRows}
-              roomCodeById={roomCodeById}
-              formatShortDate={formatShortDate}
-              getPaymentBadge={calendarPaymentBadge}
-              periodPage={periodPage}
-              periodTotalPages={periodTotalPages}
-              onPrevPage={() => setPeriodPage((prev) => Math.max(1, prev - 1))}
-              onNextPage={() => setPeriodPage((prev) => Math.min(periodTotalPages, prev + 1))}
-            />
-          )}
+        <div className="rounded-2xl border border-brand-700 bg-white/72 p-4 shadow-sm">
+          <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-500">
+            Agenda del período
+          </label>
+          <input
+            value={periodSearch}
+            onChange={(event) => setPeriodSearch(event.target.value)}
+            className="input-field"
+            placeholder="Huésped, habitación, código..."
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            name="search-mobile-period"
+          />
+          <p className="mt-2 text-xs text-brand-500">
+            {periodReservations.length} en este período
+            {selectedDayKey ? " (día seleccionado)" : ""}
+          </p>
         </div>
-      )}
+
+        {periodReservations.length === 0 ? (
+          <div className="rounded-2xl border border-brand-700 bg-white/72 px-4 py-10 text-center text-sm text-brand-500">
+            No hay reservas en este período con el filtro actual.
+          </div>
+        ) : (
+          <MobilePeriodList
+            rows={periodPageRows}
+            roomCodeById={roomCodeById}
+            formatShortDate={formatShortDate}
+            getPaymentBadge={calendarPaymentBadge}
+            periodPage={periodPage}
+            periodTotalPages={periodTotalPages}
+            onPrevPage={() => setPeriodPage((prev) => Math.max(1, prev - 1))}
+            onNextPage={() => setPeriodPage((prev) => Math.min(periodTotalPages, prev + 1))}
+          />
+        )}
+      </div>
 
       <div
         ref={containerRef}

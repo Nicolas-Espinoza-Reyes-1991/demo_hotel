@@ -35,22 +35,22 @@ export default function AdminPage() {
 
       <main className="mx-auto w-full max-w-[96rem] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
         <div className="rounded-3xl border border-white/55 bg-brand-900/58 p-3 shadow-[0_22px_58px_-22px_rgba(15,23,42,0.38)] backdrop-blur-[2px] sm:p-4 lg:p-5">
-        <header className="mb-3 flex flex-col gap-2.5 border-b border-brand-700/35 pb-3 sm:mb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:pb-3.5">
+        <header className="mb-3 flex flex-col gap-2.5 border-b border-brand-700/35 pb-3 sm:mb-4 sm:gap-4 sm:pb-3.5">
           <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
+            <p className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] text-gold sm:block">
               Panel administrativo
             </p>
             <AdminHintLabel
               as="h1"
               hint={ADMIN_MODULE_HELP.panel}
-              className="text-xl font-bold leading-tight text-brand-100 sm:text-2xl"
+              className="text-lg font-bold leading-tight text-brand-100 sm:text-2xl"
             >
               Gestión del hotel
             </AdminHintLabel>
           </div>
 
           <nav
-            className="admin-toolbar inline-flex w-full max-w-full flex-wrap gap-0.5 self-start p-0.5 sm:w-auto sm:shrink-0"
+            className="admin-toolbar -mx-1 flex w-full max-w-full gap-1 overflow-x-auto p-0.5 [scrollbar-width:none] sm:mx-0 sm:inline-flex sm:w-auto sm:flex-wrap sm:overflow-visible sm:self-start [&::-webkit-scrollbar]:hidden"
             aria-label="Secciones del panel"
           >
             {TABS.map((item) => (
@@ -59,15 +59,17 @@ export default function AdminPage() {
                 type="button"
                 onClick={() => selectTab(item.id)}
                 className={cn(
-                  "min-h-8 flex-1 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition sm:min-h-9 sm:flex-none sm:px-3.5 sm:text-sm",
+                  "min-h-9 shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition sm:min-h-9 sm:px-3.5 sm:text-sm",
                   tab === item.id
                     ? "tab-active-admin"
                     : "text-brand-500 hover:bg-white/55 hover:text-brand-100"
                 )}
               >
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1 whitespace-nowrap">
                   {item.label}
-                  <InfoTooltip label={item.help} variant="accent" stopPropagation />
+                  <span className="hidden sm:inline">
+                    <InfoTooltip label={item.help} variant="accent" stopPropagation />
+                  </span>
                 </span>
               </button>
             ))}
