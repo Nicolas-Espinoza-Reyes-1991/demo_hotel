@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo · Sistema de reservas para hoteles</title>
+    <style>
+      :root {
+        --cream: #faf6ef;
+        --wood: #5c4033;
+        --wood-light: #8b6f5c;
+        --gold: #c9a227;
+        --gold-dark: #9a7b1a;
+        --panel: rgba(255, 255, 255, 0.72);
+        --shadow: 0 22px 58px -22px rgba(61, 43, 31, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: var(--wood);
+        background:
+          radial-gradient(circle at top right, rgba(201, 162, 39, 0.12), transparent 32%),
+          linear-gradient(180deg, #f3ebe0 0%, var(--cream) 40%, #efe5d6 100%);
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 1.25rem 1rem 2rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 1.25rem;
+      }
+
+      .eyebrow {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--gold-dark);
+      }
+
+      h1 {
+        margin: 0.35rem 0 0.5rem;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(1.6rem, 4vw, 2.35rem);
+        line-height: 1.15;
+        color: var(--wood);
+      }
+
+      .subtitle {
+        margin: 0 auto;
+        max-width: 42rem;
+        color: var(--wood-light);
+        line-height: 1.5;
+      }
+
+      .layout {
+        display: grid;
+        gap: 1rem;
+      }
+
+      @media (min-width: 900px) {
+        .layout {
+          grid-template-columns: 260px 1fr;
+          align-items: start;
+        }
+      }
+
+      .steps {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.25rem;
+      }
+
+      @media (min-width: 900px) {
+        .steps {
+          flex-direction: column;
+          overflow: visible;
+        }
+      }
+
+      .step-btn {
+        flex: 0 0 auto;
+        width: 100%;
+        border: 1px solid rgba(92, 64, 51, 0.18);
+        background: var(--panel);
+        border-radius: 14px;
+        padding: 0.75rem 0.85rem;
+        text-align: left;
+        cursor: pointer;
+        transition: 0.2s ease;
+        box-shadow: var(--shadow);
+      }
+
+      .step-btn:hover,
+      .step-btn.active {
+        border-color: rgba(201, 162, 39, 0.45);
+        background: rgba(255, 248, 230, 0.95);
+        transform: translateY(-1px);
+      }
+
+      .step-btn strong {
+        display: block;
+        font-size: 0.78rem;
+        color: var(--gold-dark);
+        margin-bottom: 0.15rem;
+      }
+
+      .step-btn span {
+        display: block;
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--wood);
+      }
+
+      .stage {
+        background: var(--panel);
+        border: 1px solid rgba(92, 64, 51, 0.16);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .stage-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 1rem 1.1rem;
+        border-bottom: 1px solid rgba(92, 64, 51, 0.12);
+      }
+
+      .stage-head h2 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.2rem;
+      }
+
+      .stage-head p {
+        margin: 0.2rem 0 0;
+        font-size: 0.9rem;
+        color: var(--wood-light);
+      }
+
+      .counter {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--gold-dark);
+      }
+
+      .image-box {
+        background: #efe5d6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+      }
+
+      .image-box img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 72vh;
+        object-fit: contain;
+      }
+
+      .voice {
+        padding: 1rem 1.1rem 0.25rem;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        color: var(--wood);
+      }
+
+      .controls {
+        display: flex;
+        gap: 0.6rem;
+        padding: 1rem 1.1rem 1.15rem;
+      }
+
+      .btn {
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.72rem 1.15rem;
+        font-size: 0.92rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: linear-gradient(180deg, #d4b44a, var(--gold));
+        color: #3f2d1d;
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(92, 64, 51, 0.2);
+        color: var(--wood);
+      }
+
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .cta {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 0.88rem;
+        color: var(--wood-light);
+      }
+
+      .cta a {
+        color: var(--gold-dark);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <p class="eyebrow">Demo comercial · Marca genérica</p>
+        <h1>Sistema de reservas directas para hoteles</h1>
+        <p class="subtitle">
+          Recorrido ilustrado para presentaciones y videos de venta. Sin datos reales ni marca de cliente.
+        </p>
+      </header>
+
+      <div class="layout">
+        <nav class="steps" id="steps" aria-label="Pasos del demo"></nav>
+
+        <section class="stage" aria-live="polite">
+          <div class="stage-head">
+            <div>
+              <h2 id="title">—</h2>
+              <p id="caption">—</p>
+            </div>
+            <div class="counter" id="counter">1 / 9</div>
+          </div>
+          <div class="image-box">
+            <img id="shot" src="demo-01-landing.png" alt="Mockup del sistema" />
+          </div>
+          <p class="voice" id="voice"></p>
+          <div class="controls">
+            <button class="btn btn-secondary" id="prev" type="button">← Anterior</button>
+            <button class="btn btn-primary" id="next" type="button">Siguiente →</button>
+          </div>
+        </section>
+      </div>
+
+      <p class="cta">
+        Tip para grabar video: pantalla completa (F11) y avanzar con <strong>Siguiente</strong> o flechas del teclado.
+      </p>
+    </div>
+
+    <script>
+      const slides = [
+        {
+          file: "demo-01-landing.png",
+          step: "Paso 1",
+          title: "Web profesional del hotel",
+          caption: "Primera impresión con identidad propia",
+          voice:
+            "Cada hotel tiene su sitio con habitaciones, reseñas y un botón claro para reservar directo.",
+        },
+        {
+          file: "demo-02-busqueda.png",
+          step: "Paso 2",
+          title: "Motor de reservas",
+          caption: "Consulta de fechas en segundos",
+          voice:
+            "El huésped elige llegada, salida y cantidad de personas sin llamar ni escribir por WhatsApp.",
+        },
+        {
+          file: "demo-03-habitaciones.png",
+          step: "Paso 3",
+          title: "Catálogo de habitaciones",
+          caption: "Precios y fotos bajo tu control",
+          voice:
+            "Se muestran solo las habitaciones disponibles, con precio por noche y botón para reservar.",
+        },
+        {
+          file: "demo-04-formulario.png",
+          step: "Paso 4",
+          title: "Formulario de reserva",
+          caption: "Reserva directa sin comisión OTA",
+          voice:
+            "El huésped completa sus datos y confirma por transferencia o pago online cuando esté habilitado.",
+        },
+        {
+          file: "demo-05-confirmacion.png",
+          step: "Paso 5",
+          title: "Confirmación automática",
+          caption: "Código único de seguimiento",
+          voice:
+            "El sistema genera un código de reserva y envía la confirmación por correo al huésped y al hotel.",
+        },
+        {
+          file: "demo-06-calendario.png",
+          step: "Paso 6",
+          title: "Calendario de ocupación",
+          caption: "Todo el hotel en un vistazo",
+          voice:
+            "El panel admin muestra quién llega, quién se va y el estado de pago de cada reserva.",
+        },
+        {
+          file: "demo-07-reservas-mobile.png",
+          step: "Paso 7",
+          title: "Gestión móvil",
+          caption: "Operación desde el celular",
+          voice:
+            "Recepción o el dueño pueden gestionar reservas, pagos y estados desde el teléfono.",
+        },
+        {
+          file: "demo-08-habitaciones-admin.png",
+          step: "Paso 8",
+          title: "Inventario de habitaciones",
+          caption: "Precios, fotos y disponibilidad",
+          voice:
+            "Creás o editás habitaciones, subís fotos y ajustás precios para nuevas reservas.",
+        },
+        {
+          file: "demo-09-flujo.png",
+          step: "Resumen",
+          title: "Sistema integral",
+          caption: "Web + reservas + panel admin",
+          voice:
+            "Un solo producto para vender directo, operar el hotel y reducir dependencia de las OTAs.",
+        },
+      ];
+
+      let index = 0;
+      const stepsEl = document.getElementById("steps");
+      const shot = document.getElementById("shot");
+      const title = document.getElementById("title");
+      const caption = document.getElementById("caption");
+      const voice = document.getElementById("voice");
+      const counter = document.getElementById("counter");
+      const prev = document.getElementById("prev");
+      const next = document.getElementById("next");
+
+      slides.forEach((slide, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "step-btn";
+        btn.innerHTML = `<strong>${slide.step}</strong><span>${slide.title}</span>`;
+        btn.addEventListener("click", () => go(i));
+        stepsEl.appendChild(btn);
+      });
+
+      const stepButtons = [...stepsEl.querySelectorAll(".step-btn")];
+
+      function render() {
+        const slide = slides[index];
+        shot.src = slide.file;
+        shot.alt = slide.title;
+        title.textContent = slide.title;
+        caption.textContent = slide.caption;
+        voice.textContent = slide.voice;
+        counter.textContent = `${index + 1} / ${slides.length}`;
+        prev.disabled = index === 0;
+        next.disabled = index === slides.length - 1;
+        stepButtons.forEach((btn, i) => btn.classList.toggle("active", i === index));
+      }
+
+      function go(i) {
+        index = Math.max(0, Math.min(slides.length - 1, i));
+        render();
+      }
+
+      prev.addEventListener("click", () => go(index - 1));
+      next.addEventListener("click", () => go(index + 1));
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight") go(index + 1);
+        if (event.key === "ArrowLeft") go(index - 1);
+      });
+
+      render();
+    </script>
+  </body>
+</html>

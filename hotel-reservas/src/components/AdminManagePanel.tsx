@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
@@ -670,17 +670,6 @@ export function AdminRoomsPanel() {
   const [form, setForm] = useState<RoomFormState>(EMPTY_ROOM_FORM);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState<string | null>(null);
-  const roomFormRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
-    if (!showForm) return;
-    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-    if (!isDesktop) return;
-    const timeoutId = window.setTimeout(() => {
-      roomFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 50);
-    return () => window.clearTimeout(timeoutId);
-  }, [showForm, editingId]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -947,25 +936,12 @@ export function AdminRoomsPanel() {
               ? `${form.code.trim() || "—"} · ${form.name.trim() || "Sin nombre"}`
               : undefined
           }
+          size="xl"
         >
-          <form
-            ref={roomFormRef}
-            onSubmit={saveRoom}
-            className="space-y-4 md:glass-panel-elevated md:p-4 md:sm:p-5"
-          >
-            <div className="hidden items-start justify-between gap-3 md:flex">
-              <AdminHintLabel as="h3" hint={ADMIN_ROOMS_HELP.form} className="text-base font-bold text-brand-100">
-                {editingId ? "Editar habitación" : "Nueva habitación"}
-              </AdminHintLabel>
-              <button
-                type="button"
-                onClick={closeForm}
-                className="rounded-lg px-2 text-brand-500 transition hover:bg-brand-800 hover:text-brand-100"
-                aria-label="Cerrar formulario"
-              >
-                ×
-              </button>
-            </div>
+          <form onSubmit={saveRoom} className="space-y-4">
+            <p className="rounded-xl border border-brand-700/45 bg-white/55 px-3 py-2 text-xs text-brand-500">
+              {ADMIN_ROOMS_HELP.form}
+            </p>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <label className="space-y-1.5">
@@ -1281,11 +1257,11 @@ export function AdminRoomsPanel() {
             </div>
           </div>
 
-          <div className="sticky bottom-0 -mx-4 flex flex-wrap gap-2 border-t border-brand-700/35 bg-[#faf6ef] px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0">
+          <div className="sticky bottom-0 -mx-4 flex flex-wrap gap-2 border-t border-brand-700/35 bg-[#faf6ef] px-4 py-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
             <button
               type="submit"
               disabled={saving || uploadingGallery}
-              className="btn-primary min-h-11 flex-1 px-4 text-sm disabled:opacity-60 md:min-h-10 md:flex-none"
+              className="btn-primary min-h-11 flex-1 px-4 text-sm disabled:opacity-60 sm:min-h-10 sm:flex-none"
             >
               {uploadingGallery
                 ? "Subiendo fotos..."
@@ -1298,7 +1274,7 @@ export function AdminRoomsPanel() {
             <button
               type="button"
               onClick={closeForm}
-              className="btn-secondary min-h-11 flex-1 px-4 text-sm md:min-h-10 md:flex-none"
+              className="btn-secondary min-h-11 flex-1 px-4 text-sm sm:min-h-10 sm:flex-none"
             >
               Cancelar
             </button>
@@ -1349,7 +1325,13 @@ export function AdminRoomsPanel() {
               </thead>
               <tbody>
                 {rooms.map((room) => (
-                  <tr key={room.id} className="admin-table-row">
+                  <tr
+                    key={room.id}
+                    className={cn(
+                      "admin-table-row",
+                      editingId === room.id && "bg-honey/15 ring-1 ring-inset ring-accent/25"
+                    )}
+                  >
                     <td className="px-4 py-3 font-bold text-brand-100">{room.code}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-brand-100">{room.name}</p>
