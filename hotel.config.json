@@ -52,7 +52,7 @@
     "jsonLdDescription": "Hotel boutique en Futrono, Región de Los Ríos. Casona de madera nativa frente al Lago Ranco. Habitaciones cálidas, desayuno campestre y reserva directa online.",
     "ogImageAlt": "Fachada de La Casona de Futrono con jardín y árboles nativos",
     "priceRange": "$$",
-    "starRating": "4",
+    "starRating": "4.7",
     "checkinTime": "15:00",
     "checkoutTime": "11:00",
     "amenities": ["Desayuno incluido", "WiFi gratuito", "Estacionamiento"]
@@ -65,6 +65,42 @@
     "ogImageWidth": 1448,
     "ogImageHeight": 1086,
     "heroImagePath": "./fotos_web/arquitectura_hotel_vista/frontis.webp"
+  },
+  "reviews": {
+    "source": "Google",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=La+Casona+de+Futrono,+Almirante+Barroso+243,+Futrono,+Chile",
+    "aggregateRating": 4.7,
+    "reviewCount": 70,
+    "items": [
+      {
+        "author": "Raúl",
+        "location": "Chile",
+        "rating": 5,
+        "text": "Todo estuvo estupendo: excelente atención, desayuno con variedad de alimentos y anfitriones muy preocupados por el bienestar. Lugar limpio, acogedor y buena ubicación en el centro.",
+        "relativeDate": "Reseña en Google"
+      },
+      {
+        "author": "Ramiro",
+        "location": "Chile",
+        "rating": 5,
+        "text": "Servicio excelente, personalizado y un hotel cálido. Nos sentimos como en casa.",
+        "relativeDate": "Reseña en Google"
+      },
+      {
+        "author": "Thabata",
+        "location": "Chile",
+        "rating": 5,
+        "text": "La atención, el desayuno y la ubicación. El dueño nos sugirió excelentes lugares para visitar. Muy recomendable.",
+        "relativeDate": "Reseña en Google"
+      },
+      {
+        "author": "Huésped verificado",
+        "location": "Los Ríos",
+        "rating": 5,
+        "text": "Futrono es maravilloso para descansar y disfrutar la naturaleza. El hotel es acogedor, cómodo y el personal muy agradable. Excelente atención.",
+        "relativeDate": "Reseña en Google"
+      }
+    ]
   },
   "theme": {
     "themeColor": "#3d2b1f",
