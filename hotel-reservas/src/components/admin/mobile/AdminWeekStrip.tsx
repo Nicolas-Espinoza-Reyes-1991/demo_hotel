@@ -12,33 +12,84 @@ function dayKey(day: VisibleDay) {
 
 export function AdminWeekStrip({
   days,
+  periodLabel,
   occupiedByDay,
   totalRooms,
   todayKey,
   selectedDayKey,
+  isCurrentWeek,
+  loading,
   onSelectDay,
+  onPrevWeek,
+  onNextWeek,
+  onGoToday,
 }: {
   days: VisibleDay[];
+  periodLabel: string;
   occupiedByDay: Map<string, number>;
   totalRooms: number;
   todayKey: string | null;
   selectedDayKey: string | null;
+  isCurrentWeek: boolean;
+  loading?: boolean;
   onSelectDay: (key: string | null) => void;
+  onPrevWeek: () => void;
+  onNextWeek: () => void;
+  onGoToday: () => void;
 }) {
   return (
     <div className="rounded-2xl border border-brand-700 bg-white/72 p-3 shadow-sm md:hidden">
+      <div className="mb-3 grid grid-cols-[auto_1fr_auto] items-center gap-2">
+        <button
+          type="button"
+          onClick={onPrevWeek}
+          disabled={loading}
+          className="flex min-h-11 min-w-[4.5rem] flex-col items-center justify-center rounded-xl border border-brand-700 bg-brand-800/70 px-2 text-brand-100 transition hover:bg-brand-800 disabled:opacity-60"
+          aria-label="Semana anterior"
+        >
+          <span className="text-lg leading-none">‹</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wide">Ant.</span>
+        </button>
+
+        <div className="min-w-0 text-center">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">Semana</p>
+          <p className="truncate text-sm font-bold capitalize text-brand-100">{periodLabel}</p>
+          {!isCurrentWeek && (
+            <button
+              type="button"
+              onClick={onGoToday}
+              className="mt-1 text-[11px] font-semibold text-accent underline-offset-2 hover:underline"
+            >
+              Ir a hoy
+            </button>
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={onNextWeek}
+          disabled={loading}
+          className="flex min-h-11 min-w-[4.5rem] flex-col items-center justify-center rounded-xl border border-brand-700 bg-brand-800/70 px-2 text-brand-100 transition hover:bg-brand-800 disabled:opacity-60"
+          aria-label="Semana siguiente"
+        >
+          <span className="text-lg leading-none">›</span>
+          <span className="text-[9px] font-semibold uppercase tracking-wide">Sig.</span>
+        </button>
+      </div>
+
       <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Ocupación semanal</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Ocupación por día</p>
         {selectedDayKey && (
           <button
             type="button"
             onClick={() => onSelectDay(null)}
             className="text-[11px] font-semibold text-accent"
           >
-            Ver todos
+            Ver toda la semana
           </button>
         )}
       </div>
+
       <div className="grid grid-cols-7 gap-1">
         {days.map((day) => {
           const key = dayKey(day);
@@ -61,9 +112,9 @@ export function AdminWeekStrip({
               type="button"
               onClick={() => onSelectDay(isSelected ? null : key)}
               className={cn(
-                "flex min-h-[3.25rem] flex-col items-center justify-center rounded-lg border px-0.5 py-1 transition",
+                "flex min-h-[3.35rem] flex-col items-center justify-center rounded-lg border px-0.5 py-1 transition",
                 isSelected
-                  ? "border-accent/50 bg-honey/35"
+                  ? "border-accent/50 bg-honey/35 ring-1 ring-accent/25"
                   : isToday
                     ? "border-highlight/50 bg-honey/20"
                     : isWeekend
@@ -79,8 +130,11 @@ export function AdminWeekStrip({
           );
         })}
       </div>
+
       <p className="mt-2 text-center text-[10px] text-brand-500">
-        Tocá un día para filtrar la agenda · {totalRooms} habitaciones
+        {occupiedByDay.size > 0
+          ? `Tocá un día para filtrar · ${totalRooms} habitaciones`
+          : `${totalRooms} habitaciones`}
       </p>
     </div>
   );

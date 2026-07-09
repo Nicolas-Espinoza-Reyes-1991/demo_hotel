@@ -1,15 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import {
   AdminBlocksMobileList,
+  AdminReservationManageSheet,
   AdminReservationsMobileList,
   AdminRoomsMobileList,
 } from "@/components/admin/mobile/AdminManageMobile";
+import { AdminMobileFab } from "@/components/admin/mobile/AdminMobileFab";
 import { AdminMobileFilterScroll } from "@/components/admin/mobile/AdminMobilePrimitives";
+import { AdminMobileSheet } from "@/components/admin/mobile/AdminMobileSheet";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
@@ -100,6 +103,7 @@ export function AdminReservationsPanel() {
   const [loading, setLoading] = useState(true);
   const [initialized, setInitialized] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [managingReservationId, setManagingReservationId] = useState<string | null>(null);
   const [message, setMessage] = useState<PanelMessage | null>(null);
 
   const load = useCallback(async () => {
@@ -172,7 +176,7 @@ export function AdminReservationsPanel() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-4 md:pb-0">
       {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -249,14 +253,27 @@ export function AdminReservationsPanel() {
       <AdminReservationsMobileList
         rows={rows}
         scope={scope}
+        managingId={managingReservationId}
         savingId={savingId}
         paymentOptions={PAYMENT_OPTIONS}
         statusOptions={STATUS_OPTIONS}
         page={page}
         totalPages={totalPages}
+        onManage={setManagingReservationId}
         onUpdate={updateReservation}
         onPrevPage={() => setPage((prev) => Math.max(1, prev - 1))}
         onNextPage={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+      />
+
+      <AdminReservationManageSheet
+        row={rows.find((row) => row.id === managingReservationId) ?? null}
+        open={managingReservationId !== null}
+        scope={scope}
+        saving={savingId === managingReservationId}
+        paymentOptions={PAYMENT_OPTIONS}
+        statusOptions={STATUS_OPTIONS}
+        onClose={() => setManagingReservationId(null)}
+        onUpdate={updateReservation}
       />
 
       <div className="admin-table-shell hidden md:block">
@@ -653,6 +670,17 @@ export function AdminRoomsPanel() {
   const [form, setForm] = useState<RoomFormState>(EMPTY_ROOM_FORM);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState<string | null>(null);
+  const roomFormRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!showForm) return;
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    if (!isDesktop) return;
+    const timeoutId = window.setTimeout(() => {
+      roomFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+    return () => window.clearTimeout(timeoutId);
+  }, [showForm, editingId]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -874,12 +902,16 @@ export function AdminRoomsPanel() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 pb-24 md:pb-0">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <AdminHintLabel as="h2" hint={ADMIN_ROOMS_HELP.section} className="text-lg font-bold text-brand-100">
           Inventario de habitaciones
         </AdminHintLabel>
-        <button type="button" onClick={openCreateForm} className="btn-primary min-h-10 w-full px-4 text-sm sm:w-auto">
+        <button
+          type="button"
+          onClick={openCreateForm}
+          className="btn-primary hidden min-h-10 px-4 text-sm md:inline-flex"
+        >
           + Nueva habitación
         </button>
       </div>
@@ -906,20 +938,34 @@ export function AdminRoomsPanel() {
       </div>
 
       {showForm && (
-        <form onSubmit={saveRoom} className="glass-panel-elevated space-y-4 p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-3">
-            <AdminHintLabel as="h3" hint={ADMIN_ROOMS_HELP.form} className="text-base font-bold text-brand-100">
-              {editingId ? "Editar habitación" : "Nueva habitación"}
-            </AdminHintLabel>
-            <button
-              type="button"
-              onClick={closeForm}
-              className="rounded-lg px-2 text-brand-500 transition hover:bg-brand-800 hover:text-brand-100"
-              aria-label="Cerrar formulario"
-            >
-              ×
-            </button>
-          </div>
+        <AdminMobileSheet
+          open={showForm}
+          onClose={closeForm}
+          title={editingId ? "Editar habitación" : "Nueva habitación"}
+          subtitle={
+            form.code.trim() || form.name.trim()
+              ? `${form.code.trim() || "—"} · ${form.name.trim() || "Sin nombre"}`
+              : undefined
+          }
+        >
+          <form
+            ref={roomFormRef}
+            onSubmit={saveRoom}
+            className="space-y-4 md:glass-panel-elevated md:p-4 md:sm:p-5"
+          >
+            <div className="hidden items-start justify-between gap-3 md:flex">
+              <AdminHintLabel as="h3" hint={ADMIN_ROOMS_HELP.form} className="text-base font-bold text-brand-100">
+                {editingId ? "Editar habitación" : "Nueva habitación"}
+              </AdminHintLabel>
+              <button
+                type="button"
+                onClick={closeForm}
+                className="rounded-lg px-2 text-brand-500 transition hover:bg-brand-800 hover:text-brand-100"
+                aria-label="Cerrar formulario"
+              >
+                ×
+              </button>
+            </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <label className="space-y-1.5">
@@ -1235,11 +1281,11 @@ export function AdminRoomsPanel() {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          <div className="sticky bottom-0 -mx-4 flex flex-wrap gap-2 border-t border-brand-700/35 bg-[#faf6ef] px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:py-0">
             <button
               type="submit"
               disabled={saving || uploadingGallery}
-              className="btn-primary min-h-10 px-4 text-sm disabled:opacity-60"
+              className="btn-primary min-h-11 flex-1 px-4 text-sm disabled:opacity-60 md:min-h-10 md:flex-none"
             >
               {uploadingGallery
                 ? "Subiendo fotos..."
@@ -1249,21 +1295,29 @@ export function AdminRoomsPanel() {
                     ? "Guardar cambios"
                     : "Crear habitación"}
             </button>
-            <button type="button" onClick={closeForm} className="btn-secondary min-h-10 px-4 text-sm">
+            <button
+              type="button"
+              onClick={closeForm}
+              className="btn-secondary min-h-11 flex-1 px-4 text-sm md:min-h-10 md:flex-none"
+            >
               Cancelar
             </button>
           </div>
-        </form>
+          </form>
+        </AdminMobileSheet>
       )}
 
       {rooms.length === 0 ? (
         <div className="glass-panel p-8 text-center text-sm text-brand-500">
-          No hay habitaciones cargadas. Creá la primera con el botón de arriba.
+          No hay habitaciones cargadas.{" "}
+          <span className="md:hidden">Usá el botón flotante para crear la primera.</span>
+          <span className="hidden md:inline">Creá la primera con el botón de arriba.</span>
         </div>
       ) : (
         <>
           <AdminRoomsMobileList
             rooms={rooms}
+            editingId={editingId}
             typeLabels={Object.fromEntries(ROOM_TYPE_OPTIONS.map((option) => [option.value, option.label]))}
             deletingId={deletingId}
             onEdit={(room) => {
@@ -1359,6 +1413,8 @@ export function AdminRoomsPanel() {
           Siguiente
         </button>
       </div>
+
+      {!showForm && <AdminMobileFab label="+ Nueva habitación" onClick={openCreateForm} />}
     </div>
   );
 }
@@ -1390,6 +1446,72 @@ export function AdminRoomBlocksPanel() {
   const [reason, setReason] = useState("");
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+
+  const selectedRoom = rooms.find((room) => room.id === roomId);
+
+  function openCreateBlockForm() {
+    setStartDate("");
+    setEndDate("");
+    setReason("");
+    setShowCreateForm(true);
+    setMessage(null);
+  }
+
+  function closeCreateBlockForm() {
+    setShowCreateForm(false);
+  }
+
+  function renderBlockFormFields() {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block space-y-1.5 sm:col-span-2">
+          <span className="text-sm font-medium text-brand-100">Habitación</span>
+          <select value={roomId} onChange={(e) => setRoomId(e.target.value)} className="input-field min-h-11" required>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                {room.code} · {room.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-brand-100">Desde</span>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              if (endDate && endDate <= e.target.value) setEndDate("");
+            }}
+            className="input-field min-h-11"
+            required
+          />
+        </label>
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-brand-100">Hasta</span>
+          <input
+            type="date"
+            value={endDate}
+            min={startDate || undefined}
+            onChange={(e) => setEndDate(e.target.value)}
+            className="input-field min-h-11"
+            required
+          />
+        </label>
+        <label className="block space-y-1.5 sm:col-span-2">
+          <span className="text-sm font-medium text-brand-100">Motivo (opcional)</span>
+          <input
+            type="text"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="input-field min-h-11"
+            placeholder="Mantenimiento, evento privado..."
+          />
+        </label>
+      </div>
+    );
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1453,6 +1575,7 @@ export function AdminRoomBlocksPanel() {
       setStartDate("");
       setEndDate("");
       setReason("");
+      closeCreateBlockForm();
       await load();
     } catch (err) {
       setMessage({
@@ -1491,57 +1614,56 @@ export function AdminRoomBlocksPanel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-0">
       {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
 
-      <form onSubmit={createBlock} className="glass-panel space-y-4 p-5">
-        <AdminHintLabel as="h2" hint={ADMIN_BLOCKS_HELP.section} className="text-lg font-semibold text-brand-100">
-          Nuevo bloqueo por fechas
-        </AdminHintLabel>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block space-y-1.5 sm:col-span-2">
-            <span className="text-sm font-medium text-brand-100">Habitación</span>
-            <select value={roomId} onChange={(e) => setRoomId(e.target.value)} className="input-field" required>
-              {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.code} · {room.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block space-y-1.5">
-            <span className="text-sm font-medium text-brand-100">Desde</span>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                if (endDate && endDate <= e.target.value) setEndDate("");
-              }}
-              className="input-field"
-              required
-            />
-          </label>
-          <label className="block space-y-1.5">
-            <span className="text-sm font-medium text-brand-100">Hasta</span>
-            <input
-              type="date"
-              value={endDate}
-              min={startDate || undefined}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="input-field"
-              required
-            />
-          </label>
-          <label className="block space-y-1.5 sm:col-span-2">
-            <span className="text-sm font-medium text-brand-100">Motivo (opcional)</span>
-            <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} className="input-field" placeholder="Mantenimiento, evento privado..." />
-          </label>
-        </div>
-        <button type="submit" disabled={saving} className="btn-primary">
-          {saving ? "Guardando..." : "Crear bloqueo"}
-        </button>
-      </form>
+      <div className="hidden md:block">
+        <form onSubmit={createBlock} className="glass-panel space-y-4 p-5">
+          <AdminHintLabel as="h2" hint={ADMIN_BLOCKS_HELP.section} className="text-lg font-semibold text-brand-100">
+            Nuevo bloqueo por fechas
+          </AdminHintLabel>
+          {renderBlockFormFields()}
+          <button type="submit" disabled={saving} className="btn-primary min-h-10">
+            {saving ? "Guardando..." : "Crear bloqueo"}
+          </button>
+        </form>
+      </div>
+
+      <AdminMobileSheet
+        open={showCreateForm}
+        onClose={closeCreateBlockForm}
+        title="Nuevo bloqueo"
+        subtitle={selectedRoom ? `${selectedRoom.code} · ${selectedRoom.name}` : undefined}
+        mobileOnly
+      >
+        <form onSubmit={createBlock} className="space-y-4">
+          {renderBlockFormFields()}
+          <div className="sticky bottom-0 -mx-4 flex gap-2 border-t border-brand-700/35 bg-[#faf6ef] px-4 py-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="btn-primary min-h-11 flex-1 text-sm disabled:opacity-60"
+            >
+              {saving ? "Guardando..." : "Crear bloqueo"}
+            </button>
+            <button
+              type="button"
+              onClick={closeCreateBlockForm}
+              className="btn-secondary min-h-11 flex-1 text-sm"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </AdminMobileSheet>
+
+      <AdminHintLabel
+        as="h2"
+        hint={ADMIN_BLOCKS_HELP.section}
+        className="text-lg font-semibold text-brand-100 md:hidden"
+      >
+        Bloqueos programados
+      </AdminHintLabel>
 
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -1640,6 +1762,8 @@ export function AdminRoomBlocksPanel() {
           Siguiente
         </button>
       </div>
+
+      {!showCreateForm && <AdminMobileFab label="+ Nuevo bloqueo" onClick={openCreateBlockForm} />}
     </div>
   );
 }

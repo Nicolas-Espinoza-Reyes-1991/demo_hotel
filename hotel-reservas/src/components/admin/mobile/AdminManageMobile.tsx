@@ -8,6 +8,7 @@ import {
   AdminMobilePagination,
   AdminMobileSelect,
 } from "@/components/admin/mobile/AdminMobilePrimitives";
+import { AdminMobileSheet } from "@/components/admin/mobile/AdminMobileSheet";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatCurrency } from "@/lib/dates";
 import { paymentStatusLabel } from "@/lib/reservation-history";
@@ -53,29 +54,29 @@ function formatShortStayDate(iso: string): string {
   return `${day}/${month}/${year.slice(2)}`;
 }
 
-function statusLabel(value: string, options: { value: string; label: string }[]) {
-  return options.find((item) => item.value === value)?.label ?? value;
-}
-
 export function AdminReservationsMobileList({
   rows,
   scope,
+  managingId,
   savingId,
   paymentOptions,
   statusOptions,
   page,
   totalPages,
+  onManage,
   onUpdate,
   onPrevPage,
   onNextPage,
 }: {
   rows: ReservationRow[];
   scope: string;
+  managingId?: string | null;
   savingId: string | null;
   paymentOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
   page: number;
   totalPages: number;
+  onManage: (id: string) => void;
   onUpdate: (id: string, patch: { paymentStatus?: string; status?: string }) => void;
   onPrevPage: () => void;
   onNextPage: () => void;
@@ -97,10 +98,8 @@ export function AdminReservationsMobileList({
           key={row.id}
           row={row}
           scope={scope}
-          saving={savingId === row.id}
-          paymentOptions={paymentOptions}
-          statusOptions={statusOptions}
-          onUpdate={onUpdate}
+          isManaging={managingId === row.id}
+          onManage={() => onManage(row.id)}
         />
       ))}
       <AdminMobilePagination page={page} totalPages={totalPages} onPrev={onPrevPage} onNext={onNextPage} />
@@ -111,17 +110,13 @@ export function AdminReservationsMobileList({
 function ReservationMobileCard({
   row,
   scope,
-  saving,
-  paymentOptions,
-  statusOptions,
-  onUpdate,
+  isManaging,
+  onManage,
 }: {
   row: ReservationRow;
   scope: string;
-  saving: boolean;
-  paymentOptions: { value: string; label: string }[];
-  statusOptions: { value: string; label: string }[];
-  onUpdate: (id: string, patch: { paymentStatus?: string; status?: string }) => void;
+  isManaging?: boolean;
+  onManage: () => void;
 }) {
   const [showContact, setShowContact] = useState(false);
   const guestName = row.guestFullName ?? row.guest.fullName;
@@ -129,7 +124,8 @@ function ReservationMobileCard({
   return (
     <AdminMobileCard
       className={cn(
-        (row.paymentStatus === "CANCELLED" || row.paymentStatus === "REFUNDED") && "opacity-90"
+        (row.paymentStatus === "CANCELLED" || row.paymentStatus === "REFUNDED") && "opacity-90",
+        isManaging && "border-accent/45 bg-honey/20 ring-2 ring-accent/20"
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -195,43 +191,139 @@ function ReservationMobileCard({
         <AdminMobileCopyButton code={row.confirmationCode} />
       </div>
 
-      <div className="mt-3 space-y-2 border-t border-brand-700/40 pt-3">
-        {(row.paymentProvider === "BANK_TRANSFER" || row.paymentProvider === "MERCADO_PAGO") && (
-          <div className="flex flex-wrap gap-1.5">
-            {row.paymentProvider === "BANK_TRANSFER" && (
-              <span className="rounded-full bg-sky-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700">
-                Transferencia
-              </span>
-            )}
-            {row.paymentProvider === "MERCADO_PAGO" && (
-              <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-                Mercado Pago
-              </span>
-            )}
-          </div>
+      <button
+        type="button"
+        onClick={onManage}
+        className={cn(
+          "btn-primary mt-3 min-h-11 w-full text-sm",
+          isManaging && "bg-honey/80 text-accent-hover"
         )}
-        <AdminMobileSelect
-          label="Pago"
-          value={row.paymentStatus}
-          disabled={saving}
-          options={paymentOptions}
-          onChange={(value) => onUpdate(row.id, { paymentStatus: value })}
+      >
+        {isManaging ? "Gestionando…" : "Gestionar reserva"}
+      </button>
+    </AdminMobileCard>
+  );
+}
+
+export function AdminReservationManageSheet({
+  row,
+  open,
+  scope,
+  saving,
+  paymentOptions,
+  statusOptions,
+  onClose,
+  onUpdate,
+}: {
+  row: ReservationRow | null;
+  open: boolean;
+  scope: string;
+  saving: boolean;
+  paymentOptions: { value: string; label: string }[];
+  statusOptions: { value: string; label: string }[];
+  onClose: () => void;
+  onUpdate: (id: string, patch: { paymentStatus?: string; status?: string }) => void;
+}) {
+  if (!row) return null;
+
+  const guestName = row.guestFullName ?? row.guest.fullName;
+
+  return (
+    <AdminMobileSheet
+      open={open}
+      onClose={onClose}
+      title={guestName}
+      subtitle={`${row.room.code} · ${row.confirmationCode}`}
+      mobileOnly
+    >
+      <div className="space-y-4">
+        <div className="rounded-xl border border-brand-700/50 bg-white/60 p-3">
+          <p className="text-xs text-brand-500">{row.room.name}</p>
+          <p className="mt-1 text-sm text-brand-100">
+            {formatShortStayDate(row.checkIn)} → {formatShortStayDate(row.checkOut)}
+          </p>
+          <p className="mt-2 text-lg font-bold text-accent">{formatCurrency(row.totalAmount)}</p>
+          <div className="mt-2">
+            <StatusBadge
+              variant={paymentBadgeVariant(row.paymentStatus)}
+              label={paymentStatusLabel(row.paymentStatus)}
+            />
+          </div>
+        </div>
+
+        <GuestContactInfo
+          email={row.guest.email}
+          phone={row.guest.phone}
+          documentType={row.guestDocumentType ?? row.guest.documentType}
+          rut={row.guestRut ?? row.guest.rut}
+          passport={row.guestPassport ?? row.guest.passport}
+          birthDate={
+            row.guestBirthDate
+              ? String(row.guestBirthDate).slice(0, 10)
+              : row.guest.birthDate
+                ? String(row.guest.birthDate).slice(0, 10)
+                : null
+          }
+          compact
         />
-        <AdminMobileSelect
-          label="Estado"
-          value={row.status}
-          disabled={saving}
-          options={statusOptions}
-          onChange={(value) => onUpdate(row.id, { status: value })}
-        />
-        {saving && <p className="text-[11px] text-brand-500">Guardando…</p>}
-        {!saving && (
+
+        {scope === "history" && row.updatedAt && (
           <p className="text-[11px] text-brand-500">
-            Estado actual: {statusLabel(row.status, statusOptions)}
+            Actualizado:{" "}
+            {new Date(row.updatedAt).toLocaleString("es-CL", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </p>
         )}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <code className="min-w-0 flex-1 break-all rounded-md bg-brand-800 px-2 py-1 font-mono text-xs text-brand-100">
+            {row.confirmationCode}
+          </code>
+          <AdminMobileCopyButton code={row.confirmationCode} />
+        </div>
+
+        <div className="space-y-3 border-t border-brand-700/40 pt-3">
+          {(row.paymentProvider === "BANK_TRANSFER" || row.paymentProvider === "MERCADO_PAGO") && (
+            <div className="flex flex-wrap gap-1.5">
+              {row.paymentProvider === "BANK_TRANSFER" && (
+                <span className="rounded-full bg-sky-100/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700">
+                  Transferencia
+                </span>
+              )}
+              {row.paymentProvider === "MERCADO_PAGO" && (
+                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+                  Mercado Pago
+                </span>
+              )}
+            </div>
+          )}
+          <AdminMobileSelect
+            label="Estado de pago"
+            value={row.paymentStatus}
+            disabled={saving}
+            options={paymentOptions}
+            onChange={(value) => onUpdate(row.id, { paymentStatus: value })}
+          />
+          <AdminMobileSelect
+            label="Estado de la reserva"
+            value={row.status}
+            disabled={saving}
+            options={statusOptions}
+            onChange={(value) => onUpdate(row.id, { status: value })}
+          />
+          {saving && <p className="text-[11px] text-brand-500">Guardando cambios…</p>}
+        </div>
+
+        <button type="button" onClick={onClose} className="btn-secondary min-h-11 w-full text-sm">
+          Cerrar
+        </button>
       </div>
-    </AdminMobileCard>
+    </AdminMobileSheet>
   );
 }
 
@@ -255,6 +347,7 @@ function roomStatusVariant(status: string) {
 
 export function AdminRoomsMobileList({
   rooms,
+  editingId,
   typeLabels,
   deletingId,
   onEdit,
@@ -265,6 +358,7 @@ export function AdminRoomsMobileList({
   onNextPage,
 }: {
   rooms: AdminRoomListItem[];
+  editingId?: string | null;
   typeLabels: Record<string, string>;
   deletingId: string | null;
   onEdit: (room: AdminRoomListItem) => void;
@@ -284,8 +378,21 @@ export function AdminRoomsMobileList({
 
   return (
     <div className="space-y-3 md:hidden">
-      {rooms.map((room) => (
-        <AdminMobileCard key={room.id}>
+      {rooms.map((room) => {
+        const isEditing = editingId === room.id;
+
+        return (
+        <AdminMobileCard
+          key={room.id}
+          className={cn(
+            isEditing && "border-accent/45 bg-honey/20 ring-2 ring-accent/20"
+          )}
+        >
+          {isEditing && (
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-accent">
+              Editando ahora
+            </p>
+          )}
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="text-lg font-bold text-brand-100">
@@ -306,9 +413,12 @@ export function AdminRoomsMobileList({
             <button
               type="button"
               onClick={() => onEdit(room)}
-              className="btn-secondary min-h-10 flex-1 text-xs"
+              className={cn(
+                "btn-secondary min-h-10 flex-1 text-xs",
+                isEditing && "border-accent/40 bg-honey/35 text-accent-hover"
+              )}
             >
-              Editar
+              {isEditing ? "Editando…" : "Editar"}
             </button>
             <button
               type="button"
@@ -320,7 +430,8 @@ export function AdminRoomsMobileList({
             </button>
           </div>
         </AdminMobileCard>
-      ))}
+        );
+      })}
       <AdminMobilePagination page={page} totalPages={totalPages} onPrev={onPrevPage} onNext={onNextPage} />
     </div>
   );

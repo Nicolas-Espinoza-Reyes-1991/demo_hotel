@@ -893,6 +893,12 @@ export function AdminCalendar() {
     return today ? dayKey(today) : null;
   }, [mobileWeekDays, todayYear, todayMonth, todayDay]);
 
+  const isCurrentWeek = useMemo(() => {
+    return mobileWeekDays.some(
+      (day) => day.year === todayYear && day.month === todayMonth && day.day === todayDay
+    );
+  }, [mobileWeekDays, todayYear, todayMonth, todayDay]);
+
   const periodTotalPages = Math.max(1, Math.ceil(periodReservations.length / PERIOD_LIST_PAGE_SIZE));
 
   const periodPageRows = useMemo(() => {
@@ -1038,14 +1044,15 @@ export function AdminCalendar() {
             <AdminHintLabel
               as="h2"
               hint={ADMIN_CALENDAR_HELP.section}
-              className="text-xl font-bold capitalize text-brand-100 sm:text-2xl"
+              className="hidden text-xl font-bold capitalize text-brand-100 sm:text-2xl md:block"
             >
               {periodLabel}
             </AdminHintLabel>
+            <p className="text-sm font-semibold text-brand-500 md:hidden">Usá los controles de abajo para cambiar de semana</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex overflow-hidden rounded-lg border border-brand-700">
+            <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
               {!isMobile && (
                 <button
                   type="button"
@@ -1071,7 +1078,7 @@ export function AdminCalendar() {
               </button>
             </div>
 
-            <div className="flex overflow-hidden rounded-lg border border-brand-700">
+            <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
               <button
                 type="button"
                 onClick={() => (viewMode === "week" ? shiftWeek(-1) : shiftMonth(-1))}
@@ -1227,11 +1234,17 @@ export function AdminCalendar() {
       <div className="space-y-3 md:hidden">
         <AdminWeekStrip
           days={mobileWeekDays}
+          periodLabel={periodLabel}
           occupiedByDay={mobileOccupiedByDay}
           totalRooms={data.rooms.length}
           todayKey={mobileTodayKey}
           selectedDayKey={selectedDayKey}
+          isCurrentWeek={isCurrentWeek}
+          loading={loading}
           onSelectDay={setSelectedDayKey}
+          onPrevWeek={() => shiftWeek(-1)}
+          onNextWeek={() => shiftWeek(1)}
+          onGoToday={goToToday}
         />
 
         <div className="rounded-2xl border border-brand-700 bg-white/72 p-4 shadow-sm">
