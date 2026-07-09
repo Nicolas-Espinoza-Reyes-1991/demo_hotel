@@ -220,6 +220,47 @@ const CONTACT_SUBJECT_LABELS: Record<string, string> = {
   otro: "Otro",
 };
 
+/** Asunto único por mensaje (evita que Gmail agrupe todo en un solo hilo). */
+export function buildContactMailSubject(payload: ContactEmailPayload): string {
+  const subjectLabel = CONTACT_SUBJECT_LABELS[payload.subject] ?? payload.subject;
+  const name = payload.name.trim().slice(0, 48) || "Sin nombre";
+  const stamp = new Intl.DateTimeFormat("es-CL", {
+    timeZone: "America/Santiago",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date());
+  return `[URGENTE] Contacto · ${subjectLabel} · ${name} · ${stamp}`;
+}
+
+function wrapContactHtml(body: string, title: string): string {
+  const hotel = getHotelName();
+  return `
+<!DOCTYPE html>
+<html lang="es">
+  <body style="margin:0;padding:0;background:#eef2f6;font-family:Arial,sans-serif;color:#1e293b;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:24px auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #fecaca;">
+      <tr>
+        <td style="background:linear-gradient(135deg,#b91c1c,#dc2626);padding:20px 24px;color:#ffffff;">
+          <p style="margin:0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.95;">⚠ Nuevo contacto web · ${hotel}</p>
+          <h1 style="margin:8px 0 0;font-size:20px;line-height:1.3;">${title}</h1>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:24px;font-size:15px;line-height:1.6;">${body}</td>
+      </tr>
+      <tr>
+        <td style="padding:16px 24px;background:#fef2f2;font-size:12px;color:#991b1b;line-height:1.5;">
+          Prioridad alta — responde pronto. Este correo fue enviado desde el formulario de contacto de ${hotel}.
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 function getContactInboxEmail(): string {
   return (
     process.env.CONTACT_INBOX_EMAIL?.trim() ||
@@ -232,11 +273,11 @@ function getContactInboxEmail(): string {
 export async function sendContactEmail(payload: ContactEmailPayload): Promise<boolean> {
   const inbox = getContactInboxEmail();
   const subjectLabel = CONTACT_SUBJECT_LABELS[payload.subject] ?? payload.subject;
-  const subject = `Contacto web · ${subjectLabel}`;
+  const subject = buildContactMailSubject(payload);
   const phoneLine = payload.phone ? `Teléfono: ${payload.phone}` : null;
 
   const text = [
-    "Nuevo mensaje desde el formulario de contacto:",
+    "⚠ URGENTE — Nuevo mensaje desde el formulario de contacto:",
     "",
     `Nombre: ${payload.name}`,
     `Email: ${payload.email}`,
@@ -288,9 +329,15 @@ export async function sendContactEmail(payload: ContactEmailPayload): Promise<bo
     to: inbox,
     replyTo: payload.email,
     bcc,
+    priority: "high",
     subject: `[${getHotelName()}] ${subject}`,
     text,
-    html: wrapHtml(html, subject),
+    html: wrapContactHtml(html, subject),
+    headers: {
+      "X-Priority": "1",
+      "X-MSMail-Priority": "High",
+      Importance: "high",
+    },
   });
   return true;
 }

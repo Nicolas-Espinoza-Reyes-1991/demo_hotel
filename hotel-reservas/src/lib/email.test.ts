@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PaymentStatus } from "@prisma/client";
 import {
+  buildContactMailSubject,
   buildReservationEmailPayload,
   isEmailNotificationsEnabled,
   sendReservationCreatedEmail,
@@ -62,5 +63,15 @@ describe("email helpers", () => {
     vi.stubEnv("SMTP_HOST", "smtp.test.com");
     vi.stubEnv("SMTP_FROM", "Hotel <a@test.com>");
     expect(isEmailNotificationsEnabled()).toBe(true);
+  });
+
+  it("buildContactMailSubject incluye URGENTE, nombre y tipo únicos por envío", () => {
+    const subject = buildContactMailSubject({
+      name: "Nicolas Espinoza",
+      email: "test@example.com",
+      subject: "consulta",
+      message: "Hola, necesito información",
+    });
+    expect(subject).toMatch(/^\[URGENTE\] Contacto · Consulta general · Nicolas Espinoza · /);
   });
 });
