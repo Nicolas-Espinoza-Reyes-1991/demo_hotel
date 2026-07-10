@@ -1,5 +1,5 @@
 import { ADKINIQ_NAME, ADKINIQ_URL } from "@/lib/adkiniq";
-import { LOGO_PATH, getHotelName } from "@/lib/brand";
+import { getHotelName } from "@/lib/brand";
 import { publicAssetUrl } from "@/lib/api-path";
 import { hotelConfig } from "@/config/hotel";
 import { buildWhatsAppUrl } from "@/lib/whatsapp";
@@ -52,6 +52,21 @@ export function emailAssetUrl(path: string): string {
   if (/^https?:\/\//i.test(relative)) return relative;
   const base = getEmailBaseUrl();
   return `${base}${relative.startsWith("/") ? relative : `/${relative}`}`;
+}
+
+/** Logo PNG del sitio principal — mejor compatibilidad en clientes de correo que WebP vía /reservas. */
+export function getEmailLogoUrl(): string {
+  const logoPath = hotelConfig.assets.logoPng.replace(/^\.\//, "/");
+  const site = getWebsiteUrl()
+    .trim()
+    .replace(/\/$/, "")
+    .replace(/\/[^/]+\.html$/i, "");
+
+  if (/^https?:\/\//i.test(site)) {
+    return `${site}${logoPath.startsWith("/") ? logoPath : `/${logoPath}`}`;
+  }
+
+  return emailAssetUrl("/logo-casona.png");
 }
 
 export function formatStayDate(iso: string): string {
@@ -206,7 +221,7 @@ export function buildEmailShell(options: EmailShellOptions): string {
   const tagline = hotelConfig.brand.tagline;
   const hero = hotelConfig.hero.tagline;
   const variant = options.variant ?? "guest";
-  const logoUrl = emailAssetUrl(LOGO_PATH);
+  const logoUrl = getEmailLogoUrl();
   const headerAccent = variant === "contact" ? BRAND.urgent : BRAND.gold;
   const headerBg = variant === "contact"
     ? `linear-gradient(135deg, #6d2f2f 0%, ${BRAND.wood} 58%, #3f2d22 100%)`
