@@ -74,7 +74,7 @@ export function AdminMobileSheet({
   subtitle?: string;
   children: ReactNode;
   mobileOnly?: boolean;
-  size?: "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
   useOverlayScrollLock(open, mobileOnly);
 
@@ -90,7 +90,13 @@ export function AdminMobileSheet({
   if (!open) return null;
 
   const desktopWidth =
-    size === "xl" ? "max-w-5xl" : size === "md" ? "max-w-2xl" : "max-w-4xl";
+    size === "sm"
+      ? "max-w-md"
+      : size === "xl"
+        ? "max-w-5xl"
+        : size === "md"
+          ? "max-w-2xl"
+          : "max-w-4xl";
 
   const mobileSheet = (
     <div className="fixed inset-0 z-[80] md:hidden" role="dialog" aria-modal="true" aria-label={title}>
