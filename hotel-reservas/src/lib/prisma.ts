@@ -11,33 +11,12 @@ function createPrismaClient() {
 }
 
 /**
- * Cliente Prisma singleton para Next.js (evita múltiples conexiones en dev).
- * Si el proceso se regeneró (p. ej. nuevo modelo StaffUser) y el singleton
- * quedó viejo, se recrea automáticamente.
+ * Cliente Prisma singleton.
+ * Siempre se cachea en globalThis (dev y prod) para evitar abrir un pool
+ * nuevo por cada request — en Docker/Postgres eso agota max_connections.
  */
-function getPrisma(): PrismaClient {
-  const existing = globalForPrisma.prisma;
-  if (existing && typeof (existing as { staffUser?: unknown }).staffUser !== "undefined") {
-    return existing;
-  }
+export const prisma: PrismaClient = globalForPrisma.prisma ?? createPrismaClient();
 
-  if (existing) {
-    void existing.$disconnect().catch(() => undefined);
-  }
-
-  const client = createPrismaClient();
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = client;
-  }
-  return client;
-}
-
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop, receiver) {
-    const client = getPrisma();
-    const value = Reflect.get(client, prop, receiver);
-    return typeof value === "function" ? value.bind(client) : value;
-  },
-});
+globalForPrisma.prisma = prisma;
 
 export default prisma;
