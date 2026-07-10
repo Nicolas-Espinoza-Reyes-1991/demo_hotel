@@ -4,6 +4,8 @@ export type BankTransferConfig = {
   accountHolder: string;
   accountNumber: string;
   accountType: string;
+  /** RUT / tax ID del titular (Chile). */
+  taxId?: string;
   cbu?: string;
   alias?: string;
   swift?: string;

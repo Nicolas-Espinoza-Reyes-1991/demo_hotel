@@ -118,6 +118,14 @@ export function ReservationSuccessModal({
               <p>
                 Titular: <strong>{data.bankTransfer.accountHolder}</strong>
               </p>
+              {data.bankTransfer.taxId && (
+                <p>
+                  RUT: <strong className="font-mono">{data.bankTransfer.taxId}</strong>
+                </p>
+              )}
+              <p>
+                Tipo: <strong>{data.bankTransfer.accountType}</strong>
+              </p>
               <p>
                 Cuenta: <strong className="font-mono">{data.bankTransfer.accountNumber}</strong>
               </p>

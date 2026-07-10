@@ -13,11 +13,13 @@ describe("bank-transfer config", () => {
     vi.stubEnv("BANK_NAME", "Banco Test");
     vi.stubEnv("BANK_ACCOUNT_HOLDER", "Hotel SA");
     vi.stubEnv("BANK_ACCOUNT_NUMBER", "123456");
+    vi.stubEnv("BANK_TAX_ID", "76.556.843-9");
     vi.stubEnv("BANK_ALIAS", "hotel.test");
 
     const config = getBankTransferConfig();
     expect(config?.enabled).toBe(true);
     expect(config?.bankName).toBe("Banco Test");
+    expect(config?.taxId).toBe("76.556.843-9");
     expect(config?.alias).toBe("hotel.test");
     expect(isBankTransferEnabled()).toBe(true);
   });

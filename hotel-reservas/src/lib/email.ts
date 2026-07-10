@@ -1,7 +1,18 @@
-import { ADKINIQ_NAME, ADKINIQ_URL } from "@/lib/adkiniq";
 import { getHotelName } from "@/lib/brand";
 import { hotelConfig } from "@/config/hotel";
 import type { BankTransferConfig } from "@/types/payments";
+import {
+  buildCtaButton,
+  buildEmailShell,
+  buildGuestIntro,
+  buildInfoBox,
+  buildReservationDetailsCard,
+  buildStatusBadge,
+  escapeHtml,
+  formatStayDate,
+  getReservationLinks,
+} from "@/lib/email-layout";
+
 export type ReservationEmailPayload = {
   to: string;
   guestName: string;
@@ -32,23 +43,13 @@ function formatMoney(amount: number): string {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency }).format(amount);
 }
 
-function buildDetailsList(payload: ReservationEmailPayload): string {
-  return [
-    `<li><strong>Código:</strong> ${payload.confirmationCode}</li>`,
-    `<li><strong>Habitación:</strong> ${payload.roomName}</li>`,
-    `<li><strong>Check-in:</strong> ${payload.checkIn}</li>`,
-    `<li><strong>Check-out:</strong> ${payload.checkOut}</li>`,
-    `<li><strong>Total:</strong> ${formatMoney(payload.totalAmount)}</li>`,
-  ].join("");
-}
-
-function buildDetailsText(payload: ReservationEmailPayload): string[] {
+function buildDetailsText(payload: ReservationEmailPayload, totalLabel = "Total"): string[] {
   return [
     `Código: ${payload.confirmationCode}`,
     `Habitación: ${payload.roomName}`,
-    `Check-in: ${payload.checkIn}`,
-    `Check-out: ${payload.checkOut}`,
-    `Total: ${formatMoney(payload.totalAmount)}`,
+    `Check-in: ${formatStayDate(payload.checkIn)}`,
+    `Check-out: ${formatStayDate(payload.checkOut)}`,
+    `${totalLabel}: ${formatMoney(payload.totalAmount)}`,
   ];
 }
 
@@ -81,36 +82,55 @@ async function sendMail(to: string, subject: string, text: string, html: string)
     bcc,
     subject: `[${getHotelName()}] ${subject}`,
     text,
-    html: wrapHtml(html, subject),
+    html,
   });
   return true;
 }
 
-function wrapHtml(body: string, title: string): string {
-  const hotel = getHotelName();
-  return `
-<!DOCTYPE html>
-<html lang="es">
-  <body style="margin:0;padding:0;background:#eef2f6;font-family:Arial,sans-serif;color:#1e293b;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:24px auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #cbd5e1;">
-      <tr>
-        <td style="background:linear-gradient(135deg,#0f766e,#059669);padding:20px 24px;color:#ffffff;">
-          <p style="margin:0;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;opacity:0.9;">${hotel}</p>
-          <h1 style="margin:8px 0 0;font-size:20px;line-height:1.3;">${title}</h1>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:24px;font-size:15px;line-height:1.6;">${body}</td>
-      </tr>
-      <tr>
-        <td style="padding:16px 24px;background:#f8fafc;font-size:12px;color:#64748b;line-height:1.5;">
-          Este correo fue enviado automáticamente por el sistema de reservas de ${hotel}.<br />
-          Plataforma desarrollada por <a href="${ADKINIQ_URL}" style="color:#64748b;text-decoration:underline;">${ADKINIQ_NAME}</a>.
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
+function buildReservationEmailHtml(
+  payload: ReservationEmailPayload,
+  options: {
+    title: string;
+    eyebrow: string;
+    intro: string;
+    badge: { label: string; tone: "pending" | "success" };
+    totalLabel?: string;
+    extraHtml?: string;
+    footerNote?: string;
+    showLookupCta?: boolean;
+  }
+): string {
+  const links = getReservationLinks(payload.confirmationCode);
+  const details = buildReservationDetailsCard({
+    confirmationCode: payload.confirmationCode,
+    roomName: payload.roomName,
+    checkIn: payload.checkIn,
+    checkOut: payload.checkOut,
+    totalAmount: formatMoney(payload.totalAmount),
+    totalLabel: options.totalLabel,
+  });
+
+  const ctas = [
+    options.showLookupCta === false ? "" : buildCtaButton(links.miReserva, "Consultar mi reserva"),
+    buildCtaButton(links.whatsapp, "Escribir por WhatsApp", false),
+  ].join("");
+
+  const body = `
+    ${buildGuestIntro(payload.guestName)}
+    <p style="margin:0 0 16px;">${options.intro}</p>
+    <p style="margin:0 0 8px;">${buildStatusBadge(options.badge.label, options.badge.tone)}</p>
+    ${details}
+    ${options.extraHtml ?? ""}
+    ${ctas}
+  `;
+
+  return buildEmailShell({
+    title: options.title,
+    eyebrow: options.eyebrow,
+    body,
+    variant: "guest",
+    footerNote: options.footerNote,
+  });
 }
 
 export async function sendReservationCreatedEmail(payload: ReservationEmailPayload): Promise<void> {
@@ -122,15 +142,17 @@ export async function sendReservationCreatedEmail(payload: ReservationEmailPaylo
     "",
     ...buildDetailsText(payload),
     "",
-    "Si tienes dudas, contáctanos por WhatsApp desde la web de reservas.",
+    `Consulta tu reserva en: ${getReservationLinks(payload.confirmationCode).miReserva}`,
   ].join("\n");
 
-  const html = `
-    <p>Hola <strong>${payload.guestName}</strong>,</p>
-    <p>Tu reserva fue registrada. <strong>Completa el pago</strong> para confirmar tu estadía.</p>
-    <ul style="padding-left:18px;">${buildDetailsList(payload)}</ul>
-    <p style="margin-top:16px;color:#64748b;font-size:14px;">Si tienes dudas, contáctanos por WhatsApp desde la web de reservas.</p>
-  `;
+  const html = buildReservationEmailHtml(payload, {
+    title: "Reserva registrada",
+    eyebrow: "Gracias por elegirnos",
+    intro:
+      "Recibimos tu solicitud de reserva. <strong>Completa el pago</strong> para confirmar tu estadía en nuestro hotel.",
+    badge: { label: "Pendiente de pago", tone: "pending" },
+    footerNote: "Si ya transferiste, envía el comprobante indicando tu código de reserva.",
+  });
 
   await sendMail(payload.to, subject, text, html);
 }
@@ -142,17 +164,20 @@ export async function sendReservationPaidEmail(payload: ReservationEmailPayload)
     "",
     "¡Tu pago fue confirmado! Tu estadía está reservada.",
     "",
-    ...buildDetailsText(payload).map((line) => line.replace("Total:", "Total pagado:")),
+    ...buildDetailsText(payload, "Total pagado"),
     "",
     "Te esperamos. Guarda este correo como comprobante.",
   ].join("\n");
 
-  const html = `
-    <p>Hola <strong>${payload.guestName}</strong>,</p>
-    <p><strong>¡Tu pago fue confirmado!</strong> Tu estadía está reservada.</p>
-    <ul style="padding-left:18px;">${buildDetailsList(payload)}</ul>
-    <p style="margin-top:16px;">Te esperamos. Guarda este correo como comprobante.</p>
-  `;
+  const html = buildReservationEmailHtml(payload, {
+    title: "¡Reserva confirmada!",
+    eyebrow: "Todo listo para tu llegada",
+    intro:
+      "<strong>¡Tu pago fue confirmado!</strong> Tu habitación quedó reservada. Te esperamos con la mejor hospitalidad del sur.",
+    badge: { label: "Pago confirmado", tone: "success" },
+    totalLabel: "Total pagado",
+    footerNote: `Recuerda: check-in desde las ${hotelConfig.seo.checkinTime} y check-out hasta las ${hotelConfig.seo.checkoutTime}.`,
+  });
 
   await sendMail(payload.to, subject, text, html);
 }
@@ -162,13 +187,14 @@ export async function sendBankTransferInstructionsEmail(
   bank: BankTransferConfig
 ): Promise<void> {
   const subject = `Instrucciones de transferencia · ${payload.confirmationCode}`;
-  const contact = bank.contactEmail ?? "recepción del hotel";
+  const contact = bank.contactEmail ?? hotelConfig.contact.email;
 
   const bankLines = [
     `Banco: ${bank.bankName}`,
     `Titular: ${bank.accountHolder}`,
-    `Cuenta: ${bank.accountNumber}`,
+    bank.taxId ? `RUT: ${bank.taxId}` : null,
     bank.accountType ? `Tipo: ${bank.accountType}` : null,
+    `Cuenta: ${bank.accountNumber}`,
     bank.cbu ? `CBU/CVU: ${bank.cbu}` : null,
     bank.alias ? `Alias: ${bank.alias}` : null,
     bank.swift ? `SWIFT: ${bank.swift}` : null,
@@ -191,16 +217,23 @@ export async function sendBankTransferInstructionsEmail(
     `Envía el comprobante a ${contact} indicando tu código ${payload.confirmationCode}.`,
   ].join("\n");
 
-  const bankHtml = bankLines.map((line) => `<li>${line}</li>`).join("");
+  const bankBox = buildInfoBox("Datos para transferir", bankLines, "success");
+  const contactBox = buildInfoBox("Después de transferir", [
+    `Envía el comprobante a ${contact}`,
+    `Indica tu código ${payload.confirmationCode}`,
+    `Tienes ${bank.deadlineHours} horas para completar el pago`,
+  ]);
 
-  const html = `
-    <p>Hola <strong>${payload.guestName}</strong>,</p>
-    <p>Tu reserva está <strong>pendiente de pago por transferencia bancaria</strong>.</p>
-    <ul style="padding-left:18px;">${buildDetailsList(payload)}</ul>
-    <h2 style="margin:20px 0 8px;font-size:16px;color:#0f766e;">Datos para transferir</h2>
-    <ul style="padding-left:18px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px 16px 16px 32px;">${bankHtml}</ul>
-    <p style="margin-top:16px;">Envía el comprobante a <strong>${contact}</strong> con tu código <strong>${payload.confirmationCode}</strong>.</p>
-  `;
+  const html = buildReservationEmailHtml(payload, {
+    title: "Instrucciones de transferencia",
+    eyebrow: "Un paso más para confirmar",
+    intro:
+      "Tu reserva está registrada y queda <strong>pendiente de pago por transferencia bancaria</strong>. Usa los datos a continuación.",
+    badge: { label: "Transferencia pendiente", tone: "pending" },
+    extraHtml: `${bankBox}${contactBox}`,
+    footerNote: "Si necesitas ayuda, responde este correo o escríbenos por WhatsApp.",
+    showLookupCta: true,
+  });
 
   await sendMail(payload.to, subject, text, html);
 }
@@ -235,32 +268,6 @@ export function buildContactMailSubject(payload: ContactEmailPayload): string {
   return `[URGENTE] Contacto · ${subjectLabel} · ${name} · ${stamp}`;
 }
 
-function wrapContactHtml(body: string, title: string): string {
-  const hotel = getHotelName();
-  return `
-<!DOCTYPE html>
-<html lang="es">
-  <body style="margin:0;padding:0;background:#eef2f6;font-family:Arial,sans-serif;color:#1e293b;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:24px auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #fecaca;">
-      <tr>
-        <td style="background:linear-gradient(135deg,#b91c1c,#dc2626);padding:20px 24px;color:#ffffff;">
-          <p style="margin:0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;opacity:0.95;">⚠ Nuevo contacto web · ${hotel}</p>
-          <h1 style="margin:8px 0 0;font-size:20px;line-height:1.3;">${title}</h1>
-        </td>
-      </tr>
-      <tr>
-        <td style="padding:24px;font-size:15px;line-height:1.6;">${body}</td>
-      </tr>
-      <tr>
-        <td style="padding:16px 24px;background:#fef2f2;font-size:12px;color:#991b1b;line-height:1.5;">
-          Prioridad alta — responde pronto. Este correo fue enviado desde el formulario de contacto de ${hotel}.
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`;
-}
-
 function getContactInboxEmail(): string {
   return (
     process.env.CONTACT_INBOX_EMAIL?.trim() ||
@@ -289,18 +296,42 @@ export async function sendContactEmail(payload: ContactEmailPayload): Promise<bo
     .filter(Boolean)
     .join("\n");
 
-  const html = `
-    <p>Recibiste un nuevo mensaje desde la web de <strong>${getHotelName()}</strong>.</p>
-    <ul style="padding-left:18px;">
-      <li><strong>Nombre:</strong> ${payload.name}</li>
-      <li><strong>Email:</strong> <a href="mailto:${payload.email}">${payload.email}</a></li>
-      ${payload.phone ? `<li><strong>Teléfono:</strong> ${payload.phone}</li>` : ""}
-      <li><strong>Asunto:</strong> ${subjectLabel}</li>
-    </ul>
-    <p style="margin:16px 0 8px;font-weight:700;">Mensaje</p>
-    <p style="white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;">${payload.message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
-    <p style="margin-top:16px;color:#64748b;font-size:14px;">Podés responder directamente a ${payload.email}.</p>
+  const contactDetails = buildInfoBox(
+    "Datos del contacto",
+    [
+      `Nombre: ${payload.name}`,
+      `Email: ${payload.email}`,
+      ...(payload.phone ? [`Teléfono: ${payload.phone}`] : []),
+      `Motivo: ${subjectLabel}`,
+    ],
+    "urgent"
+  );
+
+  const messageBox = `
+    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:16px 0 8px;background:#ffffff;border:1px solid #f0caca;border-radius:16px;">
+      <tr>
+        <td style="padding:16px 18px;">
+          <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#9f2d2d;">Mensaje</p>
+          <p style="margin:0;white-space:pre-wrap;font-size:14px;line-height:1.65;color:#4a3428;">${escapeHtml(payload.message)}</p>
+        </td>
+      </tr>
+    </table>`;
+
+  const body = `
+    <p style="margin:0 0 14px;font-size:16px;">Recibiste un nuevo mensaje desde la web de <strong>${escapeHtml(getHotelName())}</strong>.</p>
+    <p style="margin:0 0 12px;">${buildStatusBadge("Prioridad alta", "urgent")}</p>
+    ${contactDetails}
+    ${messageBox}
+    ${buildCtaButton(`mailto:${payload.email}`, `Responder a ${payload.name}`)}
   `;
+
+  const html = buildEmailShell({
+    title: subjectLabel,
+    eyebrow: "⚠ Nuevo contacto web",
+    body,
+    variant: "contact",
+    footerNote: `Podés responder directamente a ${payload.email}.`,
+  });
 
   if (!isEmailConfigured()) {
     if (process.env.NODE_ENV !== "production") {
@@ -332,7 +363,7 @@ export async function sendContactEmail(payload: ContactEmailPayload): Promise<bo
     priority: "high",
     subject: `[${getHotelName()}] ${subject}`,
     text,
-    html: wrapContactHtml(html, subject),
+    html,
     headers: {
       "X-Priority": "1",
       "X-MSMail-Priority": "High",

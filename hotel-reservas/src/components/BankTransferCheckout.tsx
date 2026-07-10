@@ -69,6 +69,7 @@ export function BankTransferCheckout({
       <div className="overflow-hidden rounded-xl border border-brand-700 bg-brand-800 divide-y divide-brand-700/60">
         <CopyRow label="Banco" value={config.bankName} />
         <CopyRow label="Titular" value={config.accountHolder} />
+        {config.taxId && <CopyRow label="RUT" value={config.taxId} />}
         <CopyRow label="Tipo de cuenta" value={config.accountType} />
         <CopyRow label="Número de cuenta" value={config.accountNumber} />
         {config.cbu && <CopyRow label="CBU / CVU" value={config.cbu} />}

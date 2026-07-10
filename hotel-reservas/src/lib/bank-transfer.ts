@@ -29,6 +29,7 @@ export function getBankTransferConfig(): BankTransferConfig | null {
     accountHolder,
     accountNumber,
     accountType: process.env.BANK_ACCOUNT_TYPE?.trim() || "Cuenta corriente",
+    taxId: process.env.BANK_TAX_ID?.trim() || undefined,
     cbu: process.env.BANK_CBU?.trim() || undefined,
     alias: process.env.BANK_ALIAS?.trim() || undefined,
     swift: process.env.BANK_SWIFT?.trim() || undefined,
