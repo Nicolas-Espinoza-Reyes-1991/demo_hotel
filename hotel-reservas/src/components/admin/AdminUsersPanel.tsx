@@ -1,16 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { apiPath } from "@/lib/api-path";
 import { cn } from "@/lib/utils";
+import { useTableSort } from "@/hooks/useTableSort";
 import type { PublicStaffUser, StaffRoleCode } from "@/types/staff";
 import { ADMIN_MODULE_HELP, ADMIN_USERS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import { SortableTh } from "@/components/admin/SortableTableHeader";
 import { AdminMobileSheet } from "@/components/admin/mobile/AdminMobileSheet";
 import { PasswordFields, isPasswordFormValid } from "@/components/admin/PasswordFields";
 import { AdminMobileFab } from "@/components/admin/mobile/AdminMobileFab";
 
 type FormMode = "create" | "edit" | "password" | null;
+type UserSortKey = "username" | "fullName" | "role" | "active" | "lastLoginAt";
 
 const ROLE_LABEL: Record<StaffRoleCode, string> = {
   ADMIN: "Administrador",
@@ -43,6 +46,33 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
   const [active, setActive] = useState(true);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const {
+    sortKey: userSortKey,
+    sortDirection: userSortDirection,
+    toggleSort: toggleUserSort,
+    sortRows: sortUserRows,
+  } = useTableSort<UserSortKey>("username", "asc");
+
+  const sortedUsers = useMemo(
+    () =>
+      sortUserRows(users, (user, key) => {
+        switch (key) {
+          case "username":
+            return user.username;
+          case "fullName":
+            return user.fullName;
+          case "role":
+            return user.role;
+          case "active":
+            return user.active;
+          case "lastLoginAt":
+            return user.lastLoginAt ?? "";
+          default:
+            return "";
+        }
+      }),
+    [users, sortUserRows]
+  );
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
@@ -249,16 +279,51 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
             <table className="min-w-full divide-y divide-brand-700/60 text-left text-sm">
               <thead className="bg-brand-800/70 text-xs uppercase tracking-wider text-brand-500">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Usuario</th>
-                  <th className="px-4 py-3 font-semibold">Nombre</th>
-                  <th className="px-4 py-3 font-semibold">Rol</th>
-                  <th className="px-4 py-3 font-semibold">Estado</th>
-                  <th className="px-4 py-3 font-semibold">Último acceso</th>
+                  <SortableTh
+                    label="Usuario"
+                    columnKey="username"
+                    sortKey={userSortKey}
+                    sortDirection={userSortDirection}
+                    onSort={toggleUserSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Nombre"
+                    columnKey="fullName"
+                    sortKey={userSortKey}
+                    sortDirection={userSortDirection}
+                    onSort={toggleUserSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Rol"
+                    columnKey="role"
+                    sortKey={userSortKey}
+                    sortDirection={userSortDirection}
+                    onSort={toggleUserSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Estado"
+                    columnKey="active"
+                    sortKey={userSortKey}
+                    sortDirection={userSortDirection}
+                    onSort={toggleUserSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Último acceso"
+                    columnKey="lastLoginAt"
+                    sortKey={userSortKey}
+                    sortDirection={userSortDirection}
+                    onSort={toggleUserSort}
+                    className="px-4 py-3"
+                  />
                   <th className="px-4 py-3 font-semibold text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-700/50 bg-white/40">
-                {users.map((user) => (
+                {sortedUsers.map((user) => (
                   <tr key={user.id} className="align-middle">
                     <td className="px-4 py-3 font-semibold text-brand-100">{user.username}</td>
                     <td className="px-4 py-3 text-brand-500">{user.fullName || "—"}</td>

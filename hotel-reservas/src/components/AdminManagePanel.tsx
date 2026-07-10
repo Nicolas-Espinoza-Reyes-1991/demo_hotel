@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { ReservationDiscountEditor } from "@/components/admin/ReservationDiscountEditor";
+import { SortableTh } from "@/components/admin/SortableTableHeader";
 import {
   AdminBlocksMobileList,
   AdminReservationManageSheet,
@@ -20,6 +21,11 @@ import { formatCurrency, getDisplayCurrency } from "@/lib/dates";
 import { paymentStatusLabel, type ReservationScope } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
 import { apiPath, publicAssetUrl } from "@/lib/api-path";
+import { useTableSort } from "@/hooks/useTableSort";
+
+type ReservationSortKey = "code" | "guest" | "room" | "checkIn" | "updatedAt" | "total" | "payment" | "status";
+type RoomSortKey = "code" | "name" | "type" | "price" | "capacity" | "floor" | "status";
+type BlockSortKey = "room" | "startDate" | "endDate" | "reason";
 
 type ReservationRow = {
   id: string;
@@ -111,6 +117,39 @@ export function AdminReservationsPanel() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [managingReservationId, setManagingReservationId] = useState<string | null>(null);
   const [message, setMessage] = useState<PanelMessage | null>(null);
+  const {
+    sortKey: reservationSortKey,
+    sortDirection: reservationSortDirection,
+    toggleSort: toggleReservationSort,
+    sortRows: sortReservationRows,
+  } = useTableSort<ReservationSortKey>("checkIn", "asc");
+
+  const sortedRows = useMemo(
+    () =>
+      sortReservationRows(rows, (row, key) => {
+        switch (key) {
+          case "code":
+            return row.confirmationCode;
+          case "guest":
+            return row.guestFullName ?? row.guest.fullName;
+          case "room":
+            return row.room.code;
+          case "checkIn":
+            return row.checkIn;
+          case "updatedAt":
+            return row.updatedAt ?? "";
+          case "total":
+            return row.totalAmount;
+          case "payment":
+            return row.paymentStatus;
+          case "status":
+            return row.status;
+          default:
+            return "";
+        }
+      }),
+    [rows, sortReservationRows]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -328,19 +367,77 @@ export function AdminReservationsPanel() {
           </colgroup>
           <thead className="admin-table-head text-[11px] uppercase tracking-wide text-brand-500 sm:text-xs">
             <tr>
-              <th className="py-3">Código</th>
-              <th className="py-3">Huésped</th>
+              <SortableTh
+                label="Código"
+                columnKey="code"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
+              <SortableTh
+                label="Huésped"
+                columnKey="guest"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
               <th className="py-3">Contacto</th>
-              <th className="py-3">Hab.</th>
-              <th className="py-3">Fechas</th>
-              {scope === "history" && <th className="py-3">Actualización</th>}
-              <th className="py-3">Total</th>
-              <th className="py-3">Pago</th>
-              <th className="py-3">Estado</th>
+              <SortableTh
+                label="Hab."
+                columnKey="room"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
+              <SortableTh
+                label="Fechas"
+                columnKey="checkIn"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
+              {scope === "history" && (
+                <SortableTh
+                  label="Actualización"
+                  columnKey="updatedAt"
+                  sortKey={reservationSortKey}
+                  sortDirection={reservationSortDirection}
+                  onSort={toggleReservationSort}
+                  className="py-3"
+                />
+              )}
+              <SortableTh
+                label="Total"
+                columnKey="total"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
+              <SortableTh
+                label="Pago"
+                columnKey="payment"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
+              <SortableTh
+                label="Estado"
+                columnKey="status"
+                sortKey={reservationSortKey}
+                sortDirection={reservationSortDirection}
+                onSort={toggleReservationSort}
+                className="py-3"
+              />
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 ? (
+            {sortedRows.length === 0 ? (
               <tr>
                 <td colSpan={scope === "history" ? 9 : 8} className="px-4 py-8 text-center text-brand-500">
                   {scope === "history"
@@ -349,7 +446,7 @@ export function AdminReservationsPanel() {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              sortedRows.map((row) => (
                 <tr
                   key={row.id}
                   className={cn(
@@ -693,6 +790,37 @@ export function AdminRoomsPanel() {
   const [form, setForm] = useState<RoomFormState>(EMPTY_ROOM_FORM);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState<string | null>(null);
+  const {
+    sortKey: roomSortKey,
+    sortDirection: roomSortDirection,
+    toggleSort: toggleRoomSort,
+    sortRows: sortRoomRows,
+  } = useTableSort<RoomSortKey>("code", "asc");
+
+  const sortedRooms = useMemo(
+    () =>
+      sortRoomRows(rooms, (room, key) => {
+        switch (key) {
+          case "code":
+            return room.code;
+          case "name":
+            return room.name;
+          case "type":
+            return room.type;
+          case "price":
+            return room.pricePerNight;
+          case "capacity":
+            return room.maxGuests;
+          case "floor":
+            return room.floor ?? -1;
+          case "status":
+            return room.status;
+          default:
+            return "";
+        }
+      }),
+    [rooms, sortRoomRows]
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1336,18 +1464,67 @@ export function AdminRoomsPanel() {
             <table className="admin-table w-full text-left text-sm">
               <thead className="admin-table-head text-xs uppercase tracking-wide text-brand-500">
                 <tr>
-                  <th className="px-4 py-3 font-semibold">Código</th>
-                  <th className="px-4 py-3 font-semibold">Nombre</th>
-                  <th className="px-4 py-3 font-semibold">Tipo</th>
-                  <th className="px-4 py-3 font-semibold">Precio</th>
-                  <th className="px-4 py-3 font-semibold">Cap.</th>
-                  <th className="px-4 py-3 font-semibold">Piso</th>
-                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  <SortableTh
+                    label="Código"
+                    columnKey="code"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Nombre"
+                    columnKey="name"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Tipo"
+                    columnKey="type"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Precio"
+                    columnKey="price"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Cap."
+                    columnKey="capacity"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Piso"
+                    columnKey="floor"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
+                  <SortableTh
+                    label="Estado"
+                    columnKey="status"
+                    sortKey={roomSortKey}
+                    sortDirection={roomSortDirection}
+                    onSort={toggleRoomSort}
+                    className="px-4 py-3"
+                  />
                   <th className="px-4 py-3 font-semibold">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {rooms.map((room) => (
+                {sortedRooms.map((room) => (
                   <tr
                     key={room.id}
                     className={cn(
@@ -1452,6 +1629,31 @@ export function AdminRoomBlocksPanel() {
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const {
+    sortKey: blockSortKey,
+    sortDirection: blockSortDirection,
+    toggleSort: toggleBlockSort,
+    sortRows: sortBlockRows,
+  } = useTableSort<BlockSortKey>("startDate", "asc");
+
+  const sortedBlocks = useMemo(
+    () =>
+      sortBlockRows(blocks, (block, key) => {
+        switch (key) {
+          case "room":
+            return block.roomCode;
+          case "startDate":
+            return block.startDate;
+          case "endDate":
+            return block.endDate;
+          case "reason":
+            return block.reason ?? "";
+          default:
+            return "";
+        }
+      }),
+    [blocks, sortBlockRows]
+  );
 
   const selectedRoom = rooms.find((room) => room.id === roomId);
 
@@ -1706,22 +1908,50 @@ export function AdminRoomBlocksPanel() {
         <table className="min-w-[720px] w-full text-left text-sm">
           <thead className="admin-table-head text-xs uppercase text-brand-500">
             <tr>
-              <th className="px-4 py-3">Habitación</th>
-              <th className="px-4 py-3">Desde</th>
-              <th className="px-4 py-3">Hasta</th>
-              <th className="px-4 py-3">Motivo</th>
+              <SortableTh
+                label="Habitación"
+                columnKey="room"
+                sortKey={blockSortKey}
+                sortDirection={blockSortDirection}
+                onSort={toggleBlockSort}
+                className="px-4 py-3"
+              />
+              <SortableTh
+                label="Desde"
+                columnKey="startDate"
+                sortKey={blockSortKey}
+                sortDirection={blockSortDirection}
+                onSort={toggleBlockSort}
+                className="px-4 py-3"
+              />
+              <SortableTh
+                label="Hasta"
+                columnKey="endDate"
+                sortKey={blockSortKey}
+                sortDirection={blockSortDirection}
+                onSort={toggleBlockSort}
+                className="px-4 py-3"
+              />
+              <SortableTh
+                label="Motivo"
+                columnKey="reason"
+                sortKey={blockSortKey}
+                sortDirection={blockSortDirection}
+                onSort={toggleBlockSort}
+                className="px-4 py-3"
+              />
               <th className="px-4 py-3">Acción</th>
             </tr>
           </thead>
           <tbody>
-            {blocks.length === 0 ? (
+            {sortedBlocks.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-brand-500">
                   No hay bloqueos programados.
                 </td>
               </tr>
             ) : (
-              blocks.map((block) => (
+              sortedBlocks.map((block) => (
                 <tr key={block.id} className="admin-table-row">
                   <td className="px-4 py-3 text-brand-100">
                     {block.roomCode}

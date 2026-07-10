@@ -8,10 +8,12 @@ import { AdminMobileLegend } from "@/components/admin/mobile/AdminMobileLegend";
 import { AdminWeekStrip, dayKey } from "@/components/admin/mobile/AdminWeekStrip";
 import { ADMIN_CALENDAR_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import { SortableTh } from "@/components/admin/SortableTableHeader";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { InfoTooltip } from "@/components/InfoTooltip";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useTableSort } from "@/hooks/useTableSort";
 import { paymentStatusLabel } from "@/lib/reservation-history";
 import { cn } from "@/lib/utils";
 import { apiPath } from "@/lib/api-path";
@@ -53,7 +55,9 @@ type CalendarData = {
 
 type VisibleDay = { year: number; month: number; day: number };
 type ViewMode = "month" | "week";
+type PanelView = "calendar" | "list";
 type PaymentFilter = "active" | "paid" | "pending" | "history" | "all";
+type PeriodSortKey = "guest" | "room" | "checkIn" | "payment" | "code";
 
 const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
 
@@ -713,12 +717,49 @@ function ReservationBar({
   );
 }
 
+function CalendarDepthTabs({
+  panelView,
+  onSelect,
+}: {
+  panelView: PanelView;
+  onSelect: (view: PanelView) => void;
+}) {
+  const items: { id: PanelView; label: string }[] = [
+    { id: "calendar", label: "Calendario" },
+    { id: "list", label: "Lista" },
+  ];
+
+  return (
+    <div className="calendar-depth-tabs" role="tablist" aria-label="Vista del calendario">
+      {items.map((item) => {
+        const active = panelView === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onSelect(item.id)}
+            className={cn(
+              "calendar-depth-tab",
+              active ? "calendar-depth-tab--front" : "calendar-depth-tab--back"
+            )}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AdminCalendar() {
   const now = new Date();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [viewMode, setViewMode] = useState<ViewMode>("month");
+  const [panelView, setPanelView] = useState<PanelView>("calendar");
   const [weekAnchor, setWeekAnchor] = useState(now);
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("active");
   const [pinnedReservationId, setPinnedReservationId] = useState<string | null>(null);
@@ -728,6 +769,12 @@ export function AdminCalendar() {
   const [data, setData] = useState<CalendarData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const {
+    sortKey: periodSortKey,
+    sortDirection: periodSortDirection,
+    toggleSort: togglePeriodSort,
+    sortRows: sortPeriodRows,
+  } = useTableSort<PeriodSortKey>("checkIn", "asc");
 
   const todayYear = now.getFullYear();
   const todayMonth = now.getMonth() + 1;
@@ -834,19 +881,17 @@ export function AdminCalendar() {
 
   const periodReservations = useMemo(() => {
     const q = periodSearch.trim().toLowerCase();
-    let sorted = visibleReservations
-      .slice()
-      .sort((a, b) => a.checkIn.localeCompare(b.checkIn));
+    let filtered = visibleReservations.slice();
 
     if (selectedDayKey) {
       const [y, m, d] = selectedDayKey.split("-").map(Number);
       const filterDay: VisibleDay = { year: y, month: m, day: d };
-      sorted = sorted.filter((reservation) => reservationOverlapsDay(reservation, filterDay));
+      filtered = filtered.filter((reservation) => reservationOverlapsDay(reservation, filterDay));
     }
 
-    if (!q) return sorted;
+    if (!q) return filtered;
 
-    return sorted.filter((reservation) => {
+    return filtered.filter((reservation) => {
       const roomCode = (roomCodeById.get(reservation.roomId) ?? "").toLowerCase();
       return (
         reservation.guestName.toLowerCase().includes(q) ||
@@ -862,6 +907,27 @@ export function AdminCalendar() {
       );
     });
   }, [visibleReservations, periodSearch, roomCodeById, selectedDayKey]);
+
+  const sortedPeriodReservations = useMemo(
+    () =>
+      sortPeriodRows(periodReservations, (reservation, key) => {
+        switch (key) {
+          case "guest":
+            return reservation.guestName;
+          case "room":
+            return roomCodeById.get(reservation.roomId) ?? "";
+          case "checkIn":
+            return reservation.checkIn;
+          case "payment":
+            return reservation.paymentStatus;
+          case "code":
+            return reservation.confirmationCode;
+          default:
+            return "";
+        }
+      }),
+    [periodReservations, sortPeriodRows, roomCodeById]
+  );
 
   const mobileWeekDays = useMemo(() => {
     if (visibleDays.length === 7) return visibleDays;
@@ -899,17 +965,17 @@ export function AdminCalendar() {
     );
   }, [mobileWeekDays, todayYear, todayMonth, todayDay]);
 
-  const periodTotalPages = Math.max(1, Math.ceil(periodReservations.length / PERIOD_LIST_PAGE_SIZE));
+  const periodTotalPages = Math.max(1, Math.ceil(sortedPeriodReservations.length / PERIOD_LIST_PAGE_SIZE));
 
   const periodPageRows = useMemo(() => {
     const safePage = Math.min(Math.max(1, periodPage), periodTotalPages);
     const start = (safePage - 1) * PERIOD_LIST_PAGE_SIZE;
-    return periodReservations.slice(start, start + PERIOD_LIST_PAGE_SIZE);
-  }, [periodReservations, periodPage, periodTotalPages]);
+    return sortedPeriodReservations.slice(start, start + PERIOD_LIST_PAGE_SIZE);
+  }, [sortedPeriodReservations, periodPage, periodTotalPages]);
 
   useEffect(() => {
     setPeriodPage(1);
-  }, [periodSearch, year, month, viewMode, weekAnchor, paymentFilter, selectedDayKey]);
+  }, [periodSearch, year, month, viewMode, weekAnchor, paymentFilter, selectedDayKey, periodSortKey, periodSortDirection]);
 
   useEffect(() => {
     if (periodPage > periodTotalPages) {
@@ -1036,66 +1102,81 @@ export function AdminCalendar() {
   return (
     <div className="space-y-3" onClick={() => setPinnedReservationId(null)}>
       <div className="glass-panel overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-brand-700/50 px-3 py-3 sm:px-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">
-              {viewMode === "month" ? "Calendario mensual" : "Calendario semanal"}
-            </p>
-            <AdminHintLabel
-              as="h2"
-              hint={ADMIN_CALENDAR_HELP.section}
-              className="hidden text-xl font-bold capitalize text-brand-100 sm:text-2xl md:block"
-            >
-              {periodLabel}
-            </AdminHintLabel>
-            <p className="text-sm font-semibold text-brand-500 md:hidden">Usá los controles de abajo para cambiar de semana</p>
+        <div className="flex flex-col gap-3 border-b border-brand-700/50 px-3 pb-3 pt-2 sm:px-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 space-y-2">
+            <CalendarDepthTabs panelView={panelView} onSelect={setPanelView} />
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold">
+                {panelView === "list"
+                  ? "Lista del período"
+                  : viewMode === "month"
+                    ? "Calendario mensual"
+                    : "Calendario semanal"}
+              </p>
+              <AdminHintLabel
+                as="h2"
+                hint={ADMIN_CALENDAR_HELP.section}
+                className="hidden text-xl font-bold capitalize text-brand-100 sm:text-2xl md:block"
+              >
+                {periodLabel}
+              </AdminHintLabel>
+              <p className="text-sm font-semibold text-brand-500 md:hidden">
+                {panelView === "calendar"
+                  ? "Usá los controles de abajo para cambiar de semana"
+                  : "Buscá huéspedes, códigos o habitaciones del período"}
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
-              {!isMobile && (
-                <button
-                  type="button"
-                  onClick={() => setViewMode("month")}
-                  className={cn(
-                    "min-h-9 px-3 text-xs font-semibold transition",
-                    viewMode === "month" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
+          <div className="flex flex-wrap items-center gap-2 lg:pb-0.5">
+            {panelView === "calendar" && (
+              <>
+                <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
+                  {!isMobile && (
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("month")}
+                      className={cn(
+                        "min-h-9 px-3 text-xs font-semibold transition",
+                        viewMode === "month" ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
+                      )}
+                    >
+                      Mes
+                    </button>
                   )}
-                >
-                  Mes
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setViewMode("week")}
-                className={cn(
-                  "min-h-9 px-3 text-xs font-semibold transition",
-                  !isMobile && "border-l border-brand-700",
-                  viewMode === "week" || isMobile ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
-                )}
-              >
-                Semana
-              </button>
-            </div>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("week")}
+                    className={cn(
+                      "min-h-9 px-3 text-xs font-semibold transition",
+                      !isMobile && "border-l border-brand-700",
+                      viewMode === "week" || isMobile ? "bg-amber-200/60 text-amber-950" : "bg-brand-800 text-brand-500 hover:bg-brand-700"
+                    )}
+                  >
+                    Semana
+                  </button>
+                </div>
 
-            <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
-              <button
-                type="button"
-                onClick={() => (viewMode === "week" ? shiftWeek(-1) : shiftMonth(-1))}
-                className="min-h-9 border-r border-brand-700 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
-                aria-label={viewMode === "week" ? "Semana anterior" : "Mes anterior"}
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => (viewMode === "week" ? shiftWeek(1) : shiftMonth(1))}
-                className="min-h-9 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
-                aria-label={viewMode === "week" ? "Semana siguiente" : "Mes siguiente"}
-              >
-                ›
-              </button>
-            </div>
+                <div className="hidden overflow-hidden rounded-lg border border-brand-700 md:flex">
+                  <button
+                    type="button"
+                    onClick={() => (viewMode === "week" ? shiftWeek(-1) : shiftMonth(-1))}
+                    className="min-h-9 border-r border-brand-700 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
+                    aria-label={viewMode === "week" ? "Semana anterior" : "Mes anterior"}
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => (viewMode === "week" ? shiftWeek(1) : shiftMonth(1))}
+                    className="min-h-9 bg-brand-800 px-2.5 text-sm font-semibold text-brand-100 transition hover:bg-brand-700"
+                    aria-label={viewMode === "week" ? "Semana siguiente" : "Mes siguiente"}
+                  >
+                    ›
+                  </button>
+                </div>
+              </>
+            )}
 
             <button type="button" onClick={goToToday} className="btn-secondary min-h-9 px-3 text-xs">
               Hoy
@@ -1195,8 +1276,11 @@ export function AdminCalendar() {
           </div>
         </div>
 
-        <AdminMobileLegend helpText={ADMIN_CALENDAR_HELP.legend} />
+        {panelView === "calendar" && (
+          <AdminMobileLegend helpText={ADMIN_CALENDAR_HELP.legend} />
+        )}
 
+        {panelView === "calendar" && (
         <div className="hidden flex-wrap items-center gap-x-3 gap-y-1 border-t border-brand-700/40 bg-brand-800/25 px-3 py-1.5 text-[10px] text-brand-500 sm:px-4 md:flex">
           <span className="inline-flex items-center gap-1 font-semibold text-brand-100">
             Leyenda
@@ -1229,8 +1313,10 @@ export function AdminCalendar() {
             </span>
           )}
         </div>
+        )}
       </div>
 
+      {panelView === "calendar" && (
       <div className="space-y-3 md:hidden">
         <AdminWeekStrip
           days={mobileWeekDays}
@@ -1246,7 +1332,11 @@ export function AdminCalendar() {
           onNextWeek={() => shiftWeek(1)}
           onGoToday={goToToday}
         />
+      </div>
+      )}
 
+      {panelView === "list" && (
+      <div className="space-y-3 md:hidden">
         <div className="rounded-2xl border border-brand-700 bg-white/72 p-4 shadow-sm">
           <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-brand-500">
             Agenda del período
@@ -1285,7 +1375,9 @@ export function AdminCalendar() {
           />
         )}
       </div>
+      )}
 
+      {panelView === "calendar" && (
       <div
         ref={containerRef}
         className="hidden w-full overflow-visible rounded-2xl border border-brand-700 bg-white/72 shadow-md backdrop-blur-[1px] md:block"
@@ -1410,7 +1502,9 @@ export function AdminCalendar() {
           )}
         </div>
       </div>
+      )}
 
+      {panelView === "list" && (
       <div className="glass-panel hidden overflow-hidden md:block">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-700 px-3 py-2.5 sm:px-4">
           <AdminHintLabel as="h3" hint={ADMIN_CALENDAR_HELP.periodList} className="text-sm font-bold text-brand-100">
@@ -1440,12 +1534,47 @@ export function AdminCalendar() {
               <table className="min-w-full text-left text-sm">
                 <thead className="bg-brand-800 text-xs uppercase tracking-wide text-brand-500">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">Huésped</th>
+                    <SortableTh
+                      label="Huésped"
+                      columnKey="guest"
+                      sortKey={periodSortKey}
+                      sortDirection={periodSortDirection}
+                      onSort={togglePeriodSort}
+                      className="px-4 py-3"
+                    />
                     <th className="px-4 py-3 font-semibold">Contacto</th>
-                    <th className="px-4 py-3 font-semibold">Habitación</th>
-                    <th className="px-4 py-3 font-semibold">Fechas</th>
-                    <th className="px-4 py-3 font-semibold">Estado</th>
-                    <th className="px-4 py-3 font-semibold">Código</th>
+                    <SortableTh
+                      label="Habitación"
+                      columnKey="room"
+                      sortKey={periodSortKey}
+                      sortDirection={periodSortDirection}
+                      onSort={togglePeriodSort}
+                      className="px-4 py-3"
+                    />
+                    <SortableTh
+                      label="Fechas"
+                      columnKey="checkIn"
+                      sortKey={periodSortKey}
+                      sortDirection={periodSortDirection}
+                      onSort={togglePeriodSort}
+                      className="px-4 py-3"
+                    />
+                    <SortableTh
+                      label="Estado"
+                      columnKey="payment"
+                      sortKey={periodSortKey}
+                      sortDirection={periodSortDirection}
+                      onSort={togglePeriodSort}
+                      className="px-4 py-3"
+                    />
+                    <SortableTh
+                      label="Código"
+                      columnKey="code"
+                      sortKey={periodSortKey}
+                      sortDirection={periodSortDirection}
+                      onSort={togglePeriodSort}
+                      className="px-4 py-3"
+                    />
                   </tr>
                 </thead>
                 <tbody>
@@ -1510,6 +1639,7 @@ export function AdminCalendar() {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }
