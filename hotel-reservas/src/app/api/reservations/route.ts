@@ -14,6 +14,7 @@ import {
   findActiveGuestHold,
 } from "@/lib/reservation-holds";
 import { reservationScopeWhere } from "@/lib/reservation-history";
+import { serializeReservationMoney } from "@/lib/reservation-discount";
 import { createReservationSchema } from "@/lib/validations";
 
 const reservationQuerySchema = z
@@ -105,8 +106,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.max(1, Math.ceil(total / pageSize)),
       reservations: reservations.map((r) => ({
         ...r,
-        pricePerNight: Number(r.pricePerNight),
-        totalAmount: Number(r.totalAmount),
+        ...serializeReservationMoney(r),
       })),
     });
   } catch (error) {
@@ -228,6 +228,7 @@ export async function POST(request: NextRequest) {
             nights: availability.nights,
             guestsCount,
             pricePerNight: room.pricePerNight,
+            listTotalAmount: availability.totalAmount,
             totalAmount: availability.totalAmount,
             paymentStatus: PaymentStatus.PENDING,
             status: ReservationStatus.CONFIRMED,
@@ -262,8 +263,7 @@ export async function POST(request: NextRequest) {
         resumed,
         reservation: {
           ...reservation,
-          pricePerNight: Number(reservation.pricePerNight),
-          totalAmount: Number(reservation.totalAmount),
+          ...serializeReservationMoney(reservation),
         },
       },
       resumed ? 200 : 201

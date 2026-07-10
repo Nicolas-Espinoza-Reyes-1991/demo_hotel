@@ -142,4 +142,4 @@ datasource db {
 
 ---
 
-Desarrollado como base production-ready para Adkin IQ demos.
+Desarrollado como base production-ready para AdkinIQ demos.

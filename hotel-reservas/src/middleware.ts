@@ -8,6 +8,8 @@ function requiresAuth(pathname: string, method: string): boolean {
   if (pathname === "/api/room-blocks" || pathname.startsWith("/api/room-blocks/")) return true;
   if (pathname === "/api/rooms" || pathname.startsWith("/api/rooms/")) return true;
   if (pathname === "/api/uploads/rooms" || pathname.startsWith("/api/uploads/")) return true;
+  if (pathname === "/api/users" || pathname.startsWith("/api/users/")) return true;
+  if (pathname === "/api/admin" || pathname.startsWith("/api/admin/")) return true;
 
   if (pathname === "/api/reservations" && method === "GET") return true;
 
@@ -70,6 +72,10 @@ export const config = {
     "/api/room-blocks/:path*",
     "/api/rooms/:path*",
     "/api/uploads/:path*",
+    "/api/users",
+    "/api/users/:path*",
+    "/api/admin",
+    "/api/admin/:path*",
     "/api/reservations",
     "/api/reservations/:path*",
   ],

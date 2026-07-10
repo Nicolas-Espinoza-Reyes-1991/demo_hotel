@@ -1,10 +1,10 @@
-# Deploy Adkin IQ — hotel.adkiniq.cl + reservas.adkiniq.cl
+# Deploy AdkinIQ — hotel.adkiniq.cl + reservas.adkiniq.cl
 
 ## URLs
 
 | URL | Contenido |
 |-----|-----------|
-| `https://www.adkiniq.cl` | Web corporativa Adkin IQ (fuera de este repo) |
+| `https://www.adkiniq.cl` | Web corporativa AdkinIQ (fuera de este repo) |
 | `https://hotel.adkiniq.cl` | Landing del hotel (`propuesta-7-casona-futrono.html`) |
 | `https://reservas.adkiniq.cl` | Motor de reservas + admin (Docker) |
 

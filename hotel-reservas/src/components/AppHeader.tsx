@@ -32,6 +32,7 @@ export function AppHeader() {
   const router = useRouter();
   const menuId = useId();
   const [username, setUsername] = useState<string | null>(null);
+  const [roleLabel, setRoleLabel] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isAdminArea = pathname.startsWith("/admin");
@@ -41,15 +42,24 @@ export function AppHeader() {
   useEffect(() => {
     if (!isAdminArea) {
       setUsername(null);
+      setRoleLabel(null);
       return;
     }
 
     fetch(apiPath("/api/auth/session"))
       .then((response) => response.json())
       .then((data) => {
-        if (data.authenticated) setUsername(data.username);
+        if (data.authenticated) {
+          setUsername(data.username);
+          setRoleLabel(
+            data.role === "ADMIN" ? "Admin" : data.role === "STAFF" ? "Trabajador" : null
+          );
+        }
       })
-      .catch(() => setUsername(null));
+      .catch(() => {
+        setUsername(null);
+        setRoleLabel(null);
+      });
   }, [isAdminArea, pathname]);
 
   useEffect(() => {
@@ -127,7 +137,7 @@ export function AppHeader() {
   if (isAdminArea && username) {
     navItems.push({
       key: "logout",
-      label: "Salir",
+      label: roleLabel ? `Salir (${roleLabel})` : "Salir",
       href: "#",
       onClick: () => void handleLogout(),
     });

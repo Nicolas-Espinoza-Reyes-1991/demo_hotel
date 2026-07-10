@@ -74,6 +74,7 @@ export async function createReservationFromCheckout(tx: DbClient, payload: Check
       nights: availability.nights,
       guestsCount: payload.guestsCount,
       pricePerNight: room.pricePerNight,
+      listTotalAmount: availability.totalAmount,
       totalAmount: availability.totalAmount,
       paymentStatus: PaymentStatus.PENDING,
       status: ReservationStatus.CONFIRMED,

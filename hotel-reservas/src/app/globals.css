@@ -42,6 +42,7 @@
   body {
     @apply bg-brand-950 text-brand-100 antialiased;
     font-family: var(--font-sans);
+    --site-footer-offset: calc(2.85rem + env(safe-area-inset-bottom, 0px));
     background-image:
       radial-gradient(circle at top left, rgba(193, 154, 107, 0.16), transparent 30rem),
       linear-gradient(165deg, #faf6f0 0%, #f3ebe0 48%, #ebe0d2 100%);
@@ -50,6 +51,12 @@
     -webkit-tap-highlight-color: transparent;
     scrollbar-width: thin;
     scrollbar-color: rgba(92, 64, 51, 0.35) transparent;
+  }
+
+  @media (min-width: 640px) {
+    body {
+      --site-footer-offset: calc(2.35rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   body::before {
@@ -1094,6 +1101,173 @@
     .glass-panel-highlight,
     .btn-primary {
       animation: none;
+    }
+  }
+
+  /* ── Admin shell (sidebar layout) ─────────────────────────────────── */
+  .admin-shell {
+    display: flex;
+    min-height: 100dvh;
+    background: transparent;
+  }
+
+  .admin-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: none;
+    width: 17.5rem;
+    height: 100dvh;
+    max-height: 100dvh;
+    flex-shrink: 0;
+    flex-direction: column;
+    background:
+      linear-gradient(175deg, rgba(74, 52, 40, 0.97) 0%, rgba(61, 43, 31, 0.98) 42%, rgba(44, 35, 28, 0.99) 100%);
+    box-shadow: 8px 0 40px -20px rgba(44, 35, 28, 0.55);
+    border-right: 1px solid rgba(232, 201, 154, 0.12);
+  }
+
+  @media (min-width: 1024px) {
+    .admin-sidebar {
+      display: flex;
+    }
+  }
+
+  .admin-sidebar--drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 90;
+    display: flex;
+    height: 100dvh;
+    max-height: 100dvh;
+    box-shadow: 20px 0 60px -10px rgba(26, 18, 12, 0.55);
+  }
+
+  .admin-shell__main {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    background: transparent;
+  }
+
+  .admin-topbar {
+    border-bottom: 1px solid rgba(61, 43, 31, 0.1);
+    background: rgba(255, 253, 249, 0.78);
+    backdrop-filter: blur(14px);
+  }
+
+  .admin-content-panel {
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    background: rgba(255, 253, 249, 0.62);
+    box-shadow: 0 22px 58px -28px rgba(61, 43, 31, 0.28);
+    backdrop-filter: blur(8px);
+    padding: 0.85rem;
+  }
+
+  @media (min-width: 640px) {
+    .admin-content-panel {
+      padding: 1.15rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .admin-content-panel {
+      padding: 1.35rem;
+    }
+  }
+
+  @keyframes adminDrawerIn {
+    from {
+      transform: translateX(-100%);
+      opacity: 0.85;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes adminAlertPulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(196, 92, 38, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(196, 92, 38, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-sidebar--drawer {
+      animation: none;
+    }
+
+    [class*="adminAlertPulse"] {
+      animation: none !important;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .admin-topbar,
+    .admin-content-panel {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .admin-topbar {
+      background: rgba(255, 253, 249, 0.94);
+    }
+
+    .admin-content-panel {
+      background: rgba(255, 253, 249, 0.9);
+    }
+  }
+
+  /* Sin footer público en admin → sin hueco inferior */
+  body.admin-layout {
+    --site-footer-offset: 0px;
+  }
+
+  /* Footer fijo y sutil (solo rutas públicas) */
+  .site-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    border-top: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 253, 249, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 -6px 24px -18px rgba(61, 43, 31, 0.22);
+    padding: 0.45rem 1rem max(0.45rem, env(safe-area-inset-bottom));
+  }
+
+  .site-footer__inner {
+    margin-inline: auto;
+    max-width: 80rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+  }
+
+  @media (min-width: 640px) {
+    .site-footer__inner {
+      flex-direction: row;
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .site-footer {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: rgba(255, 253, 249, 0.92);
     }
   }
 }

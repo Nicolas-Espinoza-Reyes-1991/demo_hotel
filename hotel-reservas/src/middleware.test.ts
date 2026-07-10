@@ -58,7 +58,7 @@ describe("middleware — rutas protegidas", () => {
 
   // Happy path: sesión válida permite acceso al calendario admin.
   it("permite acceso con sesión admin válida", async () => {
-    mockVerifySession.mockResolvedValue({ username: "admin", role: "admin" });
+    mockVerifySession.mockResolvedValue({ username: "admin", role: "ADMIN", userId: "u1" });
 
     const response = await middleware(request("/api/calendar", "valid-jwt"));
 
@@ -79,7 +79,7 @@ describe("middleware — rutas protegidas", () => {
   });
 
   it("permite POST /api/uploads/rooms con sesión válida", async () => {
-    mockVerifySession.mockResolvedValue({ username: "admin", role: "admin" });
+    mockVerifySession.mockResolvedValue({ username: "admin", role: "ADMIN", userId: "u1" });
     const response = await middleware(request("/api/uploads/rooms", "valid-jwt", "POST"));
     expect(response.status).toBe(200);
   });

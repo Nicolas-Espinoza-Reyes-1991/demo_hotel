@@ -123,6 +123,7 @@ describe("POST /api/reservations", () => {
       paymentStatus: PaymentStatus.PENDING,
       status: ReservationStatus.CONFIRMED,
       pricePerNight: 120,
+      listTotalAmount: 360,
       totalAmount: 360,
       room,
       guest: { id: "guest-1", email: "juan@example.com" },

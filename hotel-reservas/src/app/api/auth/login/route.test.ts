@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { mockVerify, mockRateLimit, mockCreateToken } = vi.hoisted(() => ({
-  mockVerify: vi.fn(),
+const { mockAuthenticate, mockRateLimit, mockCreateToken } = vi.hoisted(() => ({
+  mockAuthenticate: vi.fn(),
   mockRateLimit: vi.fn(() => ({ ok: true as const })),
   mockCreateToken: vi.fn().mockResolvedValue("jwt-token"),
 }));
 
-vi.mock("@/lib/auth-credentials", () => ({ verifyAdminCredentials: mockVerify }));
+vi.mock("@/lib/staff-users", () => ({ authenticateStaff: mockAuthenticate }));
 vi.mock("@/lib/rate-limit", () => ({
   getClientIp: vi.fn(() => "127.0.0.1"),
   rateLimit: mockRateLimit,
@@ -28,9 +28,13 @@ describe("POST /api/auth/login", () => {
     vi.stubEnv("AUTH_SECRET", "test-secret-minimum-32-characters-long!!");
   });
 
-  // Happy path: login válido setea cookie de sesión.
   it("inicia sesión con credenciales válidas", async () => {
-    mockVerify.mockResolvedValue(true);
+    mockAuthenticate.mockResolvedValue({
+      id: "u1",
+      username: "admin",
+      role: "ADMIN",
+      fullName: "Administrador",
+    });
     const request = new NextRequest("http://localhost/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ username: "admin", password: "secret" }),
@@ -41,12 +45,16 @@ describe("POST /api/auth/login", () => {
 
     expect(response.status).toBe(200);
     expect(body.username).toBe("admin");
-    expect(mockCreateToken).toHaveBeenCalledWith("admin");
+    expect(body.role).toBe("ADMIN");
+    expect(mockCreateToken).toHaveBeenCalledWith({
+      userId: "u1",
+      username: "admin",
+      role: "ADMIN",
+    });
   });
 
-  // Seguridad: credenciales inválidas retornan 401.
   it("rechaza credenciales incorrectas", async () => {
-    mockVerify.mockResolvedValue(false);
+    mockAuthenticate.mockResolvedValue(null);
     const request = new NextRequest("http://localhost/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ username: "admin", password: "wrong" }),
@@ -56,7 +64,6 @@ describe("POST /api/auth/login", () => {
     expect(response.status).toBe(401);
   });
 
-  // Zod: payload incompleto.
   it("rechaza payload sin contraseña", async () => {
     const request = new NextRequest("http://localhost/api/auth/login", {
       method: "POST",
@@ -65,7 +72,6 @@ describe("POST /api/auth/login", () => {
     expect((await POST(request)).status).toBe(400);
   });
 
-  // Rate limit en login.
   it("responde 429 al superar rate limit", async () => {
     mockRateLimit.mockReturnValue({ ok: false, retryAfterSec: 60 });
     const request = new NextRequest("http://localhost/api/auth/login", {

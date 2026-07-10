@@ -38,7 +38,8 @@ export function WhatsAppSupport({
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp por dudas en la reserva"
         className={cn(
-          "whatsapp-floating animate-float-soft fixed bottom-4 right-4 z-30 flex items-center gap-3 rounded-full border border-wa/50 bg-wa p-3 text-white shadow-lg shadow-accent-hover/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-accent-hover/30 sm:bottom-6 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
+          "whatsapp-floating animate-float-soft fixed right-4 z-30 flex items-center gap-3 rounded-full border border-wa/50 bg-wa p-3 text-white shadow-lg shadow-accent-hover/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-accent-hover/30 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
+          "bottom-[calc(var(--site-footer-offset)+0.75rem)] sm:bottom-[calc(var(--site-footer-offset)+1rem)]",
           className
         )}
       >

@@ -1,11 +1,18 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AdkinCredit } from "@/components/AdkinCredit";
 
+/** Footer público — oculto en el panel admin (tiene su propio layout). */
 export function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
-    <footer className="shrink-0 border-t border-brand-700/40 bg-brand-900/40 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-      <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 sm:flex-row sm:justify-between">
-        <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-brand-500">
+    <footer className="site-footer">
+      <div className="site-footer__inner">
+        <nav className="flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-[11px] font-medium text-brand-500/90 sm:justify-start">
           <Link href="/mi-reserva" className="hover:text-brand-100 hover:underline">
             Consultar mi reserva
           </Link>
@@ -16,7 +23,7 @@ export function SiteFooter() {
             Privacidad
           </Link>
         </nav>
-        <AdkinCredit />
+        <AdkinCredit className="!text-[11px] sm:!text-xs" />
       </div>
     </footer>
   );

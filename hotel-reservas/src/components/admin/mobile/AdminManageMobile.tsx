@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
+import { ReservationAmountCell, ReservationDiscountEditor } from "@/components/admin/ReservationDiscountEditor";
 import {
   AdminMobileCard,
   AdminMobileCopyButton,
@@ -23,6 +24,10 @@ type ReservationRow = {
   paymentProvider?: string | null;
   status: string;
   totalAmount: number;
+  listTotalAmount?: number;
+  hasDiscount?: boolean;
+  discountReason?: string | null;
+  discountAppliedBy?: string | null;
   updatedAt?: string;
   guestFullName?: string;
   guestDocumentType?: string | null;
@@ -77,7 +82,16 @@ export function AdminReservationsMobileList({
   page: number;
   totalPages: number;
   onManage: (id: string) => void;
-  onUpdate: (id: string, patch: { paymentStatus?: string; status?: string }) => void;
+  onUpdate: (
+    id: string,
+    patch: {
+      paymentStatus?: string;
+      status?: string;
+      totalAmount?: number;
+      discountReason?: string;
+      clearDiscount?: boolean;
+    }
+  ) => void;
   onPrevPage: () => void;
   onNextPage: () => void;
 }) {
@@ -142,7 +156,9 @@ function ReservationMobileCard({
       <p className="mt-0.5 text-xs text-brand-100">
         {formatShortStayDate(row.checkIn)} → {formatShortStayDate(row.checkOut)}
       </p>
-      <p className="mt-1 text-sm font-bold text-accent">{formatCurrency(row.totalAmount)}</p>
+      <div className="mt-1">
+        <ReservationAmountCell row={row} />
+      </div>
 
       {scope === "history" && row.updatedAt && (
         <p className="mt-1 text-[11px] text-brand-500">
@@ -222,7 +238,16 @@ export function AdminReservationManageSheet({
   paymentOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
   onClose: () => void;
-  onUpdate: (id: string, patch: { paymentStatus?: string; status?: string }) => void;
+  onUpdate: (
+    id: string,
+    patch: {
+      paymentStatus?: string;
+      status?: string;
+      totalAmount?: number;
+      discountReason?: string;
+      clearDiscount?: boolean;
+    }
+  ) => void;
 }) {
   if (!row) return null;
 
@@ -242,7 +267,13 @@ export function AdminReservationManageSheet({
           <p className="mt-1 text-sm text-brand-100">
             {formatShortStayDate(row.checkIn)} → {formatShortStayDate(row.checkOut)}
           </p>
-          <p className="mt-2 text-lg font-bold text-accent">{formatCurrency(row.totalAmount)}</p>
+          <div className="mt-2">
+            <ReservationDiscountEditor
+              row={row}
+              saving={saving}
+              onApply={(patch) => onUpdate(row.id, patch)}
+            />
+          </div>
           <div className="mt-2">
             <StatusBadge
               variant={paymentBadgeVariant(row.paymentStatus)}

@@ -96,10 +96,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ ["--bg-reception-url" as string]: bgReception }}
       >
         <CasonaInitialPreloader hotelName={getHotelName()} />
-        <div className="flex min-h-dvh flex-col">
+        <div className="flex min-h-dvh flex-col pb-[var(--site-footer-offset)]">
           <div className="flex-1">{children}</div>
-          <SiteFooter />
         </div>
+        <SiteFooter />
       </body>
     </html>
   );

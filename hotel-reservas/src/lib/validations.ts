@@ -137,12 +137,25 @@ export const createReservationSchema = z
   });
 
 /** Actualización manual admin — reserva. */
-export const updateReservationSchema = z.object({
-  paymentStatus: z.enum(["PENDING", "PAID", "CANCELLED", "REFUNDED"]).optional(),
-  status: z
-    .enum(["CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW"])
-    .optional(),
-});
+export const updateReservationSchema = z
+  .object({
+    paymentStatus: z.enum(["PENDING", "PAID", "CANCELLED", "REFUNDED"]).optional(),
+    status: z
+      .enum(["CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW"])
+      .optional(),
+    /** Monto cobrado (descuento opcional). Debe ser ≤ precio de lista. */
+    totalAmount: z.coerce.number().positive("El monto debe ser mayor a 0.").max(9_999_999).optional(),
+    discountReason: z.string().trim().max(200).optional().nullable(),
+    clearDiscount: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      data.paymentStatus !== undefined ||
+      data.status !== undefined ||
+      data.totalAmount !== undefined ||
+      data.clearDiscount === true,
+    { message: "No hay cambios para aplicar." }
+  );
 
 /** Actualización manual admin — habitación (estado legacy). */
 export const updateRoomStatusSchema = z.object({

@@ -5,16 +5,16 @@ type AdkinCreditProps = {
   className?: string;
 };
 
-/** Crédito discreto de desarrollo — visible en todas las vistas del sistema. */
+/** Crédito de desarrollo — visible en todas las vistas del sistema. */
 export function AdkinCredit({ className }: AdkinCreditProps) {
   return (
-    <p className={cn("text-center text-[11px] leading-relaxed text-brand-500/65", className)}>
+    <p className={cn("text-center text-xs leading-relaxed text-brand-500 sm:text-[13px]", className)}>
       Desarrollado por{" "}
       <a
         href={ADKINIQ_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="font-medium text-brand-500/85 transition hover:text-accent hover:underline"
+        className="font-bold text-accent underline decoration-highlight/50 underline-offset-2 transition hover:text-accent-hover hover:decoration-accent"
       >
         {ADKINIQ_NAME}
       </a>

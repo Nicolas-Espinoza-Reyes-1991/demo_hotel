@@ -1,12 +1,17 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import type { StaffRole } from "@prisma/client";
+import { AppError } from "@/lib/api-response";
 
 export const SESSION_COOKIE = "hotel_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 días
 
+export type SessionRole = "ADMIN" | "STAFF";
+
 export type SessionPayload = {
+  userId: string;
   username: string;
-  role: "admin";
+  role: SessionRole;
 };
 
 function getAuthSecret(): Uint8Array {
@@ -17,10 +22,21 @@ function getAuthSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSessionToken(username: string): Promise<string> {
-  return new SignJWT({ role: "admin" })
+function normalizeRole(role: unknown): SessionRole | null {
+  if (role === "ADMIN" || role === "STAFF") return role;
+  // Compatibilidad con sesiones antiguas (role: "admin")
+  if (role === "admin") return "ADMIN";
+  return null;
+}
+
+export async function createSessionToken(input: {
+  userId: string;
+  username: string;
+  role: StaffRole | SessionRole;
+}): Promise<string> {
+  return new SignJWT({ role: input.role, userId: input.userId })
     .setProtectedHeader({ alg: "HS256" })
-    .setSubject(username)
+    .setSubject(input.username)
     .setIssuedAt()
     .setExpirationTime(`${SESSION_MAX_AGE}s`)
     .sign(getAuthSecret());
@@ -30,8 +46,11 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   try {
     const { payload } = await jwtVerify(token, getAuthSecret());
     const username = payload.sub;
-    if (!username || payload.role !== "admin") return null;
-    return { username, role: "admin" };
+    const role = normalizeRole(payload.role);
+    const userId = typeof payload.userId === "string" ? payload.userId : "";
+    if (!username || !role) return null;
+    // Sesiones legacy sin userId: permitir con userId vacío (solo hasta re-login)
+    return { userId, username, role };
   } catch {
     return null;
   }
@@ -68,4 +87,18 @@ export async function getSession(): Promise<SessionPayload | null> {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   return verifySessionToken(token);
+}
+
+export async function requireSession(): Promise<SessionPayload> {
+  const session = await getSession();
+  if (!session) throw new AppError("No autorizado.", 401, "UNAUTHORIZED");
+  return session;
+}
+
+export async function requireAdminSession(): Promise<SessionPayload> {
+  const session = await requireSession();
+  if (session.role !== "ADMIN") {
+    throw new AppError("Solo el administrador puede realizar esta acción.", 403, "FORBIDDEN");
+  }
+  return session;
 }

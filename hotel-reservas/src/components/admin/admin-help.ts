@@ -1,6 +1,6 @@
 export const ADMIN_MODULE_HELP = {
   panel:
-    "Centro de gestión del hotel: ocupación, reservas, habitaciones y bloqueos de disponibilidad.",
+    "Centro de gestión del hotel: ocupación, reservas, habitaciones, bloqueos y usuarios del panel.",
   calendar:
     "Vista visual de ocupación por habitación y fecha. Tocá o hacé clic en una reserva para ver detalle y copiar el código.",
   reservations:
@@ -9,6 +9,18 @@ export const ADMIN_MODULE_HELP = {
     "Inventario de habitaciones: precios, fotos, capacidad y estado. No se eliminan si tienen reservas asociadas.",
   blocks:
     "Bloqueos por fechas para sacar habitaciones de la venta (mantenimiento, eventos, cierres temporales).",
+  users:
+    "Mantenedor de accesos al panel. Solo el administrador puede crear usuarios y cambiar contraseñas.",
+  experiences:
+    "Módulo de turismo y partners: cabalgatas, botes y actividades para huéspedes. Próximamente.",
+  menu: "Carta digital de comida, licores y productos del hotel. Próximamente.",
+  reports: "Reportes de reservas, ocupación e ingresos con gráficos. Próximamente.",
+} as const;
+
+export const ADMIN_USERS_HELP = {
+  section:
+    "Administrá quién puede entrar al panel. Administradores gestionan usuarios; trabajadores operan el día a día.",
+  form: "Completá los datos del usuario. La contraseña debe cumplir todas las reglas de seguridad.",
 } as const;
 
 export const ADMIN_CALENDAR_HELP = {
@@ -24,11 +36,11 @@ export const ADMIN_CALENDAR_HELP = {
 
 export const ADMIN_RESERVATIONS_HELP = {
   section:
-    "Gestión de reservas del hotel. Actualizá pago y estado cuando el huésped transfiere o hace check-in/out.",
+    "Gestión de reservas del hotel. Actualizá pago, estado y descuentos opcionales para que los reportes cuadren con lo cobrado.",
   scope:
     "Activas: reservas del día a día. Historial: canceladas o reembolsadas. Todas: listado completo sin filtrar.",
   table:
-    "Cambiá el estado de pago cuando recibas una transferencia y el estado de estadía al hacer check-in o check-out.",
+    "Cambiá el estado de pago cuando recibas una transferencia y el estado de estadía al hacer check-in o check-out. El descuento es opcional: si no lo aplicás, se respeta el precio de lista.",
 } as const;
 
 export const ADMIN_ROOMS_HELP = {

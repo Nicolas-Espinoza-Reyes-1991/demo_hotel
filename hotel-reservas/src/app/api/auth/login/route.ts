@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { handleApiError, jsonError, jsonOk } from "@/lib/api-response";
-import { verifyAdminCredentials } from "@/lib/auth-credentials";
 import {
   SESSION_COOKIE,
   createSessionToken,
   getSessionCookieOptions,
 } from "@/lib/auth";
+import { authenticateStaff } from "@/lib/staff-users";
 import { getClientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -30,14 +30,23 @@ export async function POST(request: NextRequest) {
     }
 
     const { username, password } = parsed.data;
-    const valid = await verifyAdminCredentials(username, password);
+    const user = await authenticateStaff(username, password);
 
-    if (!valid) {
+    if (!user) {
       return jsonError("Usuario o contraseña incorrectos.", 401, undefined, "INVALID_CREDENTIALS");
     }
 
-    const token = await createSessionToken(username);
-    const response = jsonOk({ message: "Sesión iniciada.", username });
+    const token = await createSessionToken({
+      userId: user.id,
+      username: user.username,
+      role: user.role,
+    });
+    const response = jsonOk({
+      message: "Sesión iniciada.",
+      username: user.username,
+      role: user.role,
+      fullName: user.fullName,
+    });
 
     response.cookies.set(SESSION_COOKIE, token, getSessionCookieOptions());
     return response;

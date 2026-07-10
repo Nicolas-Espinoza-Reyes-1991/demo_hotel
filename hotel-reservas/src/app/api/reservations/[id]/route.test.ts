@@ -19,6 +19,13 @@ vi.mock("@/lib/email", () => ({
   sendReservationPaidEmail: mockSendPaid,
   buildReservationEmailPayload: vi.fn((r) => r),
 }));
+vi.mock("@/lib/auth", () => ({
+  requireSession: vi.fn(async () => ({
+    userId: "u1",
+    username: "nelson",
+    role: "ADMIN" as const,
+  })),
+}));
 
 import { GET, PATCH } from "./route";
 
@@ -57,12 +64,20 @@ describe("/api/reservations/[id]", () => {
     mockDb.reservation.findUnique.mockResolvedValue({
       id: "res-1",
       paymentStatus: PaymentStatus.PENDING,
+      totalAmount: 300,
+      listTotalAmount: 300,
+      status: ReservationStatus.CONFIRMED,
+      paymentProvider: null,
     });
     mockDb.reservation.update.mockResolvedValue({
       id: "res-1",
       paymentStatus: PaymentStatus.PAID,
       pricePerNight: 100,
       totalAmount: 300,
+      listTotalAmount: 300,
+      discountReason: null,
+      discountAppliedAt: null,
+      discountAppliedBy: null,
       room: { name: "Coihue" },
       guest: { email: "a@b.com", fullName: "Ana" },
       confirmationCode: "ABC",
@@ -86,6 +101,10 @@ describe("/api/reservations/[id]", () => {
     mockDb.reservation.findUnique.mockResolvedValue({
       id: "res-1",
       paymentStatus: PaymentStatus.PAID,
+      totalAmount: 300,
+      listTotalAmount: 300,
+      status: ReservationStatus.CONFIRMED,
+      paymentProvider: null,
     });
     mockDb.reservation.update.mockResolvedValue({
       id: "res-1",
@@ -93,6 +112,10 @@ describe("/api/reservations/[id]", () => {
       status: ReservationStatus.CANCELLED,
       pricePerNight: 100,
       totalAmount: 300,
+      listTotalAmount: 300,
+      discountReason: null,
+      discountAppliedAt: null,
+      discountAppliedBy: null,
       room: {},
       guest: {},
     });
@@ -109,6 +132,51 @@ describe("/api/reservations/[id]", () => {
         data: expect.objectContaining({
           paymentStatus: PaymentStatus.REFUNDED,
           status: ReservationStatus.CANCELLED,
+        }),
+      })
+    );
+  });
+
+  it("PATCH aplica descuento con motivo", async () => {
+    mockDb.reservation.findUnique.mockResolvedValue({
+      id: "res-1",
+      paymentStatus: PaymentStatus.PENDING,
+      status: ReservationStatus.CONFIRMED,
+      totalAmount: 65000,
+      listTotalAmount: 65000,
+      paymentProvider: "BANK_TRANSFER",
+    });
+    mockDb.reservation.update.mockResolvedValue({
+      id: "res-1",
+      paymentStatus: PaymentStatus.PENDING,
+      status: ReservationStatus.CONFIRMED,
+      pricePerNight: 32500,
+      totalAmount: 55000,
+      listTotalAmount: 65000,
+      discountReason: "Cliente frecuente",
+      discountAppliedAt: new Date(),
+      discountAppliedBy: "nelson",
+      room: {},
+      guest: {},
+    });
+
+    const request = new NextRequest("http://localhost", {
+      method: "PATCH",
+      body: JSON.stringify({ totalAmount: 55000, discountReason: "Cliente frecuente" }),
+    });
+
+    const response = await PATCH(request, params);
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.reservation.hasDiscount).toBe(true);
+    expect(body.reservation.totalAmount).toBe(55000);
+    expect(mockDb.reservation.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          totalAmount: 55000,
+          listTotalAmount: 65000,
+          discountReason: "Cliente frecuente",
+          discountAppliedBy: "nelson",
         }),
       })
     );

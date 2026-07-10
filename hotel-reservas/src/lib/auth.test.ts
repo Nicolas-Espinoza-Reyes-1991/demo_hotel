@@ -12,22 +12,33 @@ describe("auth JWT sessions", () => {
     vi.stubEnv("AUTH_SECRET", AUTH_SECRET);
   });
 
-  // Happy path: crear y verificar token admin.
   it("createSessionToken genera JWT verificable", async () => {
-    const token = await createSessionToken("admin");
+    const token = await createSessionToken({
+      userId: "user-1",
+      username: "admin",
+      role: "ADMIN",
+    });
     const session = await verifySessionToken(token);
-    expect(session).toEqual({ username: "admin", role: "admin" });
+    expect(session).toEqual({ userId: "user-1", username: "admin", role: "ADMIN" });
   });
 
-  // Seguridad: token inválido retorna null.
   it("verifySessionToken retorna null para token corrupto", async () => {
     expect(await verifySessionToken("not-a-jwt")).toBeNull();
   });
 
-  // Seguridad: token con rol incorrecto es rechazado.
-  it("verifySessionToken rechaza rol distinto de admin", async () => {
+  it("verifySessionToken acepta rol STAFF", async () => {
+    const token = await createSessionToken({
+      userId: "staff-1",
+      username: "recepcion",
+      role: "STAFF",
+    });
+    const session = await verifySessionToken(token);
+    expect(session?.role).toBe("STAFF");
+  });
+
+  it("verifySessionToken rechaza rol desconocido", async () => {
     const { SignJWT } = await import("jose");
-    const badToken = await new SignJWT({ role: "user" })
+    const badToken = await new SignJWT({ role: "user", userId: "x" })
       .setProtectedHeader({ alg: "HS256" })
       .setSubject("admin")
       .setIssuedAt()
@@ -35,6 +46,19 @@ describe("auth JWT sessions", () => {
       .sign(new TextEncoder().encode(AUTH_SECRET));
 
     expect(await verifySessionToken(badToken)).toBeNull();
+  });
+
+  it("verifySessionToken acepta sesiones legacy role=admin", async () => {
+    const { SignJWT } = await import("jose");
+    const legacy = await new SignJWT({ role: "admin" })
+      .setProtectedHeader({ alg: "HS256" })
+      .setSubject("admin")
+      .setIssuedAt()
+      .setExpirationTime("1h")
+      .sign(new TextEncoder().encode(AUTH_SECRET));
+
+    const session = await verifySessionToken(legacy);
+    expect(session).toEqual({ userId: "", username: "admin", role: "ADMIN" });
   });
 
   it("cookie secure solo con APP_URL https o SESSION_COOKIE_SECURE", () => {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import { ReservationDiscountEditor } from "@/components/admin/ReservationDiscountEditor";
 import {
   AdminBlocksMobileList,
   AdminReservationManageSheet,
@@ -29,6 +30,11 @@ type ReservationRow = {
   paymentProvider?: string | null;
   status: string;
   totalAmount: number;
+  listTotalAmount?: number;
+  hasDiscount?: boolean;
+  discountReason?: string | null;
+  discountAppliedBy?: string | null;
+  discountAmount?: number;
   updatedAt?: string;
   guestFullName?: string;
   guestDocumentType?: string | null;
@@ -147,7 +153,16 @@ export function AdminReservationsPanel() {
     void load();
   }, [load]);
 
-  async function updateReservation(id: string, patch: { paymentStatus?: string; status?: string }) {
+  async function updateReservation(
+    id: string,
+    patch: {
+      paymentStatus?: string;
+      status?: string;
+      totalAmount?: number;
+      discountReason?: string;
+      clearDiscount?: boolean;
+    }
+  ) {
     setSavingId(id);
     setMessage(null);
     try {
@@ -162,7 +177,10 @@ export function AdminReservationsPanel() {
         return;
       }
       if (!response.ok) throw new Error(data.error);
-      setMessage({ type: "success", text: "Estado actualizado." });
+      setMessage({
+        type: "success",
+        text: typeof data.message === "string" ? data.message : "Estado actualizado.",
+      });
       await load();
     } catch (err) {
       setMessage({ type: "error", text: err instanceof Error ? err.message : "Error al guardar." });
@@ -388,8 +406,13 @@ export function AdminReservationsPanel() {
                         : "—"}
                     </td>
                   )}
-                  <td className="align-middle text-xs font-semibold text-accent sm:text-sm">
-                    {formatCurrency(row.totalAmount)}
+                  <td className="align-middle">
+                    <ReservationDiscountEditor
+                      row={row}
+                      saving={savingId === row.id}
+                      compact
+                      onApply={(patch) => updateReservation(row.id, patch)}
+                    />
                   </td>
                   <td className="align-middle">
                     <div className="space-y-1">

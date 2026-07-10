@@ -1,5 +1,5 @@
 /**
- * URLs de producción Adkin IQ — landing hotel + motor de reservas.
+ * URLs de producción AdkinIQ — landing hotel + motor de reservas.
  * En localhost: http://localhost:3000
  * En VPS por IP o lacasonadefutrono.cl: /reservas (mismo nginx)
  */

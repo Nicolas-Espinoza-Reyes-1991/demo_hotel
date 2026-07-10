@@ -12,6 +12,7 @@ function LoginForm() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -117,7 +118,7 @@ function LoginForm() {
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 value={password}
@@ -125,6 +126,19 @@ function LoginForm() {
                 className="input-field bg-white/92"
                 placeholder="••••••••"
               />
+              <label
+                htmlFor="show-password"
+                className="mt-3 flex w-fit cursor-pointer items-center gap-2.5 rounded-lg px-0.5 py-1 text-sm font-medium text-brand-100 select-none hover:text-accent"
+              >
+                <input
+                  id="show-password"
+                  type="checkbox"
+                  checked={showPassword}
+                  onChange={(event) => setShowPassword(event.target.checked)}
+                  className="h-4 w-4 shrink-0 cursor-pointer rounded border-brand-600 accent-[#5c4033]"
+                />
+                Mostrar contraseña
+              </label>
             </div>
 
             <button

@@ -111,7 +111,14 @@ model Reservation {
   nights          Int
   guestsCount     Int               @default(1)
   pricePerNight   Decimal
+  /// Monto de lista (precio sistema). No cambia con descuentos.
+  listTotalAmount Decimal
+  /// Monto cobrado (igual a listTotalAmount si no hay descuento).
   totalAmount     Decimal
+  /// Motivo del descuento (obligatorio si totalAmount < listTotalAmount).
+  discountReason     String?
+  discountAppliedAt  DateTime?
+  discountAppliedBy  String?
   paymentStatus   PaymentStatus     @default(PENDING)
   status          ReservationStatus @default(CONFIRMED)
   specialRequests String?
@@ -147,4 +154,27 @@ model RoomBlock {
 
   @@index([roomId, startDate, endDate])
   @@map("room_blocks")
+}
+
+/// Rol del personal del hotel (panel admin)
+enum StaffRole {
+  ADMIN
+  STAFF
+}
+
+/// Usuarios del panel (administradores y trabajadores)
+model StaffUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  fullName     String?
+  passwordHash String
+  role         StaffRole @default(STAFF)
+  active       Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([role])
+  @@index([active])
+  @@map("staff_users")
 }
