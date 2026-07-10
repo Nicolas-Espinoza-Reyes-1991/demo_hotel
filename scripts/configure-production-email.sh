@@ -26,8 +26,8 @@ SMTP_HOST="${SMTP_HOST:-smtp.resend.com}"
 SMTP_PORT="${SMTP_PORT:-587}"
 SMTP_USER="${SMTP_USER:-resend}"
 SMTP_FROM="${SMTP_FROM:-La Casona de Futrono <reservas@lacasonadefutrono.cl>}"
-SMTP_BCC="${SMTP_BCC:-casonafutronoinformatica@gmail.com}"
-CONTACT_INBOX_EMAIL="${CONTACT_INBOX_EMAIL:-casonafutronoinformatica@gmail.com}"
+SMTP_BCC="${SMTP_BCC:-lacasonadefutrono@gmail.com}"
+CONTACT_INBOX_EMAIL="${CONTACT_INBOX_EMAIL:-lacasonadefutrono@gmail.com}"
 BANK_CONTACT_EMAIL="${BANK_CONTACT_EMAIL:-reservas@lacasonadefutrono.cl}"
 
 set_var() {
