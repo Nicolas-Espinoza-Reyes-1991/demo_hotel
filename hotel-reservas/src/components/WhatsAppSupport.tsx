@@ -38,18 +38,13 @@ export function WhatsAppSupport({
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp por dudas en la reserva"
         className={cn(
-          "whatsapp-floating animate-float-soft fixed right-4 z-30 flex items-center gap-3 rounded-full border border-wa/50 bg-wa p-3 text-white shadow-lg shadow-accent-hover/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-accent-hover/30 sm:right-6 sm:max-w-[min(100vw-2rem,320px)] sm:rounded-2xl sm:px-4 sm:py-3",
+          "whatsapp-floating animate-float-soft fixed right-4 z-30 flex h-12 w-12 items-center justify-center rounded-full border border-wa/50 bg-wa text-white shadow-lg shadow-accent-hover/20 transition hover:scale-[1.03] hover:shadow-xl hover:shadow-accent-hover/25 sm:right-6",
           "bottom-[calc(var(--site-footer-offset)+0.75rem)] sm:bottom-[calc(var(--site-footer-offset)+1rem)]",
           className
         )}
+        title="¿Dudas? Escríbenos por WhatsApp"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20">
-          <WhatsAppIcon className="h-6 w-6" />
-        </span>
-        <span className="hidden text-left text-sm leading-snug sm:block">
-          <strong className="block font-bold">¿Problema o dudas?</strong>
-          Contáctanos por WhatsApp
-        </span>
+        <WhatsAppIcon className="h-6 w-6" />
       </a>
     );
   }

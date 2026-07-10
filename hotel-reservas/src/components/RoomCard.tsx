@@ -98,7 +98,15 @@ function getResolvedPhotos(room: RoomCardData): string[] {
 }
 
 // ── Carrusel de fotos ───────────────────────────────────────────────────────
-function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
+function RoomCarousel({
+  photos,
+  name,
+  onReady,
+}: {
+  photos: string[];
+  name: string;
+  onReady?: (api: { openLightbox: (index?: number) => void }) => void;
+}) {
   const [current, setCurrent] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -173,6 +181,15 @@ function RoomCarousel({ photos, name }: { photos: string[]; name: string }) {
       document.removeEventListener("keydown", onKeydown);
     };
   }, [closeLightbox, goLightbox, lightboxIndex, lightboxOpen]);
+
+  const openLightboxAt = useCallback((index = 0) => {
+    setLightboxIndex((index + photos.length) % photos.length);
+    setLightboxOpen(true);
+  }, [photos.length]);
+
+  useEffect(() => {
+    onReady?.({ openLightbox: openLightboxAt });
+  }, [onReady, openLightboxAt]);
 
   const prev = useCallback(
     (e: React.MouseEvent) => {
@@ -364,6 +381,8 @@ export function RoomCard({
 }) {
   const photos = getResolvedPhotos(room);
   const treeName = room.treeName ?? getTreeNameForRoom(room.code);
+  const carouselApi = useRef<{ openLightbox: (index?: number) => void } | null>(null);
+  const description = room.description?.trim();
 
   return (
     <article
@@ -375,21 +394,21 @@ export function RoomCard({
     >
       {/* ── Zona de imagen ── */}
       <div className="room-card__media">
-        <RoomCarousel photos={photos} name={room.name} />
+        <RoomCarousel
+          photos={photos}
+          name={room.name}
+          onReady={(api) => {
+            carouselApi.current = api;
+          }}
+        />
+
+        <span className="room-card__available-badge pointer-events-none">Disponible</span>
 
         {/* Precio por noche — top-left */}
         <div className="room-card__price-badge pointer-events-none">
           <span className="room-card__price-main">{formatCurrency(room.pricePerNight)}</span>
           <span className="room-card__price-sub">/ noche</span>
         </div>
-
-        {/* Precio total en estadía — top-right */}
-        {room.totalAmount ? (
-          <div className="room-card__total-badge pointer-events-none">
-            <span className="room-card__total-main">{formatCurrency(room.totalAmount)}</span>
-            {room.nights ? <span className="room-card__total-sub">{formatNightsLabel(room.nights)}</span> : null}
-          </div>
-        ) : null}
 
         {/* Overlay inferior: código + tipo */}
         <div className="room-card__img-overlay pointer-events-none">
@@ -413,6 +432,10 @@ export function RoomCard({
           )}
           {room.name}
         </h3>
+
+        {description ? (
+          <p className="room-card__description">{description}</p>
+        ) : null}
 
         {/* Características compactas */}
         <ul className="room-card__meta" aria-label="Características">
@@ -446,14 +469,39 @@ export function RoomCard({
           </div>
         )}
 
-        {/* CTA */}
-        <button
-          type="button"
-          onClick={() => onReserve(room)}
-          className="room-card__cta"
-        >
-          Reservar ahora
-        </button>
+        <div className="room-card__pricing">
+          {room.totalAmount ? (
+            <div className="room-card__pricing-total">
+              <span className="room-card__pricing-label">Total estadía</span>
+              <span className="room-card__pricing-amount">{formatCurrency(room.totalAmount)}</span>
+              {room.nights ? (
+                <span className="room-card__pricing-nights">{formatNightsLabel(room.nights)}</span>
+              ) : null}
+            </div>
+          ) : null}
+          <p className="room-card__pricing-night">
+            {formatCurrency(room.pricePerNight)} <span>/ noche</span>
+          </p>
+        </div>
+
+        <div className="room-card__actions">
+          {photos.length > 1 ? (
+            <button
+              type="button"
+              onClick={() => carouselApi.current?.openLightbox(0)}
+              className="room-card__photos-btn"
+            >
+              Ver fotos ({photos.length})
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => onReserve(room)}
+            className="room-card__cta"
+          >
+            Reservar ahora
+          </button>
+        </div>
       </div>
     </article>
   );

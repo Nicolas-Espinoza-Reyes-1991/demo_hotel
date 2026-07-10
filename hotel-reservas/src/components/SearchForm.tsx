@@ -59,11 +59,11 @@ export function SearchForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="glass-panel-elevated grid grid-cols-2 gap-3 p-4 sm:gap-4 sm:p-5 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto] lg:items-end lg:gap-3"
+      className="booking-search-bar grid grid-cols-2 gap-2.5 p-3 sm:gap-3 sm:p-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,10rem)_auto] lg:items-end lg:gap-0"
     >
       {/* Entrada */}
-      <label className="block space-y-1.5">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+      <label className="booking-search-bar__field block space-y-1">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-accent sm:text-xs">
           Entrada
         </span>
         <input
@@ -71,14 +71,14 @@ export function SearchForm({
           value={checkIn}
           min={today}
           onChange={(e) => handleCheckInChange(e.target.value)}
-          className="input-field"
+          className="input-field min-h-10 py-2"
           required
         />
       </label>
 
       {/* Salida */}
-      <label className="block space-y-1.5">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+      <label className="booking-search-bar__field block space-y-1">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-accent sm:text-xs">
           Salida
         </span>
         <input
@@ -89,20 +89,20 @@ export function SearchForm({
             setCheckOut(e.target.value);
             setError(null);
           }}
-          className="input-field"
+          className="input-field min-h-10 py-2"
           required
         />
       </label>
 
       {/* Huéspedes */}
-      <label className="block space-y-1.5 col-span-2 md:col-span-1 lg:col-span-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-accent">
+      <label className="booking-search-bar__field col-span-2 block space-y-1 md:col-span-1 lg:col-span-1">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-accent sm:text-xs">
           Huéspedes
         </span>
         <select
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value))}
-          className="input-field"
+          className="input-field min-h-10 py-2"
         >
           {Array.from({ length: 10 }, (_, index) => index + 1).map((n) => (
             <option key={n} value={n}>
@@ -113,18 +113,24 @@ export function SearchForm({
       </label>
 
       {/* Botón */}
-      <div className="flex items-end col-span-2 md:col-span-2 lg:col-span-1">
-        <button type="submit" disabled={loading} className="btn-primary w-full whitespace-nowrap">
+      <div className="booking-search-bar__submit col-span-2 flex flex-col justify-end gap-1.5 md:col-span-2 lg:col-span-1 lg:pl-3">
+        <button type="submit" disabled={loading} className="btn-primary min-h-10 w-full whitespace-nowrap py-2.5 text-sm shadow-md">
           {loading ? "Buscando..." : "Buscar disponibilidad"}
         </button>
+        {checkIn && checkOut && (
+          <p className="hidden text-[10px] leading-tight text-brand-500 lg:block">
+            {format(new Date(checkIn + "T12:00:00"), "d MMM", { locale: es })} →{" "}
+            {format(new Date(checkOut + "T12:00:00"), "d MMM yyyy", { locale: es })}
+          </p>
+        )}
       </div>
 
       {error && (
-        <p className="alert-error text-sm col-span-2 md:col-span-2 lg:col-span-4">{error}</p>
+        <p className="alert-error col-span-2 text-sm md:col-span-2 lg:col-span-4">{error}</p>
       )}
 
       {checkIn && checkOut && (
-        <p className="text-xs text-brand-500 col-span-2 md:col-span-2 lg:col-span-4">
+        <p className="col-span-2 text-[11px] text-brand-500 md:col-span-2 lg:hidden">
           Estadía del{" "}
           <strong className="text-highlight">
             {format(new Date(checkIn + "T12:00:00"), "d MMM yyyy", { locale: es })}
