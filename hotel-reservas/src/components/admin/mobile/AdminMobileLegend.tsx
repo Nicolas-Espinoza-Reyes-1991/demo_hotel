@@ -37,18 +37,18 @@ export function AdminMobileLegend({ helpText }: { helpText: string }) {
 
   return (
     <div className="border-t border-brand-700/40 bg-brand-800/20 px-3 py-2 md:hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-2 text-left"
-        aria-expanded={open}
-      >
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-100">
-          Leyenda
-          <InfoTooltip label={helpText} variant="accent" width={272} stopPropagation />
-        </span>
-        <span className="text-xs text-brand-500">{open ? "Ocultar" : "Ver"}</span>
-      </button>
+      <div className="flex w-full items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left"
+          aria-expanded={open}
+        >
+          <span className="text-[11px] font-semibold text-brand-100">Leyenda</span>
+          <span className="text-xs text-brand-500">{open ? "Ocultar" : "Ver"}</span>
+        </button>
+        <InfoTooltip label={helpText} variant="accent" width={272} />
+      </div>
       {open && (
         <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-[10px] text-brand-500">
           {LEGEND_ITEMS.map((item) => (

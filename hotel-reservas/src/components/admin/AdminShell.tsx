@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useId, useLayoutEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { apiPath, publicAssetUrl } from "@/lib/api-path";
-import { getWebsiteUrl } from "@/lib/website";
 import { HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 import { AdkinCredit } from "@/components/AdkinCredit";
@@ -74,7 +73,6 @@ export function AdminShell({
 }: AdminShellProps) {
   const router = useRouter();
   const menuId = useId();
-  const websiteUrl = getWebsiteUrl();
   const isAdmin = role === "ADMIN";
   const navItems = ADMIN_NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
   const heading = TITLE[activeTab];
@@ -115,7 +113,7 @@ export function AdminShell({
   const sidebarBody = (
     <>
       <div className="border-b border-white/10 px-5 py-5">
-        <Link href="/" className="flex items-center gap-3" onClick={() => onMobileOpenChange(false)}>
+        <div className="flex items-center gap-3">
           <Image
             src={publicAssetUrl(LOGO_PATH) ?? apiPath(LOGO_PATH)}
             alt={`Logo de ${HOTEL_NAME}`}
@@ -129,7 +127,7 @@ export function AdminShell({
               Panel de gestión
             </p>
           </div>
-        </Link>
+        </div>
       </div>
 
       <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4" aria-label="Secciones del panel">
@@ -155,12 +153,15 @@ export function AdminShell({
       </nav>
 
       <div className="mt-auto space-y-3 border-t border-white/10 p-4">
-        <a
-          href={websiteUrl}
+        <Link
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => onMobileOpenChange(false)}
           className="flex min-h-10 items-center justify-center rounded-xl border border-white/12 bg-white/5 px-3 text-sm font-semibold text-[#f0e6d8] transition hover:bg-white/10"
         >
-          Ver sitio web
-        </a>
+          Ver módulo de reservas
+        </Link>
         <button
           type="button"
           onClick={() => void handleLogout()}

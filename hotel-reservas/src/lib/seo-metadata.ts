@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import { hotelConfig } from "@/config/hotel";
 import { HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
-import { getReservasBasePath, getReservasOrigin, getSiteOrigin } from "@/lib/seo-site";
+import { getReservasOrigin, getSiteOrigin } from "@/lib/seo-site";
 
-const basePath = () => {
-  const value = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || getReservasBasePath();
-  return value === "/" ? "" : value;
+/**
+ * Prefijo real de Next (next.config basePath). Solo NEXT_PUBLIC_BASE_PATH:
+ * no usar getReservasBasePath() del hotel.config — en local sin basePath
+ * eso inventaba /reservas y rompía icon/manifest (404 → Issues en el overlay).
+ */
+const nextAssetBasePath = () => {
+  const value = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
+  if (!value || value === "/") return "";
+  return value.endsWith("/") ? value.slice(0, -1) : value;
 };
 
 export function getOgImageAbsoluteUrl(): string {
@@ -69,7 +75,7 @@ export function buildRootMetadata(): Metadata {
   const siteOrigin = getSiteOrigin();
   const reservasOrigin = getReservasOrigin();
   const ogImage = getOgImageAbsoluteUrl();
-  const prefix = basePath();
+  const prefix = nextAssetBasePath();
 
   return {
     metadataBase: new URL(`${reservasOrigin}/`),
