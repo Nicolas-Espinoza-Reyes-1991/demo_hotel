@@ -356,6 +356,60 @@ function applyBody(html) {
   return html;
 }
 
+function writeSeoFiles() {
+  const reservasPath = (() => {
+    try {
+      const pathname = new URL(reservas).pathname.replace(/\/$/, "");
+      return pathname || "/reservas";
+    } catch {
+      return "/reservas";
+    }
+  })();
+
+  const today = new Date().toISOString().slice(0, 10);
+  const publicUrls = [
+    { loc: `${site}/`, changefreq: "weekly", priority: "1.0" },
+    { loc: `${site}${reservasPath}/`, changefreq: "weekly", priority: "0.9" },
+    { loc: `${site}${reservasPath}/terminos`, changefreq: "yearly", priority: "0.3" },
+    { loc: `${site}${reservasPath}/privacidad`, changefreq: "yearly", priority: "0.3" },
+  ];
+
+  const robots = [
+    "User-agent: *",
+    "Allow: /",
+    "",
+    "# Rutas privadas del motor de reservas",
+    `Disallow: ${reservasPath}/admin`,
+    `Disallow: ${reservasPath}/admin/`,
+    `Disallow: ${reservasPath}/login`,
+    `Disallow: ${reservasPath}/login/`,
+    `Disallow: ${reservasPath}/mi-reserva`,
+    `Disallow: ${reservasPath}/mi-reserva/`,
+    `Disallow: ${reservasPath}/api/`,
+    "",
+    `Sitemap: ${site}/sitemap.xml`,
+    "",
+  ].join("\n");
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${publicUrls
+  .map(
+    (entry) => `  <url>
+    <loc>${entry.loc}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${entry.changefreq}</changefreq>
+    <priority>${entry.priority}</priority>
+  </url>`
+  )
+  .join("\n")}
+</urlset>
+`;
+
+  writeFileSync(join(ROOT, "robots.txt"), robots, "utf8");
+  writeFileSync(join(ROOT, "sitemap.xml"), sitemap, "utf8");
+}
+
 function main() {
   const templatePath = join(ROOT, "assets", "landing.template.html");
   const template = readFileSync(templatePath, "utf8");
@@ -378,10 +432,12 @@ function main() {
   writeFileSync(outModule, JSON.stringify(cfg, null, 2) + "\n", "utf8");
 
   const outCss = writeModuleTheme();
+  writeSeoFiles();
 
   console.log("✓ Landing generada:", outLanding);
   console.log("✓ Config de módulo:", outModule);
   console.log("✓ Tema del módulo:", outCss);
+  console.log("✓ SEO:", join(ROOT, "robots.txt"), "+", join(ROOT, "sitemap.xml"));
 }
 
 main();

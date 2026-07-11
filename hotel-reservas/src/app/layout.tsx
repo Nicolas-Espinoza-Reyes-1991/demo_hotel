@@ -3,8 +3,9 @@ import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import { CasonaInitialPreloader } from "@/components/CasonaPreloader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { apiPath } from "@/lib/api-path";
-import { getHotelName, HOTEL_NAME, LOGO_PATH } from "@/lib/brand";
+import { getHotelName } from "@/lib/brand";
 import { hotelConfig } from "@/config/hotel";
+import { buildRootMetadata } from "@/lib/seo-metadata";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,58 +28,7 @@ const cormorant = Cormorant_Garamond({
   style: ["normal", "italic"],
 });
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "";
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL?.trim()
-  || process.env.APP_URL?.trim()
-  || hotelConfig.urls.site;
-const reservasUrl = `${siteUrl}/reservas`;
-const ogImage = `${siteUrl}${hotelConfig.assets.ogImagePath}`;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(reservasUrl),
-  title: {
-    default: `${HOTEL_NAME} | Reservas directas online`,
-    template: `%s | ${HOTEL_NAME}`,
-  },
-  description: `Reserva tu estadía en ${HOTEL_NAME}, hotel boutique en Futrono, Región de Los Ríos. Disponibilidad en tiempo real, pago online seguro y atención por WhatsApp.`,
-  keywords: ["hotel Futrono", "reservas Lago Ranco", "alojamiento Futrono", "hotel Los Ríos", "La Casona de Futrono"],
-  authors: [{ name: HOTEL_NAME, url: siteUrl }],
-  creator: HOTEL_NAME,
-  publisher: HOTEL_NAME,
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
-  alternates: {
-    canonical: `${reservasUrl}/`,
-  },
-  openGraph: {
-    type: "website",
-    locale: "es_CL",
-    url: `${reservasUrl}/`,
-    siteName: HOTEL_NAME,
-    title: `${HOTEL_NAME} | Reserva tu estadía`,
-    description: `Reserva en línea en ${HOTEL_NAME}, hotel boutique en Futrono a orillas del Lago Ranco.`,
-    images: [{ url: ogImage, width: hotelConfig.assets.ogImageWidth, height: hotelConfig.assets.ogImageHeight, alt: `Vista exterior de ${HOTEL_NAME}` }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `${HOTEL_NAME} | Reserva tu estadía`,
-    description: `Hotel boutique en Futrono, Los Ríos. Casona de madera nativa y Lago Ranco.`,
-    images: [ogImage],
-  },
-  manifest: `${basePath}/manifest.webmanifest`,
-  icons: {
-    icon: `${basePath}${LOGO_PATH}`,
-    apple: `${basePath}${LOGO_PATH}`,
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: HOTEL_NAME,
-  },
-};
+export const metadata: Metadata = buildRootMetadata();
 
 export const viewport: Viewport = {
   themeColor: hotelConfig.theme.themeColor,
@@ -90,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const bgReception = `url('${apiPath("/bg-recepcion.webp")}')`;
 
   return (
-    <html lang="es">
+    <html lang={hotelConfig.brand.htmlLang}>
       <body
         className={`${inter.variable} ${playfair.variable} ${cormorant.variable} min-h-dvh`}
         style={{ ["--bg-reception-url" as string]: bgReception }}

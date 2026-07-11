@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { formatCurrency, formatNightsLabel } from "@/lib/dates";
 import { publicAssetUrl } from "@/lib/api-path";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -102,10 +103,12 @@ function RoomCarousel({
   photos,
   name,
   onReady,
+  priority = false,
 }: {
   photos: string[];
   name: string;
   onReady?: (api: { openLightbox: (index?: number) => void }) => void;
+  priority?: boolean;
 }) {
   const [current, setCurrent] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -216,11 +219,13 @@ function RoomCarousel({
     >
       {/* Imagen activa */}
       {photos.map((src, i) => (
-        <img
+        <Image
           key={src}
           src={src}
-          alt={`${name} — foto ${i + 1}`}
-          loading={i === 0 ? "eager" : "lazy"}
+          alt={`Habitación ${name} en La Casona de Futrono — vista ${i + 1} de ${photos.length}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          priority={priority && i === 0}
           onClick={(e) => {
             e.stopPropagation();
             if (swipedRef.current) {
@@ -334,10 +339,13 @@ function RoomCarousel({
                 className="room-lightbox__figure"
                 onClick={(e) => e.stopPropagation()}
               >
-                <img
+                <Image
                   src={photos[lightboxIndex]}
-                  alt={`${name} — imagen ampliada ${lightboxIndex + 1}`}
+                  alt={`Vista ampliada de la habitación ${name} en La Casona de Futrono — foto ${lightboxIndex + 1}`}
+                  width={1600}
+                  height={1200}
                   className="room-lightbox__img"
+                  sizes="94vw"
                 />
                 <figcaption className="room-lightbox__caption">{name}</figcaption>
               </figure>
@@ -373,11 +381,14 @@ export function RoomCard({
   onReserve,
   className,
   animationDelay = 0,
+  priorityImage = false,
 }: {
   room: RoomCardData;
   onReserve: (room: RoomCardData) => void;
   className?: string;
   animationDelay?: number;
+  /** Precarga la primera foto (LCP) en la card más visible. */
+  priorityImage?: boolean;
 }) {
   const photos = getResolvedPhotos(room);
   const treeName = room.treeName ?? getTreeNameForRoom(room.code);
@@ -397,6 +408,7 @@ export function RoomCard({
         <RoomCarousel
           photos={photos}
           name={room.name}
+          priority={priorityImage}
           onReady={(api) => {
             carouselApi.current = api;
           }}
@@ -424,14 +436,14 @@ export function RoomCard({
       {/* ── Cuerpo ── */}
       <div className="room-card__body">
         {/* Nombre — héroe con ícono árbol */}
-        <h3 className="room-card__title">
+        <h2 className="room-card__title">
           {treeName && (
             <svg viewBox="0 0 14 16" fill="currentColor" className="room-card__title-tree" aria-hidden="true">
               <path d="M7 0L2 6h2.5L2 11h4v4h2v-4h4l-2.5-5H12z" />
             </svg>
           )}
           {room.name}
-        </h3>
+        </h2>
 
         {description ? (
           <p className="room-card__description">{description}</p>

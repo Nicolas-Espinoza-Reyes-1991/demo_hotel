@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
@@ -1323,10 +1324,11 @@ export function AdminRoomsPanel() {
                       key={`${photo}-${index}`}
                       className="group relative overflow-hidden rounded-xl border border-brand-700/60 bg-brand-900/30"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={publicAssetUrl(photo) ?? undefined}
-                        alt={`Foto ${index + 1}`}
+                      <Image
+                        src={publicAssetUrl(photo) ?? photo}
+                        alt={`Foto ${index + 1} de la galería de la habitación${form.name ? ` ${form.name}` : ""}`}
+                        width={320}
+                        height={192}
                         className="h-24 w-full object-cover"
                       />
                       {index === 0 && (

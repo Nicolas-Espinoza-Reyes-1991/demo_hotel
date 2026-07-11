@@ -1,26 +1,27 @@
 import type { MetadataRoute } from "next";
+import {
+  getReservasBasePath,
+  getRobotsDisallowPaths,
+  getSiteOrigin,
+} from "@/lib/seo-site";
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-  process.env.APP_URL?.trim() ||
-  "https://lacasonadefutrono.cl";
-
-const reservasUrl = `${siteUrl}/reservas`;
-
+/**
+ * robots.txt del módulo Next (publicado en /reservas/robots.txt con basePath).
+ * Disallow usa paths absolutos desde la raíz del dominio (/reservas/...).
+ * El robots canónico del sitio sigue siendo /robots.txt (nginx / raíz del repo).
+ */
 export default function robots(): MetadataRoute.Robots {
+  const siteOrigin = getSiteOrigin();
+  const reservasPath = getReservasBasePath();
+
   return {
     rules: [
       {
         userAgent: "*",
-        allow: [`${reservasUrl}/`, `${reservasUrl}/terminos`, `${reservasUrl}/privacidad`],
-        disallow: [
-          `${reservasUrl}/admin`,
-          `${reservasUrl}/login`,
-          `${reservasUrl}/mi-reserva`,
-          `${reservasUrl}/api/`,
-        ],
+        allow: ["/", `${reservasPath}/`],
+        disallow: getRobotsDisallowPaths(),
       },
     ],
-    sitemap: `${reservasUrl}/sitemap.xml`,
+    sitemap: [`${siteOrigin}/sitemap.xml`, `${siteOrigin}${reservasPath}/sitemap.xml`],
   };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -188,11 +189,12 @@ export function AppHeader() {
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-3" onClick={() => setMobileOpen(false)}>
-            <img
+            <Image
               src={publicAssetUrl(LOGO_PATH) ?? apiPath(LOGO_PATH)}
-              alt={HOTEL_NAME}
+              alt={`Logo de ${HOTEL_NAME}, hotel boutique en Futrono`}
               width={44}
               height={44}
+              priority
               className="h-11 w-11 shrink-0 object-contain drop-shadow-md"
             />
             <div className="min-w-0">

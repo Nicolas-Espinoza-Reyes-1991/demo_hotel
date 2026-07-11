@@ -2,8 +2,10 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { apiPath } from "@/lib/api-path";
+import { HOTEL_NAME } from "@/lib/brand";
 
 function LoginForm() {
   const router = useRouter();
@@ -76,9 +78,11 @@ function LoginForm() {
         <div className="mx-auto w-full max-w-md">
           <div className="mb-7 text-center">
             <div className="mx-auto mb-4 grid h-20 w-20 place-items-center rounded-3xl border border-highlight/25 bg-white/78 shadow-[0_14px_35px_-20px_rgba(61,43,31,0.4)]">
-              <img
+              <Image
                 src={apiPath("/logo-casona.webp")}
-                alt="La Casona de Futrono"
+                alt={`Logo de ${HOTEL_NAME}`}
+                width={56}
+                height={56}
                 className="h-14 w-14 object-contain"
               />
             </div>

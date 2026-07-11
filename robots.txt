@@ -1,9 +1,13 @@
 User-agent: *
 Allow: /
-Allow: /reservas/
+
+# Rutas privadas del motor de reservas
 Disallow: /reservas/admin
+Disallow: /reservas/admin/
 Disallow: /reservas/login
-Disallow: /reservas/api/
+Disallow: /reservas/login/
 Disallow: /reservas/mi-reserva
+Disallow: /reservas/mi-reserva/
+Disallow: /reservas/api/
 
 Sitemap: https://lacasonadefutrono.cl/sitemap.xml

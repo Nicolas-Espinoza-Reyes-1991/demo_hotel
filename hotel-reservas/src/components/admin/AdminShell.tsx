@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useId, useLayoutEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { apiPath, publicAssetUrl } from "@/lib/api-path";
@@ -115,9 +116,9 @@ export function AdminShell({
     <>
       <div className="border-b border-white/10 px-5 py-5">
         <Link href="/" className="flex items-center gap-3" onClick={() => onMobileOpenChange(false)}>
-          <img
+          <Image
             src={publicAssetUrl(LOGO_PATH) ?? apiPath(LOGO_PATH)}
-            alt={HOTEL_NAME}
+            alt={`Logo de ${HOTEL_NAME}`}
             width={48}
             height={48}
             className="h-12 w-12 rounded-full border border-white/15 bg-white/95 object-contain shadow-lg"

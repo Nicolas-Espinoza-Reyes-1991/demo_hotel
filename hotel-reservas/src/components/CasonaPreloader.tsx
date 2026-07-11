@@ -117,7 +117,7 @@ export function CasonaPreloaderView({
         <span className="casona-preloader__ring" aria-hidden="true" />
         <Image
           src={logoSrc}
-          alt=""
+          alt={`Logo de ${hotelName}, hotel boutique en Futrono`}
           width={160}
           height={160}
           priority
