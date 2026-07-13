@@ -38,11 +38,22 @@ type CalendarReservation = {
   guestBirthDate?: string | null;
   checkIn: string;
   checkOut: string;
-  paymentStatus: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+  paymentStatus: "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED";
   status?: string;
   updatedAt?: string;
   historical?: boolean;
 };
+
+type CalendarRoomBlock = {
+  id: string;
+  roomId: string;
+  roomCode?: string;
+  startDate: string;
+  endDate: string;
+  reason: string | null;
+};
+
+type DateSpan = { checkIn: string; checkOut: string };
 
 type CalendarData = {
   year: number;
@@ -51,12 +62,13 @@ type CalendarData = {
   rooms: CalendarRoom[];
   reservations: CalendarReservation[];
   historyReservations?: CalendarReservation[];
+  roomBlocks?: CalendarRoomBlock[];
 };
 
 type VisibleDay = { year: number; month: number; day: number };
 type ViewMode = "month" | "week";
 type PanelView = "calendar" | "list";
-type PaymentFilter = "active" | "paid" | "pending" | "history" | "all";
+type PaymentFilter = "active" | "paid" | "partial" | "pending" | "history" | "all";
 type PeriodSortKey = "guest" | "room" | "checkIn" | "payment" | "code";
 
 const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"] as const;
@@ -139,26 +151,31 @@ function buildVisibleDays(viewMode: ViewMode, year: number, month: number, weekA
   });
 }
 
-function reservationOverlapsDay(
-  reservation: CalendarReservation,
-  day: VisibleDay
-): boolean {
-  const { date: checkIn } = toDateOnlyParts(reservation.checkIn);
-  const { date: checkOut } = toDateOnlyParts(reservation.checkOut);
+function spanOverlapsDay(span: DateSpan, day: VisibleDay): boolean {
+  const { date: checkIn } = toDateOnlyParts(span.checkIn);
+  const { date: checkOut } = toDateOnlyParts(span.checkOut);
   const dayStart = visibleDayDate(day);
   const dayEnd = new Date(dayStart);
   dayEnd.setDate(dayEnd.getDate() + 1);
   return checkIn < dayEnd && checkOut > dayStart;
 }
 
-function getBarPosition(reservation: CalendarReservation, visibleDays: VisibleDay[]) {
+function reservationOverlapsDay(reservation: CalendarReservation, day: VisibleDay): boolean {
+  return spanOverlapsDay(reservation, day);
+}
+
+function blockAsSpan(block: CalendarRoomBlock): DateSpan {
+  return { checkIn: block.startDate, checkOut: block.endDate };
+}
+
+function getBarPosition(span: DateSpan, visibleDays: VisibleDay[]) {
   const rangeDays = visibleDays.length;
 
   let startIndex = -1;
   let endIndex = -1;
 
   visibleDays.forEach((day, index) => {
-    if (!reservationOverlapsDay(reservation, day)) return;
+    if (!spanOverlapsDay(span, day)) return;
     if (startIndex === -1) startIndex = index;
     endIndex = index + 1;
   });
@@ -173,12 +190,16 @@ function getBarPosition(reservation: CalendarReservation, visibleDays: VisibleDa
   return { leftPercent, widthPercent, startIndex, endIndex, spanDays };
 }
 
-function assignReservationLanes(reservations: CalendarReservation[], visibleDays: VisibleDay[]) {
-  const positioned = reservations
-    .map((reservation) => {
-      const position = getBarPosition(reservation, visibleDays);
+type CalendarLaneItem =
+  | { kind: "reservation"; reservation: CalendarReservation; checkIn: string; checkOut: string }
+  | { kind: "block"; block: CalendarRoomBlock; checkIn: string; checkOut: string };
+
+function assignCalendarLanes(items: CalendarLaneItem[], visibleDays: VisibleDay[]) {
+  const positioned = items
+    .map((item) => {
+      const position = getBarPosition(item, visibleDays);
       if (!position) return null;
-      return { reservation, ...position };
+      return { ...item, ...position };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null)
     .sort((a, b) => a.startIndex - b.startIndex || a.endIndex - b.endIndex);
@@ -206,10 +227,13 @@ function reservationBarStyles(reservation: CalendarReservation) {
     return "border-slate-400/60 border-dashed bg-slate-200/90 text-slate-700 shadow-slate-900/10 opacity-85";
   }
   if (reservation.paymentStatus === "PAID") {
-    return "border-accent/40 bg-gradient-to-r from-accent to-highlight text-brand-900 shadow-accent-hover/20";
+    return "border-emerald-600/50 bg-gradient-to-r from-emerald-700 to-emerald-500 text-white shadow-emerald-900/20";
+  }
+  if (reservation.paymentStatus === "PARTIAL") {
+    return "border-amber-500/70 bg-gradient-to-r from-amber-300 to-yellow-200 text-amber-950 shadow-amber-900/15";
   }
   if (reservation.paymentStatus === "PENDING") {
-    return "border-amber-500/60 border-dashed bg-gradient-to-r from-amber-100 to-amber-50 text-amber-950 shadow-amber-900/10";
+    return "border-orange-400/60 border-dashed bg-gradient-to-r from-orange-100 to-amber-50 text-orange-950 shadow-orange-900/10";
   }
   return "border-brand-600 bg-brand-800 text-brand-500";
 }
@@ -217,6 +241,9 @@ function reservationBarStyles(reservation: CalendarReservation) {
 function calendarPaymentBadge(reservation: CalendarReservation) {
   if (reservation.paymentStatus === "PAID") {
     return { variant: "paid" as const, label: "Pagado" };
+  }
+  if (reservation.paymentStatus === "PARTIAL") {
+    return { variant: "partial" as const, label: "Abonado" };
   }
   if (reservation.paymentStatus === "REFUNDED") {
     return { variant: "refunded" as const, label: "Reembolsado" };
@@ -237,13 +264,24 @@ function guestInitials(name: string) {
 function LegendSwatch({
   variant,
 }: {
-  variant: "paid" | "pending" | "history" | "refunded" | "weekend" | "today" | "unavailable";
+  variant:
+    | "paid"
+    | "partial"
+    | "pending"
+    | "history"
+    | "refunded"
+    | "block"
+    | "weekend"
+    | "today"
+    | "unavailable";
 }) {
   const styles = {
-    paid: "bg-gradient-to-r from-accent to-highlight",
-    pending: "border border-dashed border-amber-500 bg-amber-100",
+    paid: "bg-gradient-to-r from-emerald-700 to-emerald-500",
+    partial: "bg-gradient-to-r from-amber-300 to-yellow-200",
+    pending: "border border-dashed border-orange-400 bg-orange-100",
     history: "border border-dashed border-slate-400 bg-slate-200",
     refunded: "border border-dashed border-violet-400 bg-violet-100",
+    block: "bg-gradient-to-r from-rose-900 to-stone-700",
     weekend: "bg-slate-300/50",
     today: "bg-honey/60 ring-2 ring-highlight/50",
     unavailable: "bg-brand-700/70",
@@ -259,10 +297,16 @@ function CalendarStat({
 }: {
   label: string;
   value: number | string;
-  tone?: "default" | "paid" | "pending";
+  tone?: "default" | "paid" | "partial" | "pending";
 }) {
   const valueClass =
-    tone === "paid" ? "text-accent" : tone === "pending" ? "text-amber-800" : "text-brand-100";
+    tone === "paid"
+      ? "text-emerald-800"
+      : tone === "partial"
+        ? "text-amber-800"
+        : tone === "pending"
+          ? "text-orange-800"
+          : "text-brand-100";
 
   return (
     <span className="inline-flex items-center gap-1 whitespace-nowrap">
@@ -481,11 +525,13 @@ function ReservationDetailCard({
   roomCode,
   pinned,
   onClose,
+  onOpenReservation,
 }: {
   reservation: CalendarReservation;
   roomCode?: string;
   pinned?: boolean;
   onClose?: () => void;
+  onOpenReservation?: (target: { id: string; confirmationCode: string }) => void;
 }) {
   const nights = countNights(reservation.checkIn, reservation.checkOut);
   const paymentBadge = calendarPaymentBadge(reservation);
@@ -525,7 +571,7 @@ function ReservationDetailCard({
         {reservation.historical && reservation.updatedAt && (
           <span className="text-[10px] text-brand-500">
             Actualizado{" "}
-            {new Date(reservation.updatedAt).toLocaleString("es-AR", {
+            {new Date(reservation.updatedAt).toLocaleString("es-CL", {
               day: "2-digit",
               month: "short",
               hour: "2-digit",
@@ -559,6 +605,22 @@ function ReservationDetailCard({
           <CopyCodeButton code={reservation.confirmationCode} />
         </div>
       </div>
+
+      {onOpenReservation ? (
+        <button
+          type="button"
+          onClick={() => {
+            onOpenReservation({
+              id: reservation.id,
+              confirmationCode: reservation.confirmationCode,
+            });
+            onClose?.();
+          }}
+          className="btn-primary mt-3 min-h-10 w-full text-sm"
+        >
+          Ver en Reservas
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -574,6 +636,7 @@ function ReservationBar({
   laneHeight,
   pinnedId,
   onTogglePin,
+  onOpenReservation,
 }: {
   reservation: CalendarReservation;
   roomCode: string;
@@ -585,12 +648,14 @@ function ReservationBar({
   laneHeight: number;
   pinnedId: string | null;
   onTogglePin: (id: string | null) => void;
+  onOpenReservation?: (target: { id: string; confirmationCode: string }) => void;
 }) {
   const barRef = useRef<HTMLButtonElement>(null);
   const [hoverOpen, setHoverOpen] = useState(false);
   const nights = countNights(reservation.checkIn, reservation.checkOut);
   const isHistorical = Boolean(reservation.historical);
   const isPaid = !isHistorical && reservation.paymentStatus === "PAID";
+  const isPartial = !isHistorical && reservation.paymentStatus === "PARTIAL";
   const isPending = !isHistorical && reservation.paymentStatus === "PENDING";
   const isCompact = spanDays <= 3;
   const isPinned = pinnedId === reservation.id;
@@ -623,6 +688,7 @@ function ReservationBar({
               roomCode={roomCode}
               pinned={isPinned}
               onClose={closeTooltip}
+              onOpenReservation={onOpenReservation}
             />
           </div>,
           document.body
@@ -666,9 +732,11 @@ function ReservationBar({
                 "flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold",
                 isPaid
                   ? "bg-white/20 text-white"
-                  : isPending
-                    ? "bg-amber-500/15 text-amber-900"
-                    : "bg-slate-500/15 text-slate-800"
+                  : isPartial
+                    ? "bg-amber-700/15 text-amber-950"
+                    : isPending
+                      ? "bg-orange-500/15 text-orange-900"
+                      : "bg-slate-500/15 text-slate-800"
               )}
             >
               {guestInitials(reservation.guestName)}
@@ -676,7 +744,13 @@ function ReservationBar({
             <span
               className={cn(
                 "text-[9px] font-bold leading-none",
-                isPaid ? "text-white/90" : isPending ? "text-amber-900" : "text-slate-700"
+                isPaid
+                  ? "text-white/90"
+                  : isPartial
+                    ? "text-amber-950"
+                    : isPending
+                      ? "text-orange-900"
+                      : "text-slate-700"
               )}
             >
               {formatBarDateRange(reservation.checkIn, reservation.checkOut)}
@@ -687,7 +761,13 @@ function ReservationBar({
             <span
               className={cn(
                 "h-1.5 w-1.5 shrink-0 rounded-full",
-                isPaid ? "bg-white/90" : isPending ? "bg-amber-500" : "bg-slate-500"
+                isPaid
+                  ? "bg-white/90"
+                  : isPartial
+                    ? "bg-amber-700"
+                    : isPending
+                      ? "bg-orange-500"
+                      : "bg-slate-500"
               )}
               aria-hidden
             />
@@ -697,7 +777,13 @@ function ReservationBar({
                 <span
                   className={cn(
                     "block truncate text-[10px] font-medium",
-                    isPaid ? "text-white/85" : isPending ? "text-amber-800" : "text-slate-700"
+                    isPaid
+                      ? "text-white/85"
+                      : isPartial
+                        ? "text-amber-900"
+                        : isPending
+                          ? "text-orange-800"
+                          : "text-slate-700"
                   )}
                 >
                   {formatBarDateRange(reservation.checkIn, reservation.checkOut)} · {nights}
@@ -711,6 +797,143 @@ function ReservationBar({
             )}
           </div>
         )}
+      </button>
+      {tooltip}
+    </div>
+  );
+}
+
+function BlockBar({
+  block,
+  roomCode,
+  leftPercent,
+  widthPercent,
+  laneIndex,
+  spanDays,
+  rangeDays,
+  laneHeight,
+  pinnedId,
+  onTogglePin,
+}: {
+  block: CalendarRoomBlock;
+  roomCode: string;
+  leftPercent: number;
+  widthPercent: number;
+  laneIndex: number;
+  spanDays: number;
+  rangeDays: number;
+  laneHeight: number;
+  pinnedId: string | null;
+  onTogglePin: (id: string | null) => void;
+}) {
+  const barRef = useRef<HTMLButtonElement>(null);
+  const [hoverOpen, setHoverOpen] = useState(false);
+  const isCompact = spanDays <= 3;
+  const isPinned = pinnedId === block.id;
+  const isOpen = isPinned || hoverOpen;
+  const position = useFloatingPanelPosition(barRef, isOpen);
+  const barHeight = laneHeight - 16;
+  const barTop = laneIndex * laneHeight + 8;
+  const visibleDaySpan = (widthPercent / 100) * rangeDays;
+  const showInlineText = !isCompact && visibleDaySpan >= 2.2;
+  const reason = block.reason?.trim() || "Sin motivo";
+
+  function closeTooltip() {
+    setHoverOpen(false);
+    if (isPinned) onTogglePin(null);
+  }
+
+  const tooltip =
+    isOpen && typeof document !== "undefined"
+      ? createPortal(
+          <div
+            className="fixed z-[9999]"
+            style={{ top: position.top, left: position.left, width: TOOLTIP_WIDTH }}
+            onMouseEnter={() => setHoverOpen(true)}
+            onMouseLeave={() => {
+              if (!isPinned) setHoverOpen(false);
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="overflow-hidden rounded-xl border border-rose-800/50 bg-white shadow-xl shadow-rose-950/15">
+              <div className="flex items-start justify-between gap-2 border-b border-rose-100 bg-rose-50 px-3 py-2.5">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-rose-950">Bloqueo</p>
+                  <p className="text-[11px] text-rose-800/80">Hab. {roomCode}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeTooltip}
+                  className="rounded-md px-1.5 py-0.5 text-xs text-rose-700 hover:bg-rose-100"
+                  aria-label="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-2 px-3 py-2.5 text-xs text-brand-700">
+                <p>
+                  <span className="font-semibold text-brand-500">Fechas: </span>
+                  {formatBarDateRange(block.startDate, block.endDate)}
+                </p>
+                <p>
+                  <span className="font-semibold text-brand-500">Motivo: </span>
+                  {reason}
+                </p>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )
+      : null;
+
+  return (
+    <div
+      className="absolute"
+      style={{
+        left: `${leftPercent}%`,
+        width: `${widthPercent}%`,
+        minWidth: `${100 / rangeDays}%`,
+        top: barTop,
+        height: barHeight,
+        zIndex: isPinned ? 40 : laneIndex + 1,
+      }}
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        ref={barRef}
+        type="button"
+        onMouseEnter={() => setHoverOpen(true)}
+        onMouseLeave={() => {
+          if (!isPinned) setHoverOpen(false);
+        }}
+        onClick={() => onTogglePin(isPinned ? null : block.id)}
+        className={cn(
+          "relative flex h-full w-full items-center overflow-hidden rounded-lg border px-2 text-xs font-semibold shadow-sm transition-all duration-150",
+          "border-rose-800/55 bg-gradient-to-r from-rose-950 to-stone-700 text-rose-50 shadow-rose-950/20",
+          "hover:z-30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-highlight/50",
+          isPinned && "z-40 ring-2 ring-highlight/60"
+        )}
+        aria-expanded={isOpen}
+        aria-label={`Bloqueo habitación ${roomCode}${block.reason ? `: ${block.reason}` : ""}`}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-rose-200/90" aria-hidden />
+          {isCompact ? (
+            <span className="truncate text-[10px]">Bloqueo</span>
+          ) : showInlineText ? (
+            <div className="min-w-0 overflow-hidden leading-tight">
+              <span className="block truncate">Bloqueo</span>
+              <span className="block truncate text-[10px] font-medium text-rose-100/85">
+                {formatBarDateRange(block.startDate, block.endDate)}
+                {block.reason ? ` · ${block.reason}` : ""}
+              </span>
+            </div>
+          ) : (
+            <span className="truncate px-1 text-[10px]">
+              {formatBarDateRange(block.startDate, block.endDate)}
+            </span>
+          )}
+        </div>
       </button>
       {tooltip}
     </div>
@@ -753,7 +976,11 @@ function CalendarDepthTabs({
   );
 }
 
-export function AdminCalendar() {
+export function AdminCalendar({
+  onOpenReservation,
+}: {
+  onOpenReservation?: (target: { id: string; confirmationCode: string }) => void;
+} = {}) {
   const now = new Date();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const [year, setYear] = useState(now.getFullYear());
@@ -763,6 +990,7 @@ export function AdminCalendar() {
   const [weekAnchor, setWeekAnchor] = useState(now);
   const [paymentFilter, setPaymentFilter] = useState<PaymentFilter>("active");
   const [pinnedReservationId, setPinnedReservationId] = useState<string | null>(null);
+  const [pinnedBlockId, setPinnedBlockId] = useState<string | null>(null);
   const [periodSearch, setPeriodSearch] = useState("");
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(null);
   const [periodPage, setPeriodPage] = useState(1);
@@ -813,6 +1041,7 @@ export function AdminCalendar() {
         rooms: responses[0]?.rooms ?? [],
         reservations: responses.flatMap((item) => item.reservations),
         historyReservations: responses.flatMap((item) => item.historyReservations ?? []),
+        roomBlocks: responses.flatMap((item) => item.roomBlocks ?? []),
       };
 
       const uniqueActive = new Map<string, CalendarReservation>();
@@ -826,6 +1055,12 @@ export function AdminCalendar() {
         uniqueHistory.set(reservation.id, { ...reservation, historical: true });
       });
       merged.historyReservations = [...uniqueHistory.values()];
+
+      const uniqueBlocks = new Map<string, CalendarRoomBlock>();
+      merged.roomBlocks?.forEach((block) => {
+        uniqueBlocks.set(block.id, block);
+      });
+      merged.roomBlocks = [...uniqueBlocks.values()];
 
       setData(merged);
     } catch (err) {
@@ -847,6 +1082,7 @@ export function AdminCalendar() {
 
   useEffect(() => {
     setPinnedReservationId(null);
+    setPinnedBlockId(null);
     setSelectedDayKey(null);
   }, [year, month, viewMode, weekAnchor, paymentFilter]);
 
@@ -862,6 +1098,7 @@ export function AdminCalendar() {
       if (paymentFilter === "all") return true;
       if (reservation.historical) return false;
       if (paymentFilter === "paid") return reservation.paymentStatus === "PAID";
+      if (paymentFilter === "partial") return reservation.paymentStatus === "PARTIAL";
       if (paymentFilter === "pending") return reservation.paymentStatus === "PENDING";
       return true;
     });
@@ -872,6 +1109,13 @@ export function AdminCalendar() {
       visibleDays.some((day) => reservationOverlapsDay(reservation, day))
     );
   }, [filteredReservations, visibleDays]);
+
+  const visibleBlocks = useMemo(() => {
+    if (!data?.roomBlocks) return [];
+    return data.roomBlocks.filter((block) =>
+      visibleDays.some((day) => spanOverlapsDay(blockAsSpan(block), day))
+    );
+  }, [data?.roomBlocks, visibleDays]);
 
   const roomCodeById = useMemo(() => {
     const map = new Map<string, string>();
@@ -946,11 +1190,16 @@ export function AdminCalendar() {
           roomsOccupied.add(reservation.roomId);
         }
       });
+      visibleBlocks.forEach((block) => {
+        if (spanOverlapsDay(blockAsSpan(block), day)) {
+          roomsOccupied.add(block.roomId);
+        }
+      });
       map.set(key, roomsOccupied.size);
     });
 
     return map;
-  }, [mobileWeekDays, visibleReservations]);
+  }, [mobileWeekDays, visibleReservations, visibleBlocks]);
 
   const mobileTodayKey = useMemo(() => {
     const today = mobileWeekDays.find(
@@ -1018,18 +1267,33 @@ export function AdminCalendar() {
     if (!data) return null;
 
     const activeVisible = visibleReservations.filter((reservation) => !reservation.historical);
-    const occupiedNights = activeVisible.reduce((sum, reservation) => {
+    const reservationNights = activeVisible.reduce((sum, reservation) => {
       const position = getBarPosition(reservation, visibleDays);
       return sum + (position?.spanDays ?? 0);
     }, 0);
+    const blockNights = visibleBlocks.reduce((sum, block) => {
+      const position = getBarPosition(blockAsSpan(block), visibleDays);
+      return sum + (position?.spanDays ?? 0);
+    }, 0);
+    const occupiedNights = reservationNights + blockNights;
     const totalCapacity = data.rooms.length * visibleDays.length;
     const occupancy = totalCapacity > 0 ? Math.round((occupiedNights / totalCapacity) * 100) : 0;
     const paidCount = activeVisible.filter((r) => r.paymentStatus === "PAID").length;
+    const partialCount = activeVisible.filter((r) => r.paymentStatus === "PARTIAL").length;
     const pendingCount = activeVisible.filter((r) => r.paymentStatus === "PENDING").length;
     const historyCount = visibleReservations.filter((r) => r.historical).length;
+    const blockCount = visibleBlocks.length;
 
-    return { occupiedNights, occupancy, paidCount, pendingCount, historyCount };
-  }, [data, visibleReservations, visibleDays]);
+    return {
+      occupiedNights,
+      occupancy,
+      paidCount,
+      partialCount,
+      pendingCount,
+      historyCount,
+      blockCount,
+    };
+  }, [data, visibleReservations, visibleBlocks, visibleDays]);
 
   function shiftMonth(delta: number) {
     const date = new Date(year, month - 1 + delta, 1);
@@ -1201,10 +1465,19 @@ export function AdminCalendar() {
               <span className="hidden text-brand-700/40 sm:inline">·</span>
               <CalendarStat label="Pagadas" value={stats.paidCount} tone="paid" />
               <span className="hidden text-brand-700/40 sm:inline">·</span>
+              <CalendarStat label="Abonadas" value={stats.partialCount} tone="partial" />
+              <span className="hidden text-brand-700/40 sm:inline">·</span>
               <CalendarStat label="Pendientes" value={stats.pendingCount} tone="pending" />
+              {stats.blockCount > 0 && (
+                <>
+                  <span className="hidden text-brand-700/40 sm:inline">·</span>
+                  <CalendarStat label="Bloqueos" value={stats.blockCount} />
+                </>
+              )}
             </div>
             <p className="text-[11px] text-brand-500 md:hidden">
-              {data.rooms.length} hab. · {visibleReservations.length} res. · {stats.occupancy}% ocupación
+              {data.rooms.length} hab. · {visibleReservations.length} res.
+              {stats.blockCount > 0 ? ` · ${stats.blockCount} bloq.` : ""} · {stats.occupancy}% ocupación
             </p>
             <div className="hidden min-w-[10rem] items-center gap-2 sm:flex sm:max-w-xs sm:flex-1 sm:justify-end">
               <span className="shrink-0 text-[11px] font-medium text-brand-500">Ocupación</span>
@@ -1229,6 +1502,7 @@ export function AdminCalendar() {
               [
                 { id: "active", label: "Activas" },
                 { id: "paid", label: "Pagadas" },
+                { id: "partial", label: "Abonadas" },
                 { id: "pending", label: "Pendientes" },
                 { id: "history", label: "Historial" },
                 { id: "all", label: "Todas" },
@@ -1254,6 +1528,7 @@ export function AdminCalendar() {
               [
                 { id: "active", label: "Activas" },
                 { id: "paid", label: "Pagadas" },
+                { id: "partial", label: "Abonadas" },
                 { id: "pending", label: "Pendientes" },
                 { id: "history", label: "Historial" },
                 { id: "all", label: "Todas" },
@@ -1290,6 +1565,9 @@ export function AdminCalendar() {
             <LegendSwatch variant="paid" /> Pagado
           </span>
           <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="partial" /> Abonado
+          </span>
+          <span className="inline-flex items-center gap-1.5">
             <LegendSwatch variant="pending" /> Pendiente
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -1297,6 +1575,9 @@ export function AdminCalendar() {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <LegendSwatch variant="refunded" /> Reembolsada
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <LegendSwatch variant="block" /> Bloqueo
           </span>
           <span className="inline-flex items-center gap-1.5">
             <LegendSwatch variant="weekend" /> Fin de semana
@@ -1309,7 +1590,7 @@ export function AdminCalendar() {
           </span>
           {!isMobile && (
             <span className="ml-auto hidden text-[10px] italic text-brand-500/90 lg:inline">
-              Clic en una reserva para ver detalle
+              Clic en una reserva o bloqueo para ver detalle
             </span>
           )}
         </div>
@@ -1372,6 +1653,7 @@ export function AdminCalendar() {
             periodTotalPages={periodTotalPages}
             onPrevPage={() => setPeriodPage((prev) => Math.max(1, prev - 1))}
             onNextPage={() => setPeriodPage((prev) => Math.min(periodTotalPages, prev + 1))}
+            onOpenReservation={onOpenReservation}
           />
         )}
       </div>
@@ -1421,7 +1703,22 @@ export function AdminCalendar() {
           ) : (
             data.rooms.map((room, rowIndex) => {
               const roomReservations = visibleReservations.filter((r) => r.roomId === room.id);
-              const lanes = assignReservationLanes(roomReservations, visibleDays);
+              const roomBlocks = visibleBlocks.filter((b) => b.roomId === room.id);
+              const laneItems: CalendarLaneItem[] = [
+                ...roomReservations.map((reservation) => ({
+                  kind: "reservation" as const,
+                  reservation,
+                  checkIn: reservation.checkIn,
+                  checkOut: reservation.checkOut,
+                })),
+                ...roomBlocks.map((block) => ({
+                  kind: "block" as const,
+                  block,
+                  checkIn: block.startDate,
+                  checkOut: block.endDate,
+                })),
+              ];
+              const lanes = assignCalendarLanes(laneItems, visibleDays);
               const laneCount = lanes.reduce((max, item) => Math.max(max, item.laneIndex + 1), 1);
               const rowHeight = Math.max(laneCount * laneHeight, CALENDAR_ROW_MIN_HEIGHT);
               const laneRowHeight = rowHeight / laneCount;
@@ -1480,21 +1777,44 @@ export function AdminCalendar() {
                       ).flat()}
                     </div>
 
-                    {lanes.map(({ reservation, leftPercent, widthPercent, laneIndex, spanDays }) => (
-                      <ReservationBar
-                        key={reservation.id}
-                        reservation={reservation}
-                        roomCode={room.code}
-                        leftPercent={leftPercent}
-                        widthPercent={widthPercent}
-                        laneIndex={laneIndex}
-                        spanDays={spanDays}
-                        rangeDays={rangeDays}
-                        laneHeight={laneRowHeight}
-                        pinnedId={pinnedReservationId}
-                        onTogglePin={setPinnedReservationId}
-                      />
-                    ))}
+                    {lanes.map((lane) =>
+                      lane.kind === "reservation" ? (
+                        <ReservationBar
+                          key={lane.reservation.id}
+                          reservation={lane.reservation}
+                          roomCode={room.code}
+                          leftPercent={lane.leftPercent}
+                          widthPercent={lane.widthPercent}
+                          laneIndex={lane.laneIndex}
+                          spanDays={lane.spanDays}
+                          rangeDays={rangeDays}
+                          laneHeight={laneRowHeight}
+                          pinnedId={pinnedReservationId}
+                          onTogglePin={(id) => {
+                            setPinnedBlockId(null);
+                            setPinnedReservationId(id);
+                          }}
+                          onOpenReservation={onOpenReservation}
+                        />
+                      ) : (
+                        <BlockBar
+                          key={lane.block.id}
+                          block={lane.block}
+                          roomCode={room.code}
+                          leftPercent={lane.leftPercent}
+                          widthPercent={lane.widthPercent}
+                          laneIndex={lane.laneIndex}
+                          spanDays={lane.spanDays}
+                          rangeDays={rangeDays}
+                          laneHeight={laneRowHeight}
+                          pinnedId={pinnedBlockId}
+                          onTogglePin={(id) => {
+                            setPinnedReservationId(null);
+                            setPinnedBlockId(id);
+                          }}
+                        />
+                      )
+                    )}
                   </div>
                 </div>
               );
@@ -1608,6 +1928,20 @@ export function AdminCalendar() {
                             {reservation.confirmationCode}
                           </code>
                           <CopyCodeButton code={reservation.confirmationCode} />
+                          {onOpenReservation ? (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                onOpenReservation({
+                                  id: reservation.id,
+                                  confirmationCode: reservation.confirmationCode,
+                                })
+                              }
+                              className="btn-secondary min-h-8 px-2.5 text-[11px]"
+                            >
+                              Ver en Reservas
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>

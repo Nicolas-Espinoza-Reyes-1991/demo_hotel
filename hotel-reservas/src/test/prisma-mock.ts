@@ -24,6 +24,14 @@ export type MockDbClient = {
     create: ReturnType<typeof vi.fn>;
     delete: ReturnType<typeof vi.fn>;
   };
+  roomPriceRule: {
+    findMany: ReturnType<typeof vi.fn>;
+    count: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
+    createMany: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+    findUnique: ReturnType<typeof vi.fn>;
+  };
   guest: {
     upsert: ReturnType<typeof vi.fn>;
   };
@@ -54,6 +62,14 @@ export function createMockDb(): MockDbClient {
       count: vi.fn(),
       create: vi.fn(),
       delete: vi.fn(),
+    },
+    roomPriceRule: {
+      findMany: vi.fn(),
+      count: vi.fn(),
+      create: vi.fn(),
+      createMany: vi.fn(),
+      delete: vi.fn(),
+      findUnique: vi.fn(),
     },
     guest: {
       upsert: vi.fn(),

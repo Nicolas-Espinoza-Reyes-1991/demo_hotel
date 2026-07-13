@@ -63,7 +63,7 @@ export const bookingGuestSchema = z
       .trim()
       .min(8, "Teléfono demasiado corto")
       .max(30)
-      .refine(isValidChileanPhone, "Ingresá un móvil chileno válido (+56 9 XXXX XXXX)."),
+      .refine(isValidChileanPhone, "Ingresa un móvil chileno válido (+56 9 XXXX XXXX)."),
     documentType: guestDocumentTypeSchema.default("RUT"),
     rut: z.string().trim().max(15).optional(),
     passport: z.string().trim().max(20).optional(),
@@ -139,7 +139,9 @@ export const createReservationSchema = z
 /** Actualización manual admin — reserva. */
 export const updateReservationSchema = z
   .object({
-    paymentStatus: z.enum(["PENDING", "PAID", "CANCELLED", "REFUNDED"]).optional(),
+    paymentStatus: z
+      .enum(["PENDING", "PARTIAL", "PAID", "CANCELLED", "REFUNDED"])
+      .optional(),
     status: z
       .enum(["CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW"])
       .optional(),
@@ -147,15 +149,31 @@ export const updateReservationSchema = z
     totalAmount: z.coerce.number().positive("El monto debe ser mayor a 0.").max(9_999_999).optional(),
     discountReason: z.string().trim().max(200).optional().nullable(),
     clearDiscount: z.boolean().optional(),
+    /** Monto ya abonado (para PARTIAL / ajuste manual). */
+    amountPaid: z.coerce.number().min(0).max(9_999_999).optional(),
+    /** Atajo: registra abono 50% y deja estado Abonado. */
+    registerDeposit: z.boolean().optional(),
   })
   .refine(
     (data) =>
       data.paymentStatus !== undefined ||
       data.status !== undefined ||
       data.totalAmount !== undefined ||
-      data.clearDiscount === true,
+      data.clearDiscount === true ||
+      data.amountPaid !== undefined ||
+      data.registerDeposit === true,
     { message: "No hay cambios para aplicar." }
   );
+
+/**
+ * Alta walk-in desde el panel admin.
+ * paymentOutcome: Pendiente / Abono 50% / Pagado (sin hold de checkout online).
+ */
+export const createAdminReservationSchema = createReservationSchema.and(
+  z.object({
+    paymentOutcome: z.enum(["PENDING", "PARTIAL", "PAID"]).default("PENDING"),
+  })
+);
 
 /** Actualización manual admin — habitación (estado legacy). */
 export const updateRoomStatusSchema = z.object({

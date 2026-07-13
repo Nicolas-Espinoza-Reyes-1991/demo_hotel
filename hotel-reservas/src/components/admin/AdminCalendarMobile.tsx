@@ -64,6 +64,7 @@ export function MobilePeriodList({
   periodTotalPages,
   onPrevPage,
   onNextPage,
+  onOpenReservation,
 }: {
   rows: MobileCalendarReservation[];
   roomCodeById: Map<string, string>;
@@ -73,6 +74,7 @@ export function MobilePeriodList({
   periodTotalPages: number;
   onPrevPage: () => void;
   onNextPage: () => void;
+  onOpenReservation?: (target: { id: string; confirmationCode: string }) => void;
 }) {
   return (
     <div className="space-y-3">
@@ -112,6 +114,20 @@ export function MobilePeriodList({
               </code>
               <CopyCodeButton code={reservation.confirmationCode} />
             </div>
+            {onOpenReservation ? (
+              <button
+                type="button"
+                onClick={() =>
+                  onOpenReservation({
+                    id: reservation.id,
+                    confirmationCode: reservation.confirmationCode,
+                  })
+                }
+                className="btn-primary mt-3 min-h-10 w-full text-sm"
+              >
+                Ver en Reservas
+              </button>
+            ) : null}
           </article>
         );
       })}

@@ -25,6 +25,9 @@ SESSION_COOKIE_SECURE=true
 
 NEXT_PUBLIC_SHOW_DEMO_UI=false
 NEXT_PUBLIC_DISPLAY_CURRENCY=CLP
+NEXT_PUBLIC_FEATURE_MENU=false
+NEXT_PUBLIC_FEATURE_EXPERIENCES=false
+NEXT_PUBLIC_FEATURE_REPORTS=false
 
 DATABASE_URL=postgresql://postgres:BoyeDb2026Segura@db:5432/hotel_reservas?schema=public&connection_limit=5&pool_timeout=20
 POSTGRES_USER=postgres

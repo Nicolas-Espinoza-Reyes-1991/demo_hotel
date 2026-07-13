@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { apiPath, publicAssetUrl } from "@/lib/api-path";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getWebsiteUrl } from "@/lib/website";
 import { showDemoUi } from "@/lib/app-ui";
 import { HOTEL_NAME, HOTEL_TAGLINE, LOGO_PATH } from "@/lib/brand";
@@ -124,6 +125,26 @@ export function AppHeader() {
       variant: "accent",
     },
   ];
+
+  if (isFeatureEnabled("menu")) {
+    navItems.push({
+      key: "carta",
+      label: "Carta",
+      href: "/carta",
+      active: pathname === "/carta",
+      variant: "accent",
+    });
+  }
+
+  if (isFeatureEnabled("experiences")) {
+    navItems.push({
+      key: "experiencias",
+      label: "Experiencias",
+      href: "/experiencias",
+      active: pathname === "/experiencias",
+      variant: "accent",
+    });
+  }
 
   if (demoUi || isAdminArea) {
     navItems.push({

@@ -55,6 +55,9 @@ export function assertReservationPayable(reservation: {
   if (reservation.status === ReservationStatus.CANCELLED) {
     throw new Error("Esta reserva fue cancelada.");
   }
+  if (reservation.paymentStatus === PaymentStatus.PARTIAL) {
+    throw new Error("Esta reserva ya tiene un abono. El saldo se completa en el hotel al check-in.");
+  }
   if (isReservationHoldExpired(reservation)) {
     throw new Error("El tiempo para completar el pago expiró. Vuelve a buscar disponibilidad.");
   }

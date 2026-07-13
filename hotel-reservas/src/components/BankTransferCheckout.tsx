@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatCurrency } from "@/lib/dates";
 import type { BankTransferConfig } from "@/types/payments";
 
@@ -15,11 +16,15 @@ type BankTransferCheckoutProps = {
 };
 
 function CopyRow({ label, value }: { label: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
   async function copyValue() {
     try {
       await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
     } catch {
-      // clipboard no disponible
+      setCopied(false);
     }
   }
 
@@ -33,11 +38,11 @@ function CopyRow({ label, value }: { label: string; value: string }) {
       </div>
       <button
         type="button"
-        onClick={copyValue}
+        onClick={() => void copyValue()}
         aria-label={`Copiar ${label}`}
         className="shrink-0 rounded-lg border border-brand-700 bg-brand-900 px-2 py-0.5 text-[11px] font-semibold text-brand-500 hover:text-accent"
       >
-        Copiar
+        {copied ? "Copiado" : "Copiar"}
       </button>
     </div>
   );
@@ -47,7 +52,7 @@ export function BankTransferCheckout({
   config,
   confirmationCode,
   totalAmount,
-  guestEmail,
+  guestEmail: _guestEmail,
   loading,
   onConfirm,
   showConfirmButton = true,
@@ -55,15 +60,21 @@ export function BankTransferCheckout({
   return (
     <div className="space-y-2">
       <p className="text-xs leading-snug text-brand-500">
-        Transfiere <strong className="text-brand-100">{formatCurrency(totalAmount)}</strong> con{" "}
         {confirmationCode ? (
           <>
-            el código <strong className="font-mono text-brand-100">{confirmationCode}</strong>
+            Transfiere <strong className="text-brand-100">{formatCurrency(totalAmount)}</strong> usando el
+            código <strong className="font-mono text-brand-100">{confirmationCode}</strong> como referencia.
+            El hotel confirma en ~{config.deadlineHours} h.
           </>
         ) : (
-          <>tu código de reserva</>
-        )}{" "}
-        como referencia. Confirmamos en ~{config.deadlineHours} h.
+          <>
+            Primero confirma la reserva abajo. Después recibirás tu{" "}
+            <strong className="text-brand-100">código de reserva</strong> para usarlo como referencia al
+            transferir <strong className="text-brand-100">{formatCurrency(totalAmount)}</strong>. Tendrás{" "}
+            <strong className="text-brand-100">~{config.deadlineHours} horas</strong> para enviar el
+            comprobante.
+          </>
+        )}
       </p>
 
       <div className="overflow-hidden rounded-xl border border-brand-700 bg-brand-800 divide-y divide-brand-700/60">
@@ -78,29 +89,24 @@ export function BankTransferCheckout({
         {confirmationCode && <CopyRow label="Referencia obligatoria" value={confirmationCode} />}
       </div>
 
-      {(config.notes || config.contactEmail) && (
-        <p className="text-xs leading-snug text-brand-500">
-          {config.notes ? `${config.notes} ` : null}
-          {config.contactEmail && (
-            <>
-              Envía el comprobante a{" "}
-              <a
-                href={`mailto:${config.contactEmail}`}
-                className="font-semibold text-accent hover:underline"
-              >
-                {config.contactEmail}
-              </a>{" "}
-              con tu código y <strong className="text-brand-100">{guestEmail}</strong>.
-            </>
-          )}
-        </p>
-      )}
+      <p className="text-[11px] text-brand-500">
+        Envía el comprobante a{" "}
+        <strong className="text-brand-100">{config.contactEmail ?? "recepción del hotel"}</strong>
+        {confirmationCode ? (
+          <>
+            {" "}
+            indicando el código <span className="font-mono">{confirmationCode}</span>.
+          </>
+        ) : (
+          <> indicando tu código cuando lo tengas.</>
+        )}
+      </p>
 
-      {showConfirmButton && (
-        <button type="button" disabled={loading} onClick={onConfirm} className="btn-primary w-full">
-          {loading ? "Registrando reserva..." : "Confirmar reserva con transferencia"}
+      {showConfirmButton ? (
+        <button type="button" disabled={loading} onClick={onConfirm} className="btn-primary w-full min-h-11">
+          {loading ? "Registrando…" : confirmationCode ? "Ya transferí" : "Confirmar y obtener código"}
         </button>
-      )}
+      ) : null}
     </div>
   );
 }

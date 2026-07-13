@@ -4,6 +4,7 @@ import { AppError } from "@/lib/api-response";
 export type DiscountableReservation = {
   totalAmount: unknown;
   listTotalAmount?: unknown | null;
+  amountPaid?: unknown | null;
   paymentStatus: PaymentStatus;
   status: ReservationStatus;
   paymentProvider?: string | null;
@@ -27,6 +28,29 @@ export function hasActiveDiscount(reservation: {
   const list = getListTotalAmount(reservation);
   const charged = Number(reservation.totalAmount);
   return Number.isFinite(list) && Number.isFinite(charged) && charged < list - 0.009;
+}
+
+function getAmountPaidSafe(reservation: { amountPaid?: unknown | null }): number {
+  const value = Number(reservation.amountPaid ?? 0);
+  return Number.isFinite(value) && value > 0 ? Math.round(value * 100) / 100 : 0;
+}
+
+/**
+ * Opción B: el abono (amountPaid) no se modifica con el descuento.
+ * El nuevo total cobrado no puede quedar por debajo de lo ya abonado.
+ */
+export function assertDiscountRespectsAmountPaid(
+  reservation: { amountPaid?: unknown | null },
+  nextTotalAmount: number
+): void {
+  const paid = getAmountPaidSafe(reservation);
+  if (paid <= 0.009) return;
+  if (nextTotalAmount + 0.009 < paid) {
+    throw new AppError(
+      `El total cobrado ($${nextTotalAmount.toLocaleString("es-CL")}) no puede ser menor a lo ya abonado ($${paid.toLocaleString("es-CL")}). El abono no se modifica al aplicar descuento; ajustá el monto o el abono aparte.`,
+      400
+    );
+  }
 }
 
 /** ¿Se puede ajustar el monto cobrado? */
@@ -68,6 +92,7 @@ export type DiscountUpdateData = {
 /**
  * Calcula el update de descuento.
  * Sin descuento: totalAmount = listTotalAmount y campos de descuento en null.
+ * No toca amountPaid (opción B): solo cambia el total; el saldo se recalcula al leer.
  */
 export function buildDiscountUpdate(
   reservation: DiscountableReservation,
@@ -78,6 +103,7 @@ export function buildDiscountUpdate(
   const listTotal = getListTotalAmount(reservation);
 
   if (input.clearDiscount) {
+    assertDiscountRespectsAmountPaid(reservation, listTotal);
     return {
       listTotalAmount: listTotal,
       totalAmount: listTotal,
@@ -100,6 +126,7 @@ export function buildDiscountUpdate(
 
   // Igual al listado = quitar descuento
   if (Math.abs(charged - listTotal) <= 0.009) {
+    assertDiscountRespectsAmountPaid(reservation, listTotal);
     return {
       listTotalAmount: listTotal,
       totalAmount: listTotal,
@@ -117,9 +144,12 @@ export function buildDiscountUpdate(
     throw new AppError("El motivo del descuento es demasiado largo.", 400);
   }
 
+  const nextTotal = Math.round(charged * 100) / 100;
+  assertDiscountRespectsAmountPaid(reservation, nextTotal);
+
   return {
     listTotalAmount: listTotal,
-    totalAmount: Math.round(charged * 100) / 100,
+    totalAmount: nextTotal,
     discountReason: reason,
     discountAppliedAt: new Date(),
     discountAppliedBy: input.appliedBy.trim() || "staff",
@@ -130,17 +160,24 @@ export function serializeReservationMoney(reservation: {
   pricePerNight: unknown;
   totalAmount: unknown;
   listTotalAmount?: unknown | null;
+  amountPaid?: unknown | null;
   discountReason?: string | null;
   discountAppliedAt?: Date | string | null;
   discountAppliedBy?: string | null;
 }) {
   const listTotalAmount = getListTotalAmount(reservation);
   const totalAmount = Number(reservation.totalAmount);
+  const amountPaidRaw = Number(reservation.amountPaid ?? 0);
+  const amountPaid =
+    Number.isFinite(amountPaidRaw) && amountPaidRaw > 0 ? Math.round(amountPaidRaw * 100) / 100 : 0;
+  const balanceDue = Math.round(Math.max(0, totalAmount - amountPaid) * 100) / 100;
   const discounted = hasActiveDiscount({ totalAmount, listTotalAmount });
   return {
     pricePerNight: Number(reservation.pricePerNight),
     listTotalAmount,
     totalAmount,
+    amountPaid,
+    balanceDue,
     discountAmount: discounted ? Math.round((listTotalAmount - totalAmount) * 100) / 100 : 0,
     discountReason: discounted ? reservation.discountReason ?? null : null,
     discountAppliedAt: discounted

@@ -86,4 +86,30 @@ describe("reservation-discount", () => {
     expect(money.discountAmount).toBe(10000);
     expect(money.totalAmount).toBe(55000);
   });
+
+  it("opción B: descuento no toca amountPaid y respeta el piso del abono", () => {
+    const withDeposit = {
+      ...base,
+      totalAmount: 255000,
+      listTotalAmount: 255000,
+      amountPaid: 127500,
+      paymentStatus: PaymentStatus.PARTIAL,
+    };
+    const update = buildDiscountUpdate(withDeposit, {
+      chargedAmount: 230000,
+      reason: "cliente habitual",
+      appliedBy: "nelson",
+    });
+    expect(update.totalAmount).toBe(230000);
+    // amountPaid no forma parte del update de descuento
+    expect("amountPaid" in update).toBe(false);
+
+    expect(() =>
+      buildDiscountUpdate(withDeposit, {
+        chargedAmount: 100000,
+        reason: "descuento excesivo",
+        appliedBy: "nelson",
+      })
+    ).toThrow(/ya abonado/);
+  });
 });

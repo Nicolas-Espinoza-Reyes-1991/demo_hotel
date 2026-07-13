@@ -13,6 +13,7 @@ vi.mock("./availability", () => ({
     conflicts: [],
     nights: 1,
     totalAmount: 89,
+    averagePricePerNight: 89,
   }),
 }));
 

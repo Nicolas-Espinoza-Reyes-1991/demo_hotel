@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { BankTransferCheckout } from "@/components/BankTransferCheckout";
@@ -24,6 +24,7 @@ import {
   type GuestDocumentType,
 } from "@/lib/guest-identity";
 import { firstZodErrorMessage, zodFieldErrorMap } from "@/lib/zod-form-errors";
+import { FieldError, fieldA11yProps } from "@/components/ui/FieldError";
 
 const MercadoPagoCheckout = dynamic(
   () => import("@/components/MercadoPagoCheckout").then((mod) => mod.MercadoPagoCheckout),
@@ -47,6 +48,10 @@ type PaymentMethod = "online" | "bank_transfer";
 type CheckoutMeta = {
   checkoutToken: string;
   totalAmount: number;
+  nights?: number;
+  pricePerNight?: number;
+  holdMinutes?: number;
+  holdExpiresAt?: string;
 };
 
 const CHECKOUT_SESSION_KEY = "bh_checkout_session";
@@ -80,6 +85,10 @@ function loadCheckoutSession(
     return {
       checkoutToken: data.checkoutToken,
       totalAmount: data.totalAmount,
+      nights: data.nights,
+      pricePerNight: data.pricePerNight,
+      holdMinutes: data.holdMinutes,
+      holdExpiresAt: data.holdExpiresAt,
     };
   } catch {
     return null;
@@ -98,11 +107,6 @@ function formatExpiryInput(value: string): string {
   const digits = value.replace(/\D/g, "").slice(0, 4);
   if (digits.length <= 2) return digits;
   return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-xs text-red-700">{message}</p>;
 }
 
 const DETAIL_STEP_LABELS = ["Datos de contacto", "Identificación", "Tu estadía"];
@@ -195,6 +199,54 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       );
   }, [open, step]);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 40);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.clearTimeout(focusTimer);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
+
   if (!open || !room || !search) return null;
 
   const activeRoom = room;
@@ -230,7 +282,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
     if (fullName.trim().length < 2) errors.fullName = "Nombre demasiado corto.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = "Email inválido.";
     if (!isValidChileanPhone(phone)) {
-      errors.phone = "Ingresá un móvil chileno válido (+56 9 XXXX XXXX).";
+      errors.phone = "Ingresa un móvil chileno válido (+56 9 XXXX XXXX).";
     }
     if (!birthDate || !isValidBirthDate(birthDate)) {
       errors.birthDate = "Fecha de nacimiento inválida.";
@@ -253,7 +305,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       if (fullName.trim().length < 2) errors.fullName = "Nombre demasiado corto.";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) errors.email = "Email inválido.";
       if (!isValidChileanPhone(phone)) {
-        errors.phone = "Ingresá un móvil chileno válido (+56 9 XXXX XXXX).";
+        errors.phone = "Ingresa un móvil chileno válido (+56 9 XXXX XXXX).";
       }
     } else if (index === 1) {
       if (documentType === "RUT") {
@@ -287,7 +339,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
     const stepErrors = validateDetailStep(detailStep);
     if (Object.keys(stepErrors).length > 0) {
       setFieldErrors((prev) => ({ ...prev, ...stepErrors }));
-      setError("Revisá los campos marcados antes de continuar.");
+      setError("Revisa los campos marcados antes de continuar.");
       return;
     }
 
@@ -352,13 +404,13 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
     const localErrors = validateGuestLocally();
     if (!acceptedTerms) {
-      setError("Debés aceptar los términos y la política de privacidad para continuar.");
+      setError("Debes aceptar los términos y la política de privacidad para continuar.");
       setLoading(false);
       return;
     }
     if (Object.keys(localErrors).length > 0) {
       setFieldErrors(localErrors);
-      setError("Revisá los campos marcados antes de continuar.");
+      setError("Revisa los campos marcados antes de continuar.");
       setLoading(false);
       return;
     }
@@ -394,6 +446,10 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
       storeCheckoutMeta({
         checkoutToken: data.checkoutToken,
         totalAmount: data.quote.totalAmount,
+        nights: data.quote.nights,
+        pricePerNight: data.quote.pricePerNight,
+        holdMinutes: data.holdMinutes,
+        holdExpiresAt: data.holdExpiresAt,
       });
       setStep("payment");
     } catch (err) {
@@ -412,7 +468,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
     try {
       if (!/^\d{2}\/\d{2}$/.test(expiry)) {
-        throw new Error("Ingresá el vencimiento con formato MM/AA.");
+        throw new Error("Ingresa el vencimiento con formato MM/AA.");
       }
 
       const response = await fetch(apiPath("/api/checkout/pay"), {
@@ -480,11 +536,18 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-3 sm:p-4">
+      <button
+        type="button"
+        className="absolute inset-0 cursor-default"
+        aria-label="Cerrar reserva"
+        onClick={onClose}
+      />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="booking-title"
-        className="flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border-2 border-highlight/35 bg-brand-900 shadow-2xl shadow-accent/10 animate-fade-in-up"
+        className="relative flex max-h-[90dvh] w-full max-w-lg flex-col overflow-hidden rounded-3xl border-2 border-highlight/35 bg-brand-900 shadow-2xl shadow-accent/10 animate-fade-in-up"
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-brand-700/40 px-5 pt-5 pb-4 sm:px-6 sm:pt-6">
           <div>
@@ -524,6 +587,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             </div>
           </div>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             className="rounded-lg border border-brand-700 px-3 py-1 text-sm text-brand-500 hover:bg-brand-800"
@@ -540,8 +604,8 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                 <>
                   {paymentConfig && !emailNotificationsEnabled && (
                     <p className="alert-warning text-xs leading-relaxed">
-                      Los correos automáticos no están activos. Al finalizar, guardá tu código de
-                      confirmación o consultá tu reserva en <strong>Mi reserva</strong>.
+                      Los correos automáticos no están activos. Al finalizar, guarda tu código de
+                      confirmación o consulta tu reserva en <strong>Mi reserva</strong>.
                     </p>
                   )}
 
@@ -557,8 +621,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                       className="input-field"
                       required
                       autoComplete="name"
+                      {...fieldA11yProps("booking-err-fullName", fieldErrors.fullName)}
                     />
-                    <FieldError message={fieldErrors.fullName} />
+                    <FieldError id="booking-err-fullName" message={fieldErrors.fullName} />
                   </label>
 
                   <label className="block space-y-1.5">
@@ -573,8 +638,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                       className="input-field"
                       required
                       autoComplete="email"
+                      {...fieldA11yProps("booking-err-email", fieldErrors.email)}
                     />
-                    <FieldError message={fieldErrors.email} />
+                    <FieldError id="booking-err-email" message={fieldErrors.email} />
                   </label>
 
                   <label className="block space-y-1.5">
@@ -594,8 +660,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                       placeholder="+56 9 1234 5678"
                       required
                       inputMode="tel"
+                      {...fieldA11yProps("booking-err-phone", fieldErrors.phone)}
                     />
-                    <FieldError message={fieldErrors.phone} />
+                    <FieldError id="booking-err-phone" message={fieldErrors.phone} />
                   </label>
                 </>
               )}
@@ -660,6 +727,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                         autoComplete="off"
                         required
                         inputMode="text"
+                        {...fieldA11yProps("booking-err-doc", fieldErrors.rut)}
                       />
                     ) : (
                       <input
@@ -678,9 +746,11 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                         placeholder="AB1234567"
                         autoComplete="off"
                         required
+                        {...fieldA11yProps("booking-err-doc", fieldErrors.passport)}
                       />
                     )}
                     <FieldError
+                      id="booking-err-doc"
                       message={documentType === "RUT" ? fieldErrors.rut : fieldErrors.passport}
                     />
                   </label>
@@ -688,7 +758,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                   <label className="block space-y-1.5">
                     <span className="flex items-center gap-1.5 text-sm font-medium text-brand-100">
                       Fecha de nacimiento
-                      <InfoTooltip label="La usamos para el registro de check-in. Debés ser mayor de edad para reservar." />
+                      <InfoTooltip label="La usamos para el registro de check-in. Debes ser mayor de edad para reservar." />
                     </span>
                     <input
                       type="date"
@@ -701,8 +771,9 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                       required
                       max={maxBirthDate}
                       min="1900-01-01"
+                      {...fieldA11yProps("booking-err-birthDate", fieldErrors.birthDate)}
                     />
-                    <FieldError message={fieldErrors.birthDate} />
+                    <FieldError id="booking-err-birthDate" message={fieldErrors.birthDate} />
                   </label>
                 </>
               )}
@@ -722,6 +793,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                       value={guestsCount}
                       onChange={(e) => handleGuestsCountChange(Number(e.target.value))}
                       className="input-field"
+                      {...fieldA11yProps("booking-err-guests", fieldErrors.guestsCount)}
                     >
                       {Array.from({ length: activeRoom.maxGuests }, (_, index) => index + 1).map((count) => (
                         <option key={count} value={count}>
@@ -729,7 +801,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                         </option>
                       ))}
                     </select>
-                    <FieldError message={fieldErrors.guestsCount} />
+                    <FieldError id="booking-err-guests" message={fieldErrors.guestsCount} />
                   </label>
 
                   <label className="block space-y-1.5">
@@ -807,7 +879,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-5 py-3 sm:px-6">
             {paymentConfig && !emailNotificationsEnabled && (
               <p className="alert-warning text-xs leading-relaxed">
-                No enviaremos correo de confirmación. Anotá tu código al terminar o usá{" "}
+                No enviaremos correo de confirmación. Anota tu código al terminar o usa{" "}
                 <strong>Mi reserva</strong> para consultarlo después.
               </p>
             )}
@@ -820,6 +892,30 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
                 <InfoTooltip label={CANCELLATION_POLICY} />
               </span>
             </p>
+
+            {checkoutMeta ? (
+              <div className="rounded-xl border border-brand-700/70 bg-brand-800/80 px-3 py-2.5 text-xs text-brand-500">
+                <div className="flex justify-between gap-3">
+                  <span>Desglose</span>
+                  <span className="text-right font-medium text-brand-100">
+                    {formatCurrency(checkoutMeta.pricePerNight ?? room?.pricePerNight ?? 0)}
+                    {" × "}
+                    {checkoutMeta.nights ?? room?.nights ?? "—"} noche
+                    {(checkoutMeta.nights ?? room?.nights ?? 0) === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <div className="mt-1 flex justify-between gap-3 border-t border-brand-700/50 pt-1.5">
+                  <span className="font-semibold text-brand-100">Total</span>
+                  <span className="font-bold text-accent">{formatCurrency(checkoutMeta.totalAmount)}</span>
+                </div>
+                {checkoutMeta.holdMinutes ? (
+                  <p className="mt-2 text-[11px] leading-snug text-amber-900/90">
+                    Tienes <strong>{checkoutMeta.holdMinutes} minutos</strong> para completar el pago. Si se
+                    vence, tendrás que volver a iniciar la reserva.
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
 
             {showPaymentMethodTabs && (
               <div className="grid grid-cols-2 gap-2 rounded-2xl border border-brand-700 bg-brand-800 p-1.5">
@@ -867,7 +963,7 @@ export function BookingModal({ open, room, search, onClose, onSuccess }: Booking
             {onlineComingSoon && bankTransferAvailable && (
               <p className="rounded-xl border border-brand-700/70 bg-brand-800/70 px-3 py-2.5 text-xs leading-relaxed text-brand-500">
                 El pago con tarjeta estará disponible <strong className="text-brand-100">pronto</strong>.
-                Por ahora podés confirmar tu reserva por transferencia bancaria.
+                Por ahora puedes confirmar tu reserva por transferencia bancaria.
               </p>
             )}
 

@@ -14,9 +14,25 @@ function createPrismaClient() {
  * Cliente Prisma singleton.
  * Siempre se cachea en globalThis (dev y prod) para evitar abrir un pool
  * nuevo por cada request — en Docker/Postgres eso agota max_connections.
+ *
+ * En desarrollo, si el schema agregó modelos nuevos y el proceso sigue con un
+ * cliente viejo en memoria, recreamos el singleton.
  */
-export const prisma: PrismaClient = globalForPrisma.prisma ?? createPrismaClient();
+function getPrismaClient(): PrismaClient {
+  const existing = globalForPrisma.prisma;
+  if (existing) {
+    const hasPriceRules = typeof (existing as PrismaClient & { roomPriceRule?: unknown }).roomPriceRule !== "undefined";
+    if (process.env.NODE_ENV === "production" || hasPriceRules) {
+      return existing;
+    }
+    void existing.$disconnect().catch(() => undefined);
+  }
 
-globalForPrisma.prisma = prisma;
+  const client = createPrismaClient();
+  globalForPrisma.prisma = client;
+  return client;
+}
+
+export const prisma: PrismaClient = getPrismaClient();
 
 export default prisma;

@@ -45,4 +45,5 @@ curl -sf http://127.0.0.1:3000/reservas/api/public/rooms 2>/dev/null | head -c 2
 echo ""
 echo ""
 echo "Si la BD quedó vacía (0 habitaciones), restaurar demo:"
-echo "  sh scripts/dc.sh exec app npx prisma db seed   ← BORRA reservas, solo demo"
+echo "  sh scripts/dc.sh exec app npx prisma db seed   ← BLOQUEADO en prod (seed.ts aborta)"
+echo "  En local: npm run db:seed:demo   ← datos ficticios PENDING/PARTIAL/PAID"

@@ -43,6 +43,9 @@ describe("reservation-history", () => {
   });
 
   it("traduce estados de pago", () => {
+    expect(paymentStatusLabel(PaymentStatus.PAID)).toBe("Pagado");
+    expect(paymentStatusLabel(PaymentStatus.PARTIAL)).toBe("Abonado");
+    expect(paymentStatusLabel(PaymentStatus.PENDING)).toBe("Pendiente");
     expect(paymentStatusLabel(PaymentStatus.REFUNDED)).toBe("Reembolsado");
     expect(paymentStatusLabel(PaymentStatus.CANCELLED)).toBe("Cancelado");
   });

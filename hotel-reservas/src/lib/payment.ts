@@ -81,6 +81,7 @@ export async function processSimulatedPayment(
       paymentStatus: PaymentStatus.PAID,
       status: ReservationStatus.CONFIRMED,
       paymentProvider: "SIMULATED",
+      amountPaid: reservation.totalAmount,
       expiresAt: null,
     },
   });

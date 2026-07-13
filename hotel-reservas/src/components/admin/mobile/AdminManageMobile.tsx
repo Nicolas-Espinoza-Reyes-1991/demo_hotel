@@ -24,6 +24,8 @@ type ReservationRow = {
   paymentProvider?: string | null;
   status: string;
   totalAmount: number;
+  amountPaid?: number;
+  balanceDue?: number;
   listTotalAmount?: number;
   hasDiscount?: boolean;
   discountReason?: string | null;
@@ -48,6 +50,7 @@ type ReservationRow = {
 
 function paymentBadgeVariant(status: string) {
   if (status === "PAID") return "paid" as const;
+  if (status === "PARTIAL") return "partial" as const;
   if (status === "REFUNDED") return "refunded" as const;
   if (status === "CANCELLED") return "cancelled" as const;
   return "pending" as const;
@@ -63,11 +66,13 @@ export function AdminReservationsMobileList({
   rows,
   scope,
   managingId,
+  highlightId,
   savingId,
   paymentOptions,
   statusOptions,
   page,
   totalPages,
+  searchQuery,
   onManage,
   onUpdate,
   onPrevPage,
@@ -76,11 +81,13 @@ export function AdminReservationsMobileList({
   rows: ReservationRow[];
   scope: string;
   managingId?: string | null;
+  highlightId?: string | null;
   savingId: string | null;
   paymentOptions: { value: string; label: string }[];
   statusOptions: { value: string; label: string }[];
   page: number;
   totalPages: number;
+  searchQuery?: string;
   onManage: (id: string) => void;
   onUpdate: (
     id: string,
@@ -90,17 +97,22 @@ export function AdminReservationsMobileList({
       totalAmount?: number;
       discountReason?: string;
       clearDiscount?: boolean;
+      amountPaid?: number;
+      registerDeposit?: boolean;
     }
   ) => void;
   onPrevPage: () => void;
   onNextPage: () => void;
 }) {
   if (rows.length === 0) {
+    const q = searchQuery?.trim();
     return (
       <div className="rounded-2xl border border-brand-700 bg-white/72 px-4 py-10 text-center text-sm text-brand-500 md:hidden">
-        {scope === "history"
-          ? "No hay reservas canceladas o reembolsadas."
-          : "No hay reservas registradas."}
+        {q
+          ? `Sin resultados para “${q}”.`
+          : scope === "history"
+            ? "No hay reservas canceladas o reembolsadas."
+            : "No hay reservas registradas."}
       </div>
     );
   }
@@ -108,13 +120,14 @@ export function AdminReservationsMobileList({
   return (
     <div className="space-y-3 md:hidden">
       {rows.map((row) => (
-        <ReservationMobileCard
-          key={row.id}
-          row={row}
-          scope={scope}
-          isManaging={managingId === row.id}
-          onManage={() => onManage(row.id)}
-        />
+        <div key={row.id} data-reservation-id={row.id}>
+          <ReservationMobileCard
+            row={row}
+            scope={scope}
+            isManaging={managingId === row.id || highlightId === row.id}
+            onManage={() => onManage(row.id)}
+          />
+        </div>
       ))}
       <AdminMobilePagination page={page} totalPages={totalPages} onPrev={onPrevPage} onNext={onNextPage} />
     </div>
@@ -246,6 +259,8 @@ export function AdminReservationManageSheet({
       totalAmount?: number;
       discountReason?: string;
       clearDiscount?: boolean;
+      amountPaid?: number;
+      registerDeposit?: boolean;
     }
   ) => void;
 }) {
@@ -271,6 +286,7 @@ export function AdminReservationManageSheet({
             <ReservationDiscountEditor
               row={row}
               saving={saving}
+              mode="inline"
               onApply={(patch) => onUpdate(row.id, patch)}
             />
           </div>
@@ -340,6 +356,44 @@ export function AdminReservationManageSheet({
             options={paymentOptions}
             onChange={(value) => onUpdate(row.id, { paymentStatus: value })}
           />
+          {(row.paymentStatus === "PARTIAL" || (row.amountPaid ?? 0) > 0) && (
+            <p className="text-xs text-brand-500">
+              Abonado {formatCurrency(row.amountPaid ?? 0)}
+              {row.paymentStatus === "PARTIAL" && (
+                <>
+                  {" "}
+                  · Saldo{" "}
+                  {formatCurrency(
+                    row.balanceDue ?? Math.max(0, row.totalAmount - (row.amountPaid ?? 0))
+                  )}
+                </>
+              )}
+            </p>
+          )}
+          {(row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIAL") && (
+            <div className="flex flex-col gap-2">
+              {row.paymentStatus === "PENDING" && (
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => onUpdate(row.id, { registerDeposit: true })}
+                  className="min-h-11 rounded-xl bg-amber-100 px-3 text-sm font-semibold text-amber-950 ring-1 ring-amber-400/40 disabled:opacity-50"
+                >
+                  Registrar abono 50%
+                </button>
+              )}
+              {row.paymentStatus === "PARTIAL" && (
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => onUpdate(row.id, { paymentStatus: "PAID" })}
+                  className="min-h-11 rounded-xl bg-emerald-100 px-3 text-sm font-semibold text-emerald-900 ring-1 ring-emerald-500/35 disabled:opacity-50"
+                >
+                  Marcar pagado total (check-in)
+                </button>
+              )}
+            </div>
+          )}
           <AdminMobileSelect
             label="Estado de la reserva"
             value={row.status}
@@ -524,6 +578,139 @@ export function AdminBlocksMobileList({
         </AdminMobileCard>
       ))}
       <AdminMobilePagination page={page} totalPages={totalPages} onPrev={onPrevPage} onNext={onNextPage} />
+    </div>
+  );
+}
+
+type RateSeasonRule = {
+  id: string;
+  roomId: string;
+  roomCode: string;
+  roomName: string;
+  pricePerNight: number;
+};
+
+export type RateSeasonGroup = {
+  key: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  lastNight: string;
+  rules: RateSeasonRule[];
+};
+
+function formatSeasonDay(iso: string): string {
+  const [year, month, day] = iso.slice(0, 10).split("-").map(Number);
+  if (!year || !month || !day) return iso;
+  return new Date(Date.UTC(year, month - 1, day, 12)).toLocaleDateString("es-CL", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function AdminRatesMobileList({
+  seasons,
+  rooms,
+  deletingKey,
+  copyingKey,
+  expandedKey,
+  onToggleExpand,
+  onCopySeason,
+  onDeleteSeason,
+  emptyMessage = "Todavía no hay temporadas. Tocá “+ Nueva temporada” para empezar.",
+}: {
+  seasons: RateSeasonGroup[];
+  rooms: { id: string; pricePerNight: number }[];
+  deletingKey: string | null;
+  copyingKey: string | null;
+  expandedKey: string | null;
+  onToggleExpand: (key: string | null) => void;
+  onCopySeason: (season: RateSeasonGroup) => void;
+  onDeleteSeason: (season: RateSeasonGroup) => void;
+  emptyMessage?: string;
+}) {
+  if (seasons.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-brand-700 bg-white/72 px-4 py-10 text-center text-sm text-brand-500 md:hidden">
+        {emptyMessage}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 md:hidden">
+      {seasons.map((season) => {
+        const expanded = expandedKey === season.key;
+        const busy = deletingKey === season.key || copyingKey === season.key;
+        const minPrice = Math.min(...season.rules.map((rule) => rule.pricePerNight));
+        const maxPrice = Math.max(...season.rules.map((rule) => rule.pricePerNight));
+        const priceLabel =
+          minPrice === maxPrice
+            ? formatCurrency(minPrice)
+            : `${formatCurrency(minPrice)} – ${formatCurrency(maxPrice)}`;
+
+        return (
+          <AdminMobileCard key={season.key}>
+            <p className="font-semibold text-brand-100">{season.name}</p>
+            <p className="mt-1 text-sm text-brand-100">
+              {formatSeasonDay(season.startDate)} → {formatSeasonDay(season.lastNight)}
+            </p>
+            <p className="mt-1 text-xs text-brand-500">
+              {season.rules.length} cabaña{season.rules.length === 1 ? "" : "s"} · {priceLabel} / noche
+            </p>
+
+            {expanded && (
+              <div className="mt-3 space-y-2 border-t border-brand-700/35 pt-3">
+                {season.rules.map((rule) => {
+                  const base = rooms.find((room) => room.id === rule.roomId)?.pricePerNight;
+                  return (
+                    <div key={rule.id} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="min-w-0 truncate text-brand-100">
+                        {rule.roomCode}
+                        {base != null ? (
+                          <span className="block text-[11px] text-brand-500">
+                            Base {formatCurrency(base)}
+                          </span>
+                        ) : null}
+                      </span>
+                      <span className="shrink-0 font-bold text-brand-100">
+                        {formatCurrency(rule.pricePerNight)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onToggleExpand(expanded ? null : season.key)}
+                className="btn-secondary min-h-10 text-xs"
+              >
+                {expanded ? "Ocultar" : "Ver precios"}
+              </button>
+              <button
+                type="button"
+                onClick={() => onCopySeason(season)}
+                disabled={busy}
+                className="btn-secondary min-h-10 text-xs disabled:opacity-60"
+              >
+                Copiar +1 año
+              </button>
+              <button
+                type="button"
+                onClick={() => void onDeleteSeason(season)}
+                disabled={busy}
+                className="btn-secondary col-span-2 min-h-10 text-xs disabled:opacity-60"
+              >
+                {deletingKey === season.key ? "Eliminando…" : "Eliminar temporada"}
+              </button>
+            </div>
+          </AdminMobileCard>
+        );
+      })}
     </div>
   );
 }

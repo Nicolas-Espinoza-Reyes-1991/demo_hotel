@@ -7,13 +7,24 @@ import { cn } from "@/lib/utils";
 function LegendSwatch({
   variant,
 }: {
-  variant: "paid" | "pending" | "history" | "refunded" | "weekend" | "today" | "unavailable";
+  variant:
+    | "paid"
+    | "partial"
+    | "pending"
+    | "history"
+    | "refunded"
+    | "block"
+    | "weekend"
+    | "today"
+    | "unavailable";
 }) {
   const styles = {
-    paid: "bg-gradient-to-r from-accent to-highlight",
-    pending: "border border-dashed border-amber-500 bg-amber-100",
+    paid: "bg-gradient-to-r from-emerald-700 to-emerald-500",
+    partial: "bg-gradient-to-r from-amber-300 to-yellow-200",
+    pending: "border border-dashed border-orange-400 bg-orange-100",
     history: "border border-dashed border-slate-400 bg-slate-200",
     refunded: "border border-dashed border-violet-400 bg-violet-100",
+    block: "bg-gradient-to-r from-rose-900 to-stone-700",
     weekend: "bg-slate-300/50",
     today: "bg-honey/60 ring-2 ring-highlight/50",
     unavailable: "bg-brand-700/70",
@@ -24,9 +35,11 @@ function LegendSwatch({
 
 const LEGEND_ITEMS = [
   { variant: "paid" as const, label: "Pagado" },
+  { variant: "partial" as const, label: "Abonado" },
   { variant: "pending" as const, label: "Pendiente" },
   { variant: "history" as const, label: "Cancelada" },
   { variant: "refunded" as const, label: "Reembolsada" },
+  { variant: "block" as const, label: "Bloqueo" },
   { variant: "weekend" as const, label: "Fin de semana" },
   { variant: "today" as const, label: "Hoy" },
   { variant: "unavailable" as const, label: "No disponible" },

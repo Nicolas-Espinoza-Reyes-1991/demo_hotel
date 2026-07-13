@@ -14,6 +14,7 @@ import {
 } from "./dates";
 import { historicalReservationWhere } from "./reservation-history";
 import { expireStaleHoldReservations } from "./reservation-holds";
+import { calculateStayPricing } from "./room-pricing";
 import prisma from "./prisma";
 
 type DbClient = Prisma.TransactionClient | typeof prisma;
@@ -36,6 +37,8 @@ export type AvailabilityResult = {
   conflicts: AvailabilityConflict[];
   nights: number;
   totalAmount: number;
+  /** Precio promedio por noche de la estadía (para snapshot en la reserva). */
+  averagePricePerNight: number;
 };
 
 export function formatDateRangeLabel(checkIn: Date, checkOut: Date): string {
@@ -47,6 +50,7 @@ export function formatDateRangeLabel(checkIn: Date, checkOut: Date): string {
 
 function reservationConflictPaymentLabel(status: PaymentStatus): string {
   if (status === PaymentStatus.PAID) return "confirmada y pagada";
+  if (status === PaymentStatus.PARTIAL) return "confirmada con abono";
   if (status === PaymentStatus.PENDING) return "pendiente de pago";
   return "activa";
 }
@@ -115,6 +119,7 @@ export async function checkRoomAvailability(
       conflicts: [{ type: "RESERVATION", message: "La fecha de salida debe ser posterior al check-in." }],
       nights: 0,
       totalAmount: 0,
+      averagePricePerNight: 0,
     };
   }
 
@@ -125,6 +130,7 @@ export async function checkRoomAvailability(
       conflicts: [{ type: "ROOM_STATUS", message: "Habitación no encontrada." }],
       nights,
       totalAmount: 0,
+      averagePricePerNight: 0,
     };
   }
 
@@ -151,6 +157,7 @@ export async function checkRoomAvailability(
       checkOut: { gt: start },
       OR: [
         { paymentStatus: PaymentStatus.PAID },
+        { paymentStatus: PaymentStatus.PARTIAL },
         { paymentStatus: PaymentStatus.PENDING, expiresAt: null },
         { paymentStatus: PaymentStatus.PENDING, expiresAt: { gt: new Date() } },
       ],
@@ -187,13 +194,23 @@ export async function checkRoomAvailability(
     });
   }
 
-  const totalAmount = Number(room.pricePerNight) * nights;
+  const overlappingPriceRules = await db.roomPriceRule.findMany({
+    where: {
+      roomId,
+      startDate: { lt: end },
+      endDate: { gt: start },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const pricing = calculateStayPricing(Number(room.pricePerNight), start, end, overlappingPriceRules);
 
   return {
     available: conflicts.length === 0,
     conflicts,
-    nights,
-    totalAmount,
+    nights: pricing.nights,
+    totalAmount: pricing.totalAmount,
+    averagePricePerNight: pricing.averagePricePerNight,
   };
 }
 
@@ -225,7 +242,8 @@ export async function findAvailableRooms(params: {
     if (result.available) {
       availableRooms.push({
         ...room,
-        pricePerNight: Number(room.pricePerNight),
+        pricePerNight: result.averagePricePerNight,
+        basePricePerNight: Number(room.pricePerNight),
         beds: Array.isArray(room.beds) ? (room.beds as unknown[]) : [],
         bathrooms: Array.isArray(room.bathrooms) ? (room.bathrooms as unknown[]) : [],
         amenities: Array.isArray(room.amenities) ? (room.amenities as string[]) : [],
@@ -327,7 +345,7 @@ function mapCalendarReservation(
   };
 }
 
-/** Datos del calendario admin: habitaciones + reservas activas e historial del mes. */
+/** Datos del calendario admin: habitaciones + reservas activas, historial y bloqueos del mes. */
 export async function getCalendarData(year: number, month: number) {
   await expireStaleHoldReservations();
 
@@ -337,8 +355,12 @@ export async function getCalendarData(year: number, month: number) {
     checkIn: { lt: monthEndExclusive },
     checkOut: { gt: monthStart },
   };
+  const blockMonthRangeWhere = {
+    startDate: { lt: monthEndExclusive },
+    endDate: { gt: monthStart },
+  };
 
-  const [rooms, activeReservations, historyReservations] = await Promise.all([
+  const [rooms, activeReservations, historyReservations, roomBlocks] = await Promise.all([
     prisma.room.findMany({
       orderBy: [{ floor: "asc" }, { code: "asc" }],
     }),
@@ -349,6 +371,7 @@ export async function getCalendarData(year: number, month: number) {
         paymentStatus: { not: PaymentStatus.CANCELLED },
         OR: [
           { paymentStatus: PaymentStatus.PAID },
+          { paymentStatus: PaymentStatus.PARTIAL },
           {
             paymentStatus: PaymentStatus.PENDING,
             paymentProvider: { not: null },
@@ -367,6 +390,11 @@ export async function getCalendarData(year: number, month: number) {
       include: { guest: true, room: true },
       orderBy: { updatedAt: "desc" },
     }),
+    prisma.roomBlock.findMany({
+      where: blockMonthRangeWhere,
+      include: { room: { select: { code: true } } },
+      orderBy: { startDate: "asc" },
+    }),
   ]);
 
   return {
@@ -379,5 +407,13 @@ export async function getCalendarData(year: number, month: number) {
     })),
     reservations: activeReservations.map((r) => mapCalendarReservation(r, false)),
     historyReservations: historyReservations.map((r) => mapCalendarReservation(r, true)),
+    roomBlocks: roomBlocks.map((block) => ({
+      id: block.id,
+      roomId: block.roomId,
+      roomCode: block.room.code,
+      startDate: formatDateOnlyUTC(block.startDate),
+      endDate: formatDateOnlyUTC(block.endDate),
+      reason: block.reason,
+    })),
   };
 }

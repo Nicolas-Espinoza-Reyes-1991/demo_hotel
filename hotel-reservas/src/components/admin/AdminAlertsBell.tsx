@@ -8,7 +8,8 @@ import {
 } from "@/hooks/useAdminReservationAlerts";
 
 type AdminAlertsBellProps = {
-  onOpenReservation?: () => void;
+  /** Abre Reservas enfocando la alerta (id + código). */
+  onOpenReservation?: (target: { id: string; confirmationCode: string }) => void;
 };
 
 function formatStay(iso: string): string {
@@ -32,6 +33,8 @@ function paymentLabel(status: string): string {
   switch (status) {
     case "PAID":
       return "Pagada";
+    case "PARTIAL":
+      return "Abonada";
     case "PENDING":
       return "Pendiente";
     case "CANCELLED":
@@ -125,7 +128,7 @@ export function AdminAlertsBell({ onOpenReservation }: AdminAlertsBellProps) {
   function handleAlertClick(alert: ReservationAlert) {
     markOneRead(alert.id);
     setOpen(false);
-    onOpenReservation?.();
+    onOpenReservation?.({ id: alert.id, confirmationCode: alert.confirmationCode });
   }
 
   return (

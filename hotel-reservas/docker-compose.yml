@@ -25,6 +25,10 @@ services:
         NEXT_PUBLIC_SHOW_DEMO_UI: "false"
         NEXT_PUBLIC_DISPLAY_CURRENCY: CLP
         NEXT_PUBLIC_WHATSAPP_NUMBER: "56998218978"
+        # Módulos opcionales: false hasta que el cliente los contrate
+        NEXT_PUBLIC_FEATURE_MENU: "false"
+        NEXT_PUBLIC_FEATURE_EXPERIENCES: "false"
+        NEXT_PUBLIC_FEATURE_REPORTS: "false"
     restart: unless-stopped
     ports:
       - "3000:3000"

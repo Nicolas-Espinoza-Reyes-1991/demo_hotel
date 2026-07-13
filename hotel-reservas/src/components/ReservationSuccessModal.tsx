@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { formatCurrency, formatNightsLabel, formatStayRange } from "@/lib/dates";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { WhatsAppSupport } from "@/components/WhatsAppSupport";
@@ -67,7 +68,10 @@ export function ReservationSuccessModal({
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-500">
               Código de confirmación
             </p>
-            <p className="mt-1 break-all font-mono text-lg font-extrabold text-highlight">{data.confirmationCode}</p>
+            <div className="mt-1 flex items-center justify-between gap-2">
+              <p className="break-all font-mono text-lg font-extrabold text-highlight">{data.confirmationCode}</p>
+              <CopyCodeButton code={data.confirmationCode} />
+            </div>
           </div>
 
           <dl className="space-y-3 text-sm">
@@ -110,39 +114,50 @@ export function ReservationSuccessModal({
           </dl>
 
           {isBankTransfer && data.bankTransfer && !isPaid && (
-            <div className="alert-info space-y-2 text-left text-xs">
-              <p className="font-semibold">Datos para transferir</p>
-              <p>
-                Banco: <strong>{data.bankTransfer.bankName}</strong>
-              </p>
-              <p>
-                Titular: <strong>{data.bankTransfer.accountHolder}</strong>
-              </p>
-              {data.bankTransfer.taxId && (
-                <p>
-                  RUT: <strong className="font-mono">{data.bankTransfer.taxId}</strong>
+            <div className="space-y-3 text-left">
+              <div className="rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                <p className="font-bold">Plazo para el comprobante</p>
+                <p className="mt-1 text-xs leading-relaxed">
+                  Tienes <strong>{data.bankTransfer.deadlineHours} horas</strong> para transferir y enviar
+                  el comprobante con tu código{" "}
+                  <strong className="font-mono">{data.confirmationCode}</strong>. Pasado ese plazo, el hotel
+                  puede liberar la reserva.
                 </p>
-              )}
-              <p>
-                Tipo: <strong>{data.bankTransfer.accountType}</strong>
-              </p>
-              <p>
-                Cuenta: <strong className="font-mono">{data.bankTransfer.accountNumber}</strong>
-              </p>
-              {data.bankTransfer.cbu && (
+              </div>
+
+              <div className="alert-info space-y-2 text-xs">
+                <p className="font-semibold">Datos para transferir</p>
                 <p>
-                  CBU/CVU: <strong className="font-mono">{data.bankTransfer.cbu}</strong>
+                  Banco: <strong>{data.bankTransfer.bankName}</strong>
                 </p>
-              )}
-              {data.bankTransfer.alias && (
                 <p>
-                  Alias: <strong className="font-mono">{data.bankTransfer.alias}</strong>
+                  Titular: <strong>{data.bankTransfer.accountHolder}</strong>
                 </p>
-              )}
-              <p>
-                Referencia: <strong className="font-mono">{data.confirmationCode}</strong>
-              </p>
-              <p>Plazo: {data.bankTransfer.deadlineHours} horas para enviar comprobante.</p>
+                {data.bankTransfer.taxId && (
+                  <p>
+                    RUT: <strong className="font-mono">{data.bankTransfer.taxId}</strong>
+                  </p>
+                )}
+                <p>
+                  Tipo: <strong>{data.bankTransfer.accountType}</strong>
+                </p>
+                <p>
+                  Cuenta: <strong className="font-mono">{data.bankTransfer.accountNumber}</strong>
+                </p>
+                {data.bankTransfer.cbu && (
+                  <p>
+                    CBU/CVU: <strong className="font-mono">{data.bankTransfer.cbu}</strong>
+                  </p>
+                )}
+                {data.bankTransfer.alias && (
+                  <p>
+                    Alias: <strong className="font-mono">{data.bankTransfer.alias}</strong>
+                  </p>
+                )}
+                <p>
+                  Referencia: <strong className="font-mono">{data.confirmationCode}</strong>
+                </p>
+              </div>
             </div>
           )}
 
@@ -169,7 +184,7 @@ export function ReservationSuccessModal({
             ) : data.emailNotificationsEnabled === false ? (
               <>
                 Guarda tu código <strong className="font-mono">{data.confirmationCode}</strong>. No enviamos
-                correos automáticos en este momento; podés consultar tu reserva en{" "}
+                correos automáticos en este momento; puedes consultar tu reserva en{" "}
                 <strong>Mi reserva</strong> con tu email.
               </>
             ) : (
@@ -187,11 +202,40 @@ export function ReservationSuccessModal({
             roomName={data.roomName}
           />
 
-          <button type="button" onClick={onClose} className="btn-primary w-full">
-            Entendido
-          </button>
+          <div className="flex flex-col gap-2">
+            <a href="/mi-reserva" className="btn-secondary flex min-h-11 w-full items-center justify-center">
+              Ir a Mi reserva
+            </a>
+            <button type="button" onClick={onClose} className="btn-primary w-full">
+              Entendido
+            </button>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function CopyCodeButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void copy()}
+      className="shrink-0 rounded-lg border border-brand-700 bg-brand-900 px-2.5 py-1.5 text-[11px] font-semibold text-brand-100 hover:border-accent hover:text-accent"
+    >
+      {copied ? "Copiado" : "Copiar"}
+    </button>
   );
 }

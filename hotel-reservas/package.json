@@ -20,6 +20,7 @@
     "db:setup": "node scripts/setup-local-db.mjs",
     "db:seed": "prisma db seed",
     "db:seed:ejemplo": "prisma db seed",
+    "db:seed:demo": "node -e \"process.env.ALLOW_DEMO_SEED='true';process.env.NODE_ENV='development';require('child_process').execSync('npx prisma db seed',{stdio:'inherit',env:process.env})\"",
     "db:studio": "prisma studio",
     "docker:dev": "docker compose -f docker-compose.dev.yml up -d",
     "docker:prod": "docker-compose up -d --build",

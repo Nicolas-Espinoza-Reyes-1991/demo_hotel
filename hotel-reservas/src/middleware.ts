@@ -6,9 +6,12 @@ function requiresAuth(pathname: string, method: string): boolean {
 
   if (pathname === "/api/calendar") return true;
   if (pathname === "/api/room-blocks" || pathname.startsWith("/api/room-blocks/")) return true;
+  if (pathname === "/api/room-price-rules" || pathname.startsWith("/api/room-price-rules/")) return true;
   if (pathname === "/api/rooms" || pathname.startsWith("/api/rooms/")) return true;
   if (pathname === "/api/uploads/rooms" || pathname.startsWith("/api/uploads/")) return true;
   if (pathname === "/api/users" || pathname.startsWith("/api/users/")) return true;
+  if (pathname === "/api/menu" || pathname.startsWith("/api/menu/")) return true;
+  if (pathname === "/api/experiences" || pathname.startsWith("/api/experiences/")) return true;
   if (pathname === "/api/admin" || pathname.startsWith("/api/admin/")) return true;
 
   if (pathname === "/api/reservations" && method === "GET") return true;
@@ -44,6 +47,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname === "/api/public/menu") {
+    return NextResponse.next();
+  }
+
+  if (pathname === "/api/public/experiences") {
+    return NextResponse.next();
+  }
+
   if (!requiresAuth(pathname, request.method)) {
     return NextResponse.next();
   }
@@ -70,10 +81,16 @@ export const config = {
     "/api/calendar",
     "/api/room-blocks",
     "/api/room-blocks/:path*",
+    "/api/room-price-rules",
+    "/api/room-price-rules/:path*",
     "/api/rooms/:path*",
     "/api/uploads/:path*",
     "/api/users",
     "/api/users/:path*",
+    "/api/menu",
+    "/api/menu/:path*",
+    "/api/experiences",
+    "/api/experiences/:path*",
     "/api/admin",
     "/api/admin/:path*",
     "/api/reservations",

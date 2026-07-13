@@ -5,7 +5,11 @@ import { createCheckoutToken } from "@/lib/checkout-token";
 import { toDateOnly } from "@/lib/dates";
 import prisma from "@/lib/prisma";
 import { getClientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
-import { expireStaleHoldReservations } from "@/lib/reservation-holds";
+import {
+  computeHoldExpiresAt,
+  expireStaleHoldReservations,
+  getReservationHoldMinutes,
+} from "@/lib/reservation-holds";
 import { createReservationSchema } from "@/lib/validations";
 
 /**
@@ -66,13 +70,15 @@ export async function POST(request: NextRequest) {
       quote: {
         nights: availability.nights,
         totalAmount: availability.totalAmount,
-        pricePerNight: Number(room.pricePerNight),
+        pricePerNight: availability.averagePricePerNight ?? Number(room.pricePerNight),
         room: {
           id: room.id,
           code: room.code,
           name: room.name,
         },
       },
+      holdMinutes: getReservationHoldMinutes(),
+      holdExpiresAt: computeHoldExpiresAt().toISOString(),
     });
   } catch (error) {
     return handleApiError(error);

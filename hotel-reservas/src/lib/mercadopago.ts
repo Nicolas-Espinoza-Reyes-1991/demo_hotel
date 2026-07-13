@@ -150,7 +150,11 @@ export async function createMercadoPagoPayment(
       paymentProvider: "MERCADO_PAGO",
       mercadoPagoPaymentId: mpPaymentId,
       ...(paymentStatus === PaymentStatus.PAID
-        ? { status: ReservationStatus.CONFIRMED, expiresAt: null }
+        ? {
+            status: ReservationStatus.CONFIRMED,
+            expiresAt: null,
+            amountPaid: reservation.totalAmount,
+          }
         : {}),
     },
   });
@@ -237,7 +241,11 @@ export async function syncMercadoPagoPayment(mpPaymentId: string): Promise<void>
       paymentProvider: "MERCADO_PAGO",
       mercadoPagoPaymentId: mpPaymentIdString,
       ...(paymentStatus === PaymentStatus.PAID
-        ? { status: ReservationStatus.CONFIRMED, expiresAt: null }
+        ? {
+            status: ReservationStatus.CONFIRMED,
+            expiresAt: null,
+            amountPaid: reservation.totalAmount,
+          }
         : {}),
     },
   });

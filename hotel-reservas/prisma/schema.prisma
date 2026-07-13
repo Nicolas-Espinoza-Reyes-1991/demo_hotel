@@ -30,6 +30,8 @@ enum RoomType {
 /// Estado del pago de la reserva
 enum PaymentStatus {
   PENDING
+  /// Abono parcial (p. ej. 50%); saldo al check-in
+  PARTIAL
   PAID
   CANCELLED
   REFUNDED
@@ -69,6 +71,7 @@ model Room {
 
   reservations Reservation[]
   blocks       RoomBlock[]
+  priceRules   RoomPriceRule[]
 
   @@index([status])
   @@index([type])
@@ -115,6 +118,8 @@ model Reservation {
   listTotalAmount Decimal
   /// Monto cobrado (igual a listTotalAmount si no hay descuento).
   totalAmount     Decimal
+  /// Monto ya abonado (0 si pendiente; ≈50% si PARTIAL; = totalAmount si PAID).
+  amountPaid      Decimal           @default(0)
   /// Motivo del descuento (obligatorio si totalAmount < listTotalAmount).
   discountReason     String?
   discountAppliedAt  DateTime?
@@ -156,6 +161,24 @@ model RoomBlock {
   @@map("room_blocks")
 }
 
+/// Tarifas por rango de fechas (temporada, festivos, etc.). Rango [startDate, endDate).
+model RoomPriceRule {
+  id            String   @id @default(cuid())
+  roomId        String
+  startDate     DateTime
+  endDate       DateTime
+  pricePerNight Decimal
+  /// Etiqueta opcional (ej. "Verano 2026", "Semana Santa")
+  name          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, startDate, endDate])
+  @@map("room_price_rules")
+}
+
 /// Rol del personal del hotel (panel admin)
 enum StaffRole {
   ADMIN
@@ -177,4 +200,105 @@ model StaffUser {
   @@index([role])
   @@index([active])
   @@map("staff_users")
+}
+
+/// Categoría de la carta digital (desayunos, bar, snacks, etc.)
+model MenuCategory {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items MenuItem[]
+
+  @@index([active, sortOrder])
+  @@map("menu_categories")
+}
+
+/// Producto / plato de la carta
+model MenuItem {
+  id          String   @id @default(cuid())
+  categoryId  String
+  name        String
+  description String?
+  /// Precio en CLP (entero típico)
+  price       Decimal
+  imageUrl    String?
+  /// Etiquetas libres: vegetariano, sin gluten, etc.
+  tags        Json     @default("[]")
+  /// Si false, se muestra como agotado o se oculta en público según API
+  available   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, sortOrder])
+  @@index([active, available])
+  @@index([featured])
+  @@map("menu_items")
+}
+
+/// Empresa de turismo / partner local
+model TourPartner {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  whatsapp    String?
+  phone       String?
+  website     String?
+  area        String?
+  logoUrl     String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  experiences Experience[]
+
+  @@index([active, sortOrder])
+  @@map("tour_partners")
+}
+
+/// Categoría de actividad turística
+enum ExperienceCategory {
+  RIDING
+  BOAT
+  TREKKING
+  THERMAL
+  FISHING
+  CULTURE
+  OTHER
+}
+
+/// Experiencia / actividad ofrecida por un partner
+model Experience {
+  id            String              @id @default(cuid())
+  partnerId     String
+  title         String
+  description   String?
+  category      ExperienceCategory  @default(OTHER)
+  /// Duración legible, ej. "3 horas", "Medio día"
+  duration      String?
+  /// Precio referencial CLP; null = consultar
+  priceFrom     Decimal?
+  imageUrl      String?
+  featured      Boolean             @default(false)
+  active        Boolean             @default(true)
+  sortOrder     Int                 @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  partner TourPartner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  @@index([partnerId, sortOrder])
+  @@index([active, category])
+  @@index([featured])
+  @@map("experiences")
 }

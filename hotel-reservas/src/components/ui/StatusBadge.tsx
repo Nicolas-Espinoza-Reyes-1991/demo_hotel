@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 type BadgeVariant =
   | "available"
   | "pending"
+  | "partial"
   | "paid"
   | "maintenance"
   | "blocked"
@@ -11,8 +12,9 @@ type BadgeVariant =
 
 const styles: Record<BadgeVariant, string> = {
   available: "bg-accent/15 text-accent-hover ring-accent/30",
-  paid: "bg-accent/15 text-accent-hover ring-accent/30",
-  pending: "bg-amber-900/15 text-amber-950 ring-amber-700/30",
+  paid: "bg-emerald-100 text-emerald-900 ring-emerald-600/35",
+  partial: "bg-amber-100 text-amber-950 ring-amber-500/45",
+  pending: "bg-orange-50 text-orange-950 ring-orange-400/35",
   maintenance: "bg-brand-700 text-brand-100 ring-brand-600",
   blocked: "bg-red-900/15 text-red-900 ring-red-700/30",
   cancelled: "bg-red-900/15 text-red-900 ring-red-700/30",
@@ -22,6 +24,7 @@ const styles: Record<BadgeVariant, string> = {
 const labels: Record<BadgeVariant, string> = {
   available: "Disponible",
   paid: "Pagado",
+  partial: "Abonado",
   pending: "Pendiente",
   maintenance: "Mantenimiento",
   blocked: "Bloqueado",

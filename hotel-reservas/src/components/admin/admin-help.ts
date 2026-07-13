@@ -7,14 +7,16 @@ export const ADMIN_MODULE_HELP = {
     "Listado operativo de reservas. Podés buscar huéspedes y cambiar estado de pago o estadía manualmente.",
   rooms:
     "Inventario de habitaciones: precios, fotos, capacidad y estado. No se eliminan si tienen reservas asociadas.",
+  rates:
+    "Tarifas por temporada y fechas especiales. Cada cabaña puede tener un precio distinto en un rango programado.",
   blocks:
     "Bloqueos por fechas para sacar habitaciones de la venta (mantenimiento, eventos, cierres temporales).",
   users:
     "Mantenedor de accesos al panel. Solo el administrador puede crear usuarios y cambiar contraseñas.",
   experiences:
-    "Módulo de turismo y partners: cabalgatas, botes y actividades para huéspedes. Próximamente.",
-  menu: "Carta digital de comida, licores y productos del hotel. Próximamente.",
-  reports: "Reportes de reservas, ocupación e ingresos con gráficos. Próximamente.",
+    "Partners de turismo local y sus actividades. Lo publicado se ve en /experiencias para que el huésped contacte al operador.",
+  menu: "Administrá categorías y productos de la carta digital. Lo publicado se ve en /carta para huéspedes.",
+  reports: "Reportes de ocupación, ingresos cobrados, ranking de cabañas y saldos pendientes.",
 } as const;
 
 export const ADMIN_USERS_HELP = {
@@ -25,11 +27,11 @@ export const ADMIN_USERS_HELP = {
 
 export const ADMIN_CALENDAR_HELP = {
   section:
-    "Calendario de ocupación del hotel. Las barras muestran reservas; el color indica si está pagada, pendiente o en historial.",
+    "Calendario de ocupación del hotel. Las barras muestran reservas y bloqueos; el color indica pago, historial o bloqueo manual.",
   filters:
-    "Filtra reservas en el calendario: Activas (vigentes), Pagadas, Pendientes de pago, Historial (canceladas/reembolsadas) o Todas.",
+    "Filtra reservas en el calendario: Activas (vigentes), Pagadas, Pendientes de pago, Historial (canceladas/reembolsadas) o Todas. Los bloqueos se muestran siempre.",
   legend:
-    "Colores del calendario: dorado = pagado, ámbar = pendiente, gris = cancelada, violeta = reembolsada.",
+    "Colores: verde = pagado, amarillo = abonado, naranja = pendiente, gris = cancelada, violeta = reembolsada, rojo = bloqueo de habitación.",
   periodList:
     "Tabla rápida del período visible. Útil para buscar códigos y datos de contacto sin recorrer el calendario.",
 } as const;
@@ -45,12 +47,27 @@ export const ADMIN_RESERVATIONS_HELP = {
 
 export const ADMIN_ROOMS_HELP = {
   section:
-    "Administrá el catálogo de habitaciones que ven los huéspedes en la web. Los cambios de precio aplican a reservas nuevas.",
-  form: "Datos, fotos y precio de una habitación. La primera foto es la imagen principal en la landing y reservas.",
+    "Administrá el catálogo de habitaciones que ven los huéspedes en la web. El precio base aplica cuando no hay tarifa de temporada.",
+  form: "Datos, fotos y precio base de una habitación. Las temporadas se gestionan en Tarifas. La primera foto es la imagen principal.",
 } as const;
 
 export const ADMIN_BLOCKS_HELP = {
   section:
     "Impedí reservas en fechas concretas para una habitación. Útil para mantenimiento o uso interno del hotel.",
   list: "Bloqueos activos y futuros. Eliminá uno si la habitación vuelve a estar disponible antes.",
+} as const;
+
+export const ADMIN_RATES_HELP = {
+  section:
+    "Creá temporadas con fechas y precios por cabaña. Filtrá por año para mantener el listado ordenado.",
+  form: "Paso 1: nombre y fechas. Paso 2: elegí cabañas y precios. Podés subir un % sobre el base.",
+  list: "Cada tarjeta es una temporada. Filtrá por año (primera noche), “Vigentes” o “Todas”. Usá “Copiar +1 año” para renovarla.",
+} as const;
+
+export const ADMIN_REPORTS_HELP = {
+  section:
+    "Elegí el tipo, el período y generá el reporte. En el celular el botón queda fijo abajo.",
+  summary: "Tipo → fechas → Ver reporte. El resultado se muestra abajo y se puede exportar a CSV.",
+  definitions:
+    "Ingresos (plata): por llegada. Ocupación: por noches del rango. Cobrado = amountPaid. Comprometido = totalAmount.",
 } as const;

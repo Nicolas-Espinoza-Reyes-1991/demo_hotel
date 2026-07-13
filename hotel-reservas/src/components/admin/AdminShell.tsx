@@ -15,11 +15,13 @@ import {
   AdminNavButton,
   type AdminNavId,
 } from "@/components/admin/AdminNav";
+import { isFeatureEnabled } from "@/lib/feature-flags";
 import type { StaffRoleCode } from "@/types/staff";
 
 type AdminShellProps = {
   activeTab: AdminNavId;
   onSelectTab: (tab: AdminNavId) => void;
+  onOpenReservationAlert?: (target: { id: string; confirmationCode: string }) => void;
   role: StaffRoleCode | null;
   username: string | null;
   mobileOpen: boolean;
@@ -30,41 +32,46 @@ type AdminShellProps = {
 const TITLE: Record<AdminNavId, { title: string; subtitle: string }> = {
   calendar: {
     title: "Calendario",
-    subtitle: "Vista de ocupación y disponibilidad del hotel",
+    subtitle: "Ocupación y disponibilidad por fechas",
   },
   reservations: {
     title: "Reservas",
-    subtitle: "Seguimiento de huéspedes, pagos y estadías",
+    subtitle: "Huéspedes, pagos y estadías",
   },
   rooms: {
     title: "Habitaciones",
-    subtitle: "Inventario, precios y galería para la web",
+    subtitle: "Inventario, precios y galería web",
+  },
+  rates: {
+    title: "Tarifas",
+    subtitle: "Temporadas, festivos y rangos",
   },
   blocks: {
     title: "Bloqueos",
-    subtitle: "Cierres temporales fuera de la venta online",
+    subtitle: "Cierres temporales fuera de venta online",
   },
   experiences: {
     title: "Experiencias",
-    subtitle: "Turismo, partners y actividades para huéspedes",
+    subtitle: "Turismo, partners y actividades",
   },
   menu: {
     title: "Carta",
-    subtitle: "Comida, licores y productos del hotel",
+    subtitle: "Comida, licores y productos",
   },
   reports: {
     title: "Reportes",
-    subtitle: "Reservas, ocupación e ingresos del hotel",
+    subtitle: "Elegí el reporte, el período y generá el resultado",
   },
   users: {
     title: "Usuarios",
-    subtitle: "Accesos al panel: administradores y trabajadores",
+    subtitle: "Administradores y trabajadores",
   },
 };
 
 export function AdminShell({
   activeTab,
   onSelectTab,
+  onOpenReservationAlert,
   role,
   username,
   mobileOpen,
@@ -74,9 +81,22 @@ export function AdminShell({
   const router = useRouter();
   const menuId = useId();
   const isAdmin = role === "ADMIN";
-  const navItems = ADMIN_NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin);
+  const navItems = ADMIN_NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => {
+    if (item.id === "menu" && !isFeatureEnabled("menu")) return { ...item, comingSoon: true };
+    if (item.id === "experiences" && !isFeatureEnabled("experiences")) {
+      return { ...item, comingSoon: true };
+    }
+    if (item.id === "reports" && !isFeatureEnabled("reports")) return { ...item, comingSoon: true };
+    return item;
+  });
   const heading = TITLE[activeTab];
   const roleLabel = role === "ADMIN" ? "Administrador" : role === "STAFF" ? "Trabajador" : null;
+  const initials = (username ?? "U")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("") || "U";
 
   useLayoutEffect(() => {
     document.body.classList.add("admin-layout");
@@ -112,31 +132,49 @@ export function AdminShell({
 
   const sidebarBody = (
     <>
-      <div className="border-b border-white/10 px-5 py-5">
+      <div className="admin-sidebar__brand border-b border-white/[0.08] px-4 py-4">
         <div className="flex items-center gap-3">
           <Image
             src={publicAssetUrl(LOGO_PATH) ?? apiPath(LOGO_PATH)}
             alt={`Logo de ${HOTEL_NAME}`}
-            width={48}
-            height={48}
-            className="h-12 w-12 rounded-full border border-white/15 bg-white/95 object-contain shadow-lg"
+            width={44}
+            height={44}
+            className="h-11 w-11 rounded-full border border-white/15 bg-white/95 object-contain shadow-md"
           />
-          <div className="min-w-0">
-            <p className="truncate font-display text-base font-bold leading-tight text-white">{HOTEL_NAME}</p>
-            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e8c99a]/90">
-              Panel de gestión
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-[15px] font-bold leading-tight text-white">{HOTEL_NAME}</p>
+            <p className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-[#e8c99a]/85">
+              Administración
             </p>
           </div>
+          <button
+            type="button"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[#c9b8a4] transition hover:bg-white/10 hover:text-white lg:hidden"
+            aria-label="Cerrar menú"
+            onClick={() => onMobileOpenChange(false)}
+          >
+            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4" aria-label="Secciones del panel">
-        {ADMIN_NAV_GROUPS.map((group) => {
+      <nav className="admin-sidebar__nav flex-1 overflow-y-auto px-2.5 py-3" aria-label="Secciones del panel">
+        {ADMIN_NAV_GROUPS.map((group, groupIndex) => {
           const items = navItems.filter((item) => item.group === group.id);
           if (items.length === 0) return null;
           return (
-            <div key={group.id} className="space-y-1.5">
-              <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#c9b8a4]/70">
+            <div
+              key={group.id}
+              className={cn("space-y-0.5", groupIndex > 0 && "mt-4 pt-3 border-t border-white/[0.06]")}
+            >
+              <p
+                className={cn(
+                  "mb-1.5 px-2.5 text-[9px] font-bold uppercase tracking-[0.18em]",
+                  group.muted ? "text-[#c9b8a4]/45" : "text-[#c9b8a4]/65"
+                )}
+              >
                 {group.label}
               </p>
               {items.map((item) => (
@@ -152,34 +190,51 @@ export function AdminShell({
         })}
       </nav>
 
-      <div className="mt-auto space-y-3 border-t border-white/10 p-4">
-        <Link
-          href="/"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => onMobileOpenChange(false)}
-          className="flex min-h-10 items-center justify-center rounded-xl border border-white/12 bg-white/5 px-3 text-sm font-semibold text-[#f0e6d8] transition hover:bg-white/10"
-        >
-          Ver módulo de reservas
-        </Link>
-        <button
-          type="button"
-          onClick={() => void handleLogout()}
-          className="flex min-h-10 w-full items-center justify-center rounded-xl bg-[#e8c99a] px-3 text-sm font-bold text-[#3d2b1f] transition hover:bg-[#f0d7ad]"
-        >
-          Cerrar sesión
-        </button>
-        <AdkinCredit className="!text-[10px] !text-[#c9b8a4]/80 [&_a]:!text-[#e8c99a] [&_a]:hover:!text-white" />
+      <div className="admin-sidebar__footer mt-auto space-y-2.5 border-t border-white/[0.08] p-3">
+        {(username || roleLabel) && (
+          <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.06] px-2.5 py-2">
+            <span
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#e8c99a]/20 text-[11px] font-bold text-[#e8c99a]"
+              aria-hidden
+            >
+              {initials}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] font-semibold text-white">{username ?? "Usuario"}</p>
+              {roleLabel && (
+                <p className="truncate text-[10px] text-[#c9b8a4]/75">{roleLabel}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => onMobileOpenChange(false)}
+            className="flex min-h-9 items-center justify-center rounded-lg border border-white/12 bg-white/[0.04] px-2 text-[12px] font-semibold text-[#f0e6d8]/90 transition hover:bg-white/10"
+          >
+            Ver sitio
+          </Link>
+          <button
+            type="button"
+            onClick={() => void handleLogout()}
+            className="flex min-h-9 items-center justify-center rounded-lg bg-[#e8c99a] px-2 text-[12px] font-bold text-[#3d2b1f] transition hover:bg-[#f0d7ad]"
+          >
+            Salir
+          </button>
+        </div>
+        <AdkinCredit className="!text-[9px] !text-[#c9b8a4]/65 [&_a]:!text-[#e8c99a]/80 [&_a]:hover:!text-white" />
       </div>
     </>
   );
 
   return (
     <div className="admin-shell">
-      {/* Desktop sidebar */}
       <aside className="admin-sidebar">{sidebarBody}</aside>
 
-      {/* Mobile drawer */}
       {mobileOpen && (
         <>
           <button
@@ -190,7 +245,7 @@ export function AdminShell({
           />
           <aside
             id={menuId}
-            className="admin-sidebar admin-sidebar--drawer w-[min(20rem,88vw)] animate-[adminDrawerIn_220ms_ease-out] lg:hidden"
+            className="admin-sidebar admin-sidebar--drawer w-[min(18.5rem,88vw)] animate-[adminDrawerIn_220ms_ease-out] lg:hidden"
           >
             {sidebarBody}
           </aside>
@@ -199,10 +254,10 @@ export function AdminShell({
 
       <div className="admin-shell__main">
         <header className="admin-topbar sticky top-0 z-40">
-          <div className="flex items-center gap-3 px-3 py-3 sm:px-5 lg:px-7">
+          <div className="flex items-center gap-3 px-3 py-2.5 sm:px-5 lg:px-7">
             <button
               type="button"
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[rgba(61,43,31,0.12)] bg-white text-[#5c4033] shadow-sm transition hover:bg-[#faf6f0] lg:hidden"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgba(61,43,31,0.12)] bg-white text-[#5c4033] shadow-sm transition hover:bg-[#faf6f0] lg:hidden"
               aria-expanded={mobileOpen}
               aria-controls={menuId}
               aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"}
@@ -232,7 +287,7 @@ export function AdminShell({
 
             <div className="min-w-0 flex-1">
               <p className="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[#8b5a2b] sm:block">
-                La Casona · Administración
+                {HOTEL_NAME} · Panel
               </p>
               <h1 className="truncate font-display text-xl font-bold leading-tight text-[#2c231c] sm:text-2xl">
                 {heading.title}
@@ -241,32 +296,13 @@ export function AdminShell({
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              <AdminAlertsBell onOpenReservation={() => select("reservations")} />
-              {(username || roleLabel) && (
-                <span className="hidden rounded-full border border-[#d4b896]/70 bg-[#faf6f0] px-3 py-1 text-[11px] font-bold text-[#5c4033] sm:inline-flex">
-                  {username}
-                  {roleLabel ? ` · ${roleLabel}` : ""}
-                </span>
-              )}
+              <AdminAlertsBell
+                onOpenReservation={(target) => {
+                  onOpenReservationAlert?.(target);
+                  onMobileOpenChange(false);
+                }}
+              />
             </div>
-          </div>
-
-          <div className="flex gap-1.5 overflow-x-auto border-t border-[rgba(61,43,31,0.06)] px-3 py-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => select(item.id)}
-                className={cn(
-                  "shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold transition",
-                  activeTab === item.id
-                    ? "bg-[#3d2b1f] text-white shadow-sm"
-                    : "bg-white text-[#6d5e54] ring-1 ring-[rgba(61,43,31,0.1)]"
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
           </div>
         </header>
 

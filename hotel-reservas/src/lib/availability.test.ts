@@ -20,6 +20,7 @@ const { mockPrisma } = vi.hoisted(() => ({
     room: { findUnique: vi.fn(), findMany: vi.fn() },
     reservation: { findMany: vi.fn(), create: vi.fn(), updateMany: vi.fn(), count: vi.fn() },
     roomBlock: { findMany: vi.fn() },
+    roomPriceRule: { findMany: vi.fn() },
     guest: { upsert: vi.fn() },
     $transaction: vi.fn(),
   },
@@ -112,6 +113,7 @@ describe("checkRoomAvailability", () => {
     db = createMockDb();
     db.reservation.findMany.mockResolvedValue([]);
     db.roomBlock.findMany.mockResolvedValue([]);
+    db.roomPriceRule.findMany.mockResolvedValue([]);
   });
 
   // Happy path: habitación disponible sin reservas ni bloqueos activos.
@@ -124,6 +126,28 @@ describe("checkRoomAvailability", () => {
     expect(result.conflicts).toHaveLength(0);
     expect(result.nights).toBe(3);
     expect(result.totalAmount).toBe(300);
+    expect(result.averagePricePerNight).toBe(100);
+  });
+
+  it("calcula total con tarifa de temporada", async () => {
+    db.room.findUnique.mockResolvedValue(baseRoom({ pricePerNight: 100 }));
+    db.roomPriceRule.findMany.mockResolvedValue([
+      {
+        id: "rule-1",
+        roomId: "room-101",
+        startDate: new Date(`${CHECK_IN}T12:00:00.000Z`),
+        endDate: new Date(`${CHECK_OUT}T12:00:00.000Z`),
+        pricePerNight: 250,
+        name: "Alta",
+        createdAt: new Date("2026-01-01"),
+      },
+    ]);
+
+    const result = await checkRoomAvailability("room-101", CHECK_IN, CHECK_OUT, undefined, db);
+
+    expect(result.available).toBe(true);
+    expect(result.totalAmount).toBe(750);
+    expect(result.averagePricePerNight).toBe(250);
   });
 
   // Edge case: check-out anterior o igual al check-in debe rechazarse.
@@ -270,6 +294,10 @@ describe("findAvailableRooms", () => {
     mockPrisma.room.findUnique.mockReset();
     mockPrisma.reservation.findMany.mockReset();
     mockPrisma.roomBlock.findMany.mockReset();
+    mockPrisma.roomPriceRule.findMany.mockReset();
+    mockPrisma.roomPriceRule.findMany.mockResolvedValue([]);
+    mockPrisma.roomBlock.findMany.mockResolvedValue([]);
+    mockPrisma.reservation.findMany.mockResolvedValue([]);
     vi.mocked(expireStaleHoldReservations).mockClear();
   });
 

@@ -7,11 +7,14 @@ export type AdminNavId =
   | "calendar"
   | "reservations"
   | "rooms"
+  | "rates"
   | "blocks"
   | "experiences"
   | "menu"
   | "reports"
   | "users";
+
+export type AdminNavGroupId = "daily" | "inventory" | "insights" | "services" | "system";
 
 type IconProps = { className?: string };
 
@@ -61,6 +64,21 @@ function IconBlocks({ className }: IconProps) {
       <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.75" />
       <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.75" />
       <path d="M14 16.5h5M16.5 14v5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function IconRates({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 19V7a2 2 0 0 1 2-2h8.5L20 9.5V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path d="M14 5v4h4" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
+      <path d="M8 13h8M8 16.5h5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
     </svg>
   );
 }
@@ -128,64 +146,69 @@ export type AdminNavItem = {
   id: AdminNavId;
   label: string;
   description: string;
-  group: "operation" | "growth" | "system";
+  group: AdminNavGroupId;
   adminOnly?: boolean;
   comingSoon?: boolean;
   Icon: (props: IconProps) => ReactNode;
 };
 
+/** Orden de trabajo real en recepción: día a día → inventario → números → extras → accesos */
 export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   {
     id: "calendar",
     label: "Calendario",
-    description: "Ocupación por fechas",
-    group: "operation",
+    description: "Ocupación del día",
+    group: "daily",
     Icon: IconCalendar,
   },
   {
     id: "reservations",
     label: "Reservas",
-    description: "Gestión operativa",
-    group: "operation",
+    description: "Huéspedes y pagos",
+    group: "daily",
     Icon: IconReservations,
   },
   {
     id: "rooms",
     label: "Habitaciones",
-    description: "Catálogo y precios",
-    group: "operation",
+    description: "Catálogo y fotos",
+    group: "inventory",
     Icon: IconRooms,
+  },
+  {
+    id: "rates",
+    label: "Tarifas",
+    description: "Temporadas y festivos",
+    group: "inventory",
+    Icon: IconRates,
   },
   {
     id: "blocks",
     label: "Bloqueos",
-    description: "Cierres de disponibilidad",
-    group: "operation",
+    description: "Cierres de fechas",
+    group: "inventory",
     Icon: IconBlocks,
+  },
+  {
+    id: "reports",
+    label: "Reportes",
+    description: "Ingresos y ocupación",
+    group: "insights",
+    Icon: IconReports,
   },
   {
     id: "experiences",
     label: "Experiencias",
     description: "Turismo y partners",
-    group: "growth",
-    comingSoon: true,
+    group: "services",
     Icon: IconExperiences,
   },
   {
     id: "menu",
     label: "Carta",
-    description: "Comida, bar y productos",
-    group: "growth",
-    comingSoon: true,
+    description: "Comida y bar",
+    group: "services",
     Icon: IconMenu,
-  },
-  {
-    id: "reports",
-    label: "Reportes",
-    description: "Reservas e ingresos",
-    group: "growth",
-    comingSoon: true,
-    Icon: IconReports,
   },
   {
     id: "users",
@@ -197,10 +220,16 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   },
 ];
 
-export const ADMIN_NAV_GROUPS: { id: AdminNavItem["group"]; label: string }[] = [
-  { id: "operation", label: "Operación" },
-  { id: "growth", label: "Servicios" },
-  { id: "system", label: "Sistema" },
+export const ADMIN_NAV_GROUPS: {
+  id: AdminNavGroupId;
+  label: string;
+  muted?: boolean;
+}[] = [
+  { id: "daily", label: "Operación diaria" },
+  { id: "inventory", label: "Inventario" },
+  { id: "insights", label: "Análisis" },
+  { id: "services", label: "Servicios" },
+  { id: "system", label: "Accesos" },
 ];
 
 export function AdminNavButton({
@@ -215,48 +244,50 @@ export function AdminNavButton({
   compact?: boolean;
 }) {
   const { Icon } = item;
+  const soon = Boolean(item.comingSoon);
+
   return (
     <button
       type="button"
       onClick={onClick}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-2xl text-left transition duration-200",
-        compact ? "px-3 py-2.5" : "px-3.5 py-3",
+        "admin-nav-item group relative flex w-full items-center gap-2.5 rounded-xl text-left transition duration-150",
+        compact ? "px-2.5 py-2" : "px-2.5 py-2",
+        soon && !active && "opacity-55",
         active
-          ? "bg-gradient-to-r from-[#6b4f3a] to-[#3d2b1f] text-[#fffdf9] shadow-[0_12px_28px_-14px_rgba(61,43,31,0.65)]"
-          : "text-[#f0e6d8]/88 hover:bg-white/10 hover:text-white"
+          ? "bg-white/12 text-white shadow-[inset_3px_0_0_0_#e8c99a]"
+          : "text-[#f0e6d8]/78 hover:bg-white/[0.07] hover:text-white"
       )}
     >
       <span
         className={cn(
-          "grid h-10 w-10 shrink-0 place-items-center rounded-xl transition",
-          active ? "bg-white/15 text-[#e8c99a]" : "bg-white/8 text-[#d4b896] group-hover:bg-white/12"
+          "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition",
+          active ? "bg-[#e8c99a]/18 text-[#e8c99a]" : "text-[#d4b896]/85 group-hover:text-[#e8c99a]"
         )}
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-[1.15rem] w-[1.15rem]" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span className="block text-sm font-semibold tracking-wide">{item.label}</span>
-          {item.comingSoon && (
+        <span className="flex items-center gap-1.5">
+          <span className={cn("block truncate text-[13px] font-semibold tracking-wide", active && "text-white")}>
+            {item.label}
+          </span>
+          {soon && (
             <span
               className={cn(
-                "rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide",
-                active ? "bg-[#e8c99a]/25 text-[#e8c99a]" : "bg-[#e8c99a]/15 text-[#e8c99a]/90"
+                "shrink-0 rounded px-1 py-px text-[8px] font-bold uppercase tracking-wider",
+                active ? "bg-[#e8c99a]/20 text-[#e8c99a]" : "bg-white/8 text-[#c9b8a4]/90"
               )}
             >
               Pronto
             </span>
           )}
         </span>
-        {!compact && (
-          <span className={cn("mt-0.5 block text-[11px] leading-snug", active ? "text-white/70" : "text-[#c9b8a4]/75")}>
-            {item.description}
-          </span>
+        {!compact && active && (
+          <span className="mt-0.5 block truncate text-[10px] leading-snug text-white/55">{item.description}</span>
         )}
       </span>
-      {active && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#e8c99a]" aria-hidden />}
     </button>
   );
 }

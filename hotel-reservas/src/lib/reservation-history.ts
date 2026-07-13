@@ -33,6 +33,7 @@ export function reservationScopeWhere(scope: ReservationScope): Prisma.Reservati
 
 export function paymentStatusLabel(status: PaymentStatus | string): string {
   if (status === PaymentStatus.PAID) return "Pagado";
+  if (status === PaymentStatus.PARTIAL) return "Abonado";
   if (status === PaymentStatus.PENDING) return "Pendiente";
   if (status === PaymentStatus.REFUNDED) return "Reembolsado";
   if (status === PaymentStatus.CANCELLED) return "Cancelado";

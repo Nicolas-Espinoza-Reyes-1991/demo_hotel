@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/auth";
 import { buildReservationEmailPayload, sendReservationPaidEmail } from "@/lib/email";
 import prisma from "@/lib/prisma";
 import { buildDiscountUpdate, serializeReservationMoney } from "@/lib/reservation-discount";
+import { buildPaymentFieldsUpdate } from "@/lib/reservation-payment";
 import { updateReservationSchema } from "@/lib/validations";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -37,7 +38,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 /**
  * PATCH /api/reservations/[id]
- * Cambio manual de estado de pago/reserva o descuento (admin/staff).
+ * Cambio manual de estado de pago/reserva, abono o descuento (admin/staff).
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
@@ -55,15 +56,28 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return jsonError("Reserva no encontrada.", 404);
     }
 
-    const { paymentStatus, status, totalAmount, discountReason, clearDiscount } = parsed.data;
+    const {
+      paymentStatus,
+      status,
+      totalAmount,
+      discountReason,
+      clearDiscount,
+      amountPaid,
+      registerDeposit,
+    } = parsed.data;
 
     let nextPaymentStatus = paymentStatus;
     if (status === ReservationStatus.CANCELLED && current.paymentStatus === PaymentStatus.PAID && !paymentStatus) {
       nextPaymentStatus = PaymentStatus.REFUNDED;
     }
 
-    const wantsDiscount =
-      clearDiscount === true || totalAmount !== undefined;
+    const paymentFields = buildPaymentFieldsUpdate(current, {
+      paymentStatus: nextPaymentStatus,
+      amountPaid,
+      registerDeposit,
+    });
+
+    const wantsDiscount = clearDiscount === true || totalAmount !== undefined;
 
     let discountData: ReturnType<typeof buildDiscountUpdate> | null = null;
     if (wantsDiscount) {
@@ -78,9 +92,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const reservation = await prisma.reservation.update({
       where: { id },
       data: {
-        ...(nextPaymentStatus ? { paymentStatus: nextPaymentStatus } : {}),
+        ...(paymentFields.paymentStatus ? { paymentStatus: paymentFields.paymentStatus } : {}),
+        ...(paymentFields.amountPaid != null ? { amountPaid: paymentFields.amountPaid } : {}),
+        ...(paymentFields.expiresAt !== undefined ? { expiresAt: paymentFields.expiresAt } : {}),
         ...(status ? { status } : {}),
-        ...(nextPaymentStatus === PaymentStatus.PAID ? { expiresAt: null } : {}),
         ...(discountData
           ? {
               listTotalAmount: discountData.listTotalAmount,
@@ -95,18 +110,26 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     });
 
     const becamePaid =
-      nextPaymentStatus === PaymentStatus.PAID && current.paymentStatus !== PaymentStatus.PAID;
+      paymentFields.paymentStatus === PaymentStatus.PAID &&
+      current.paymentStatus !== PaymentStatus.PAID;
 
     if (becamePaid) {
       void sendReservationPaidEmail(buildReservationEmailPayload(reservation));
     }
 
     const money = serializeReservationMoney(reservation);
-    const message = discountData
-      ? money.hasDiscount
-        ? "Descuento aplicado."
-        : "Descuento quitado. Se restauró el precio de lista."
-      : "Reserva actualizada.";
+    const hadDeposit = Number(current.amountPaid ?? 0) > 0.009;
+    const message = registerDeposit
+      ? "Abono registrado. La reserva queda confirmada; el saldo se paga al check-in."
+      : discountData
+        ? money.hasDiscount
+          ? hadDeposit
+            ? "Descuento aplicado. El abono no se modificó; solo cambió el total y el saldo."
+            : "Descuento aplicado."
+          : hadDeposit
+            ? "Descuento quitado. Se restauró el precio de lista; el abono no se modificó."
+            : "Descuento quitado. Se restauró el precio de lista."
+        : "Reserva actualizada.";
 
     return jsonOk({
       message,

@@ -9,6 +9,8 @@ export type ReservationDiscountFields = {
   id: string;
   totalAmount: number;
   listTotalAmount?: number;
+  amountPaid?: number;
+  balanceDue?: number;
   hasDiscount?: boolean;
   discountReason?: string | null;
   discountAppliedBy?: string | null;
@@ -21,6 +23,11 @@ type ReservationDiscountEditorProps = {
   row: ReservationDiscountFields;
   saving?: boolean;
   compact?: boolean;
+  /**
+   * sheet: abre un modal/sheet (desktop / uso suelto).
+   * inline: edita dentro del contenedor (evitar sheets anidados en móvil).
+   */
+  mode?: "sheet" | "inline";
   onApply: (patch: {
     totalAmount?: number;
     discountReason?: string;
@@ -54,10 +61,123 @@ export function ReservationAmountCell({ row }: { row: ReservationDiscountFields 
   );
 }
 
+function DiscountFormFields({
+  list,
+  amount,
+  reason,
+  saving,
+  hasDiscount,
+  amountPaid,
+  savings,
+  formError,
+  onAmountChange,
+  onReasonChange,
+  onSubmit,
+  onCancel,
+  onClear,
+}: {
+  list: number;
+  amount: string;
+  reason: string;
+  saving?: boolean;
+  hasDiscount?: boolean;
+  amountPaid: number;
+  savings: number;
+  formError: string | null;
+  onAmountChange: (value: string) => void;
+  onReasonChange: (value: string) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-brand-700/40 bg-white/70 px-4 py-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">Precio de lista</p>
+        <p className="mt-1 text-xl font-bold text-brand-100">{formatCurrency(list)}</p>
+        {savings > 0 && (
+          <p className="mt-1 text-sm font-semibold text-emerald-800">Ahorro: {formatCurrency(savings)}</p>
+        )}
+      </div>
+
+      {amountPaid > 0 && (
+        <p className="rounded-xl border border-amber-300/50 bg-amber-50 px-3 py-2 text-xs leading-snug text-amber-950">
+          Ya hay un abono de {formatCurrency(amountPaid)}. El descuento <strong>no modifica</strong> ese
+          monto: solo cambia el total y el saldo. El cobrado no puede quedar por debajo de lo abonado.
+        </p>
+      )}
+
+      {formError ? <p className="alert-error text-xs">{formError}</p> : null}
+
+      <label className="block space-y-1.5">
+        <span className="text-sm font-semibold text-brand-100">Monto cobrado</span>
+        <input
+          type="number"
+          min={0.01}
+          max={list}
+          step="1"
+          value={amount}
+          disabled={saving}
+          onChange={(e) => onAmountChange(e.target.value)}
+          className="input-field min-h-12 w-full text-base"
+          inputMode="decimal"
+        />
+        <span className="text-xs text-brand-500">
+          Debe ser menor o igual al precio de lista. Si lo igualas, se quita el descuento.
+        </span>
+      </label>
+
+      <label className="block space-y-1.5">
+        <span className="text-sm font-semibold text-brand-100">Motivo</span>
+        <input
+          type="text"
+          maxLength={200}
+          value={reason}
+          disabled={saving}
+          onChange={(e) => onReasonChange(e.target.value)}
+          placeholder="Ej: cliente frecuente, promo WhatsApp…"
+          className="input-field min-h-12 w-full text-base"
+        />
+      </label>
+
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={onSubmit}
+          className="btn-primary min-h-12 w-full px-4 text-sm sm:min-w-[8rem] sm:flex-1"
+        >
+          {saving ? "Guardando…" : "Guardar"}
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={onCancel}
+          className="btn-secondary min-h-12 w-full px-4 text-sm sm:min-w-[8rem] sm:flex-1"
+        >
+          Cancelar
+        </button>
+      </div>
+
+      {hasDiscount && (
+        <button
+          type="button"
+          disabled={saving}
+          onClick={onClear}
+          className="min-h-12 w-full rounded-xl border border-red-200 bg-red-50/80 px-4 text-sm font-semibold text-[#a33] transition hover:bg-red-100 disabled:opacity-50"
+        >
+          Quitar descuento
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function ReservationDiscountEditor({
   row,
   saving,
   compact,
+  mode = "sheet",
   onApply,
 }: ReservationDiscountEditorProps) {
   const list = row.listTotalAmount ?? row.totalAmount;
@@ -65,10 +185,12 @@ export function ReservationDiscountEditor({
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(String(Math.round(row.totalAmount)));
   const [reason, setReason] = useState(row.discountReason ?? "");
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     setAmount(String(Math.round(row.totalAmount)));
     setReason(row.discountReason ?? "");
+    setFormError(null);
   }, [row.id, row.totalAmount, row.discountReason]);
 
   if (!editable) {
@@ -88,8 +210,19 @@ export function ReservationDiscountEditor({
   }
 
   async function submit() {
+    setFormError(null);
     const charged = Number(amount.replace(",", "."));
-    if (!Number.isFinite(charged) || charged <= 0) return;
+    if (!Number.isFinite(charged) || charged <= 0) {
+      setFormError("Ingresa un monto válido.");
+      return;
+    }
+    const paid = row.amountPaid ?? 0;
+    if (paid > 0.009 && charged + 0.009 < paid) {
+      setFormError(
+        `El total cobrado no puede ser menor a lo ya abonado (${formatCurrency(paid)}).`
+      );
+      return;
+    }
     if (Math.abs(charged - list) <= 0.009) {
       await onApply({ clearDiscount: true });
       setOpen(false);
@@ -100,6 +233,7 @@ export function ReservationDiscountEditor({
   }
 
   async function clear() {
+    setFormError(null);
     await onApply({ clearDiscount: true });
     setOpen(false);
   }
@@ -112,6 +246,30 @@ export function ReservationDiscountEditor({
       ? Math.round((list - chargedPreview) * 100) / 100
       : 0;
 
+  const form = (
+    <DiscountFormFields
+      list={list}
+      amount={amount}
+      reason={reason}
+      saving={saving}
+      hasDiscount={row.hasDiscount}
+      amountPaid={row.amountPaid ?? 0}
+      savings={savings}
+      formError={formError}
+      onAmountChange={(value) => {
+        setFormError(null);
+        setAmount(value);
+      }}
+      onReasonChange={setReason}
+      onSubmit={() => void submit()}
+      onCancel={() => {
+        setFormError(null);
+        setOpen(false);
+      }}
+      onClear={() => void clear()}
+    />
+  );
+
   return (
     <div className="space-y-2">
       <ReservationAmountCell row={row} />
@@ -122,98 +280,35 @@ export function ReservationDiscountEditor({
         </p>
       )}
 
-      <button
-        type="button"
-        disabled={saving}
-        onClick={() => setOpen(true)}
-        className="text-[11px] font-semibold text-accent underline-offset-2 hover:underline disabled:opacity-50"
-      >
-        {row.hasDiscount ? "Editar descuento" : "Aplicar descuento"}
-      </button>
+      {!open ? (
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => setOpen(true)}
+          className="text-[11px] font-semibold text-accent underline-offset-2 hover:underline disabled:opacity-50"
+        >
+          {row.hasDiscount ? "Editar descuento" : "Aplicar descuento"}
+        </button>
+      ) : null}
 
-      <AdminMobileSheet
-        open={open}
-        onClose={() => setOpen(false)}
-        title={title}
-        subtitle={`Precio de lista ${formatCurrency(list)}`}
-        size="sm"
-      >
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-brand-700/40 bg-white/70 px-4 py-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-500">
-              Precio de lista
-            </p>
-            <p className="mt-1 text-xl font-bold text-brand-100">{formatCurrency(list)}</p>
-            {savings > 0 && (
-              <p className="mt-1 text-sm font-semibold text-emerald-800">
-                Ahorro: {formatCurrency(savings)}
-              </p>
-            )}
-          </div>
+      {mode === "inline" && open ? (
+        <div className="rounded-2xl border border-brand-700/50 bg-white/80 p-3 sm:p-4">{form}</div>
+      ) : null}
 
-          <label className="block space-y-1.5">
-            <span className="text-sm font-semibold text-brand-100">Monto cobrado</span>
-            <input
-              type="number"
-              min={0.01}
-              max={list}
-              step="1"
-              value={amount}
-              disabled={saving}
-              onChange={(e) => setAmount(e.target.value)}
-              className="input-field min-h-12 w-full text-base"
-              inputMode="decimal"
-              autoFocus
-            />
-            <span className="text-xs text-brand-500">
-              Debe ser menor o igual al precio de lista. Si lo igualás, se quita el descuento.
-            </span>
-          </label>
-
-          <label className="block space-y-1.5">
-            <span className="text-sm font-semibold text-brand-100">Motivo</span>
-            <input
-              type="text"
-              maxLength={200}
-              value={reason}
-              disabled={saving}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Ej: cliente frecuente, promo WhatsApp…"
-              className="input-field min-h-12 w-full text-base"
-            />
-          </label>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void submit()}
-              className="btn-primary min-h-12 w-full px-4 text-sm sm:min-w-[8rem] sm:flex-1"
-            >
-              {saving ? "Guardando…" : "Guardar"}
-            </button>
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => setOpen(false)}
-              className="btn-secondary min-h-12 w-full px-4 text-sm sm:min-w-[8rem] sm:flex-1"
-            >
-              Cancelar
-            </button>
-          </div>
-
-          {row.hasDiscount && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void clear()}
-              className="min-h-12 w-full rounded-xl border border-red-200 bg-red-50/80 px-4 text-sm font-semibold text-[#a33] transition hover:bg-red-100 disabled:opacity-50"
-            >
-              Quitar descuento
-            </button>
-          )}
-        </div>
-      </AdminMobileSheet>
+      {mode === "sheet" ? (
+        <AdminMobileSheet
+          open={open}
+          onClose={() => {
+            setFormError(null);
+            setOpen(false);
+          }}
+          title={title}
+          subtitle={`Precio de lista ${formatCurrency(list)}`}
+          size="sm"
+        >
+          {form}
+        </AdminMobileSheet>
+      ) : null}
     </div>
   );
 }

@@ -1,8 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { GuestContactInfo } from "@/components/admin/GuestContactInfo";
+import { AdminConfirmDialog } from "@/components/admin/AdminConfirmDialog";
+import { AdminCreateReservationForm } from "@/components/admin/AdminCreateReservationForm";
+import { AdminToast } from "@/components/admin/AdminToast";
 import { ADMIN_BLOCKS_HELP, ADMIN_RESERVATIONS_HELP, ADMIN_ROOMS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { ReservationDiscountEditor } from "@/components/admin/ReservationDiscountEditor";
@@ -37,6 +40,8 @@ type ReservationRow = {
   paymentProvider?: string | null;
   status: string;
   totalAmount: number;
+  amountPaid?: number;
+  balanceDue?: number;
   listTotalAmount?: number;
   hasDiscount?: boolean;
   discountReason?: string | null;
@@ -62,6 +67,7 @@ type ReservationRow = {
 
 const PAYMENT_OPTIONS = [
   { value: "PENDING", label: "Pendiente" },
+  { value: "PARTIAL", label: "Abonado (50%)" },
   { value: "PAID", label: "Pagado" },
   { value: "CANCELLED", label: "Cancelado" },
   { value: "REFUNDED", label: "Reembolsado" },
@@ -74,6 +80,83 @@ const STATUS_OPTIONS = [
   { value: "CANCELLED", label: "Cancelada" },
   { value: "NO_SHOW", label: "No show" },
 ];
+
+type ReservationUpdatePatch = {
+  paymentStatus?: string;
+  status?: string;
+  totalAmount?: number;
+  discountReason?: string;
+  clearDiscount?: boolean;
+  amountPaid?: number;
+  registerDeposit?: boolean;
+};
+
+type ReservationConfirmCopy = {
+  title: string;
+  message: string;
+  confirmLabel: string;
+  tone: "default" | "danger" | "warn";
+};
+
+/** Pedir confirmación solo en acciones de pago/estado críticas. */
+function reservationUpdateConfirmCopy(patch: ReservationUpdatePatch): ReservationConfirmCopy | null {
+  if (patch.registerDeposit) {
+    return {
+      title: "Registrar abono",
+      message: "Se registrará el abono del 50% en esta reserva. ¿Continuar?",
+      confirmLabel: "Registrar abono",
+      tone: "warn",
+    };
+  }
+  if (patch.paymentStatus === "PAID") {
+    return {
+      title: "Marcar como pagada",
+      message: "La reserva quedará marcada como pagada total. ¿Confirmar?",
+      confirmLabel: "Marcar pagada",
+      tone: "default",
+    };
+  }
+  if (patch.paymentStatus === "CANCELLED") {
+    return {
+      title: "Cancelar pago",
+      message: "Se cancelará el estado de pago de esta reserva. ¿Continuar?",
+      confirmLabel: "Cancelar pago",
+      tone: "danger",
+    };
+  }
+  if (patch.paymentStatus === "REFUNDED") {
+    return {
+      title: "Marcar reembolso",
+      message: "La reserva quedará marcada como reembolsada. ¿Confirmar?",
+      confirmLabel: "Marcar reembolso",
+      tone: "danger",
+    };
+  }
+  if (patch.status === "CANCELLED") {
+    return {
+      title: "Cancelar reserva",
+      message: "La reserva pasará a cancelada. Esta acción afecta la ocupación. ¿Confirmar?",
+      confirmLabel: "Cancelar reserva",
+      tone: "danger",
+    };
+  }
+  if (patch.status === "NO_SHOW") {
+    return {
+      title: "Marcar no show",
+      message: "La reserva se marcará como no show (el huésped no se presentó). ¿Confirmar?",
+      confirmLabel: "Marcar no show",
+      tone: "warn",
+    };
+  }
+  return null;
+}
+
+type PendingReservationConfirm = {
+  id: string;
+  patch: ReservationUpdatePatch;
+  copy: ReservationConfirmCopy;
+  detail?: string;
+};
 
 type PanelMessage = { type: "success" | "error"; text: string };
 const DEFAULT_PAGE_SIZE = 10;
@@ -105,7 +188,15 @@ const SCOPE_TABS: { id: ReservationScope; label: string }[] = [
   { id: "all", label: "Todas" },
 ];
 
-export function AdminReservationsPanel() {
+export function AdminReservationsPanel({
+  focusReservationId = null,
+  focusCode = null,
+  onFocusConsumed,
+}: {
+  focusReservationId?: string | null;
+  focusCode?: string | null;
+  onFocusConsumed?: () => void;
+} = {}) {
   const [rows, setRows] = useState<ReservationRow[]>([]);
   const [scope, setScope] = useState<ReservationScope>("active");
   const [search, setSearch] = useState("");
@@ -117,7 +208,11 @@ export function AdminReservationsPanel() {
   const [initialized, setInitialized] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [managingReservationId, setManagingReservationId] = useState<string | null>(null);
+  const [highlightReservationId, setHighlightReservationId] = useState<string | null>(null);
   const [message, setMessage] = useState<PanelMessage | null>(null);
+  const [pendingConfirm, setPendingConfirm] = useState<PendingReservationConfirm | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const pendingFocusIdRef = useRef<string | null>(null);
   const {
     sortKey: reservationSortKey,
     sortDirection: reservationSortDirection,
@@ -193,16 +288,47 @@ export function AdminReservationsPanel() {
     void load();
   }, [load]);
 
-  async function updateReservation(
-    id: string,
-    patch: {
-      paymentStatus?: string;
-      status?: string;
-      totalAmount?: number;
-      discountReason?: string;
-      clearDiscount?: boolean;
+  // Deep-link desde alertas: buscar por código y abrir la reserva.
+  useEffect(() => {
+    if (!focusReservationId) return;
+    pendingFocusIdRef.current = focusReservationId;
+    setScope("all");
+    setPage(1);
+    if (focusCode) {
+      setSearch(focusCode);
     }
-  ) {
+  }, [focusReservationId, focusCode]);
+
+  useEffect(() => {
+    const pendingId = pendingFocusIdRef.current;
+    if (!pendingId || loading) return;
+
+    const found = rows.find((row) => row.id === pendingId);
+    if (found) {
+      setManagingReservationId(found.id);
+      setHighlightReservationId(found.id);
+      pendingFocusIdRef.current = null;
+      onFocusConsumed?.();
+      window.requestAnimationFrame(() => {
+        document
+          .querySelector(`[data-reservation-id="${found.id}"]`)
+          ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      return;
+    }
+
+    if (!initialized) return;
+    if (focusCode && debouncedSearch.trim().toLowerCase() === focusCode.trim().toLowerCase()) {
+      pendingFocusIdRef.current = null;
+      setMessage({
+        type: "error",
+        text: `No se encontró la reserva ${focusCode} en el listado.`,
+      });
+      onFocusConsumed?.();
+    }
+  }, [rows, loading, initialized, focusCode, debouncedSearch, onFocusConsumed]);
+
+  async function applyReservationUpdate(id: string, patch: ReservationUpdatePatch) {
     setSavingId(id);
     setMessage(null);
     try {
@@ -221,12 +347,32 @@ export function AdminReservationsPanel() {
         type: "success",
         text: typeof data.message === "string" ? data.message : "Estado actualizado.",
       });
+      setPendingConfirm(null);
       await load();
     } catch (err) {
       setMessage({ type: "error", text: err instanceof Error ? err.message : "Error al guardar." });
+      setPendingConfirm(null);
     } finally {
       setSavingId(null);
     }
+  }
+
+  async function updateReservation(id: string, patch: ReservationUpdatePatch) {
+    const copy = reservationUpdateConfirmCopy(patch);
+    if (copy) {
+      const row = rows.find((item) => item.id === id);
+      const guest = row?.guestFullName ?? row?.guest.fullName;
+      setPendingConfirm({
+        id,
+        patch,
+        copy,
+        detail: row
+          ? `${row.confirmationCode}${guest ? ` · ${guest}` : ""} · Hab. ${row.room.code}`
+          : undefined,
+      });
+      return;
+    }
+    await applyReservationUpdate(id, patch);
   }
 
   if (loading && !initialized) {
@@ -235,13 +381,56 @@ export function AdminReservationsPanel() {
 
   return (
     <div className="space-y-4 pb-4 md:pb-0">
-      {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
+      <AdminConfirmDialog
+        open={pendingConfirm !== null}
+        title={pendingConfirm?.copy.title ?? ""}
+        message={pendingConfirm?.copy.message ?? ""}
+        detail={pendingConfirm?.detail}
+        confirmLabel={pendingConfirm?.copy.confirmLabel}
+        tone={pendingConfirm?.copy.tone}
+        busy={pendingConfirm !== null && savingId === pendingConfirm.id}
+        onCancel={() => {
+          if (savingId) return;
+          setPendingConfirm(null);
+        }}
+        onConfirm={() => {
+          if (!pendingConfirm || savingId) return;
+          void applyReservationUpdate(pendingConfirm.id, pendingConfirm.patch);
+        }}
+      />
 
-      <div className="flex flex-wrap items-center gap-2">
+      <AdminToast message={message} onDismiss={() => setMessage(null)} />
+
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <AdminHintLabel as="h2" hint={ADMIN_RESERVATIONS_HELP.section} className="text-base font-bold text-brand-100">
           Reservas
         </AdminHintLabel>
+        <button
+          type="button"
+          onClick={() => setShowCreateForm(true)}
+          className="btn-primary hidden min-h-10 px-4 text-sm md:inline-flex"
+        >
+          + Nueva reserva
+        </button>
       </div>
+
+      <AdminCreateReservationForm
+        open={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+        onCreated={(reservation) => {
+          setShowCreateForm(false);
+          setMessage({
+            type: "success",
+            text: `Reserva ${reservation.confirmationCode} creada.`,
+          });
+          setScope("all");
+          setPage(1);
+          setSearch(reservation.confirmationCode);
+          pendingFocusIdRef.current = reservation.id;
+          setHighlightReservationId(reservation.id);
+          setManagingReservationId(reservation.id);
+        }}
+      />
 
       <div className="space-y-2">
         <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-500">
@@ -312,11 +501,13 @@ export function AdminReservationsPanel() {
         rows={rows}
         scope={scope}
         managingId={managingReservationId}
+        highlightId={highlightReservationId}
         savingId={savingId}
         paymentOptions={PAYMENT_OPTIONS}
         statusOptions={STATUS_OPTIONS}
         page={page}
         totalPages={totalPages}
+        searchQuery={debouncedSearch}
         onManage={setManagingReservationId}
         onUpdate={updateReservation}
         onPrevPage={() => setPage((prev) => Math.max(1, prev - 1))}
@@ -441,19 +632,23 @@ export function AdminReservationsPanel() {
             {sortedRows.length === 0 ? (
               <tr>
                 <td colSpan={scope === "history" ? 9 : 8} className="px-4 py-8 text-center text-brand-500">
-                  {scope === "history"
-                    ? "No hay reservas canceladas o reembolsadas."
-                    : "No hay reservas registradas."}
+                  {debouncedSearch.trim()
+                    ? `Sin resultados para “${debouncedSearch.trim()}”.`
+                    : scope === "history"
+                      ? "No hay reservas canceladas o reembolsadas."
+                      : "No hay reservas registradas."}
                 </td>
               </tr>
             ) : (
               sortedRows.map((row) => (
                 <tr
                   key={row.id}
+                  data-reservation-id={row.id}
                   className={cn(
                     "admin-table-row",
                     (row.paymentStatus === "CANCELLED" || row.paymentStatus === "REFUNDED") &&
-                      "opacity-90"
+                      "opacity-90",
+                    highlightReservationId === row.id && "bg-accent/10 ring-2 ring-inset ring-accent/35"
                   )}
                 >
                   <td className="align-middle font-mono text-[11px] text-gold sm:text-xs">
@@ -513,7 +708,7 @@ export function AdminReservationsPanel() {
                     />
                   </td>
                   <td className="align-middle">
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       {row.paymentProvider === "BANK_TRANSFER" && (
                         <span className="inline-block rounded-full bg-sky-100/70 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-sky-700">
                           Transferencia
@@ -524,18 +719,50 @@ export function AdminReservationsPanel() {
                           MP
                         </span>
                       )}
+                      {(row.paymentStatus === "PARTIAL" || (row.amountPaid ?? 0) > 0) && (
+                        <p className="text-[10px] leading-snug text-brand-500">
+                          Abonado {formatCurrency(row.amountPaid ?? 0)}
+                          {row.paymentStatus === "PARTIAL" && (
+                            <> · Saldo {formatCurrency(row.balanceDue ?? Math.max(0, row.totalAmount - (row.amountPaid ?? 0)))}</>
+                          )}
+                        </p>
+                      )}
                       <select
                         value={row.paymentStatus}
                         disabled={savingId === row.id}
                         onChange={(e) => updateReservation(row.id, { paymentStatus: e.target.value })}
                         className="input-field min-h-8 w-full min-w-0 py-1 text-[11px] sm:text-xs"
                       >
-                      {PAYMENT_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                        {PAYMENT_OPTIONS.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </select>
+                      {(row.paymentStatus === "PENDING" || row.paymentStatus === "PARTIAL") && (
+                        <div className="flex flex-wrap gap-1">
+                          {row.paymentStatus === "PENDING" && (
+                            <button
+                              type="button"
+                              disabled={savingId === row.id}
+                              onClick={() => updateReservation(row.id, { registerDeposit: true })}
+                              className="rounded-lg bg-amber-100 px-2 py-1 text-[10px] font-semibold text-amber-950 ring-1 ring-amber-400/40 hover:bg-amber-200 disabled:opacity-50"
+                            >
+                              Abono 50%
+                            </button>
+                          )}
+                          {row.paymentStatus === "PARTIAL" && (
+                            <button
+                              type="button"
+                              disabled={savingId === row.id}
+                              onClick={() => updateReservation(row.id, { paymentStatus: "PAID" })}
+                              className="rounded-lg bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900 ring-1 ring-emerald-500/35 hover:bg-emerald-200 disabled:opacity-50"
+                            >
+                              Marcar pagado total
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td className="align-middle">
@@ -579,6 +806,10 @@ export function AdminReservationsPanel() {
           Siguiente
         </button>
       </div>
+
+      {!showCreateForm ? (
+        <AdminMobileFab label="+ Nueva reserva" onClick={() => setShowCreateForm(true)} />
+      ) : null}
     </div>
   );
 }
@@ -1057,9 +1288,7 @@ export function AdminRoomsPanel() {
         </button>
       </div>
 
-      {message && (
-        <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>
-      )}
+      <AdminToast message={message} onDismiss={() => setMessage(null)} />
       <div className="flex flex-wrap items-center gap-2">
         <input
           value={search}
@@ -1824,7 +2053,7 @@ export function AdminRoomBlocksPanel() {
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
-      {message && <p className={message.type === "success" ? "alert-success" : "alert-error"}>{message.text}</p>}
+      <AdminToast message={message} onDismiss={() => setMessage(null)} />
 
       <div className="hidden md:block">
         <form onSubmit={createBlock} className="glass-panel space-y-4 p-5">

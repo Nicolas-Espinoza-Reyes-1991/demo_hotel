@@ -7,6 +7,7 @@ import { useTableSort } from "@/hooks/useTableSort";
 import type { PublicStaffUser, StaffRoleCode } from "@/types/staff";
 import { ADMIN_MODULE_HELP, ADMIN_USERS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
+import { AdminToast } from "@/components/admin/AdminToast";
 import { SortableTh } from "@/components/admin/SortableTableHeader";
 import { AdminMobileSheet } from "@/components/admin/mobile/AdminMobileSheet";
 import { PasswordFields, isPasswordFormValid } from "@/components/admin/PasswordFields";
@@ -264,8 +265,19 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
         </button>
       </div>
 
-      {error && <p className="alert-danger text-sm">{error}</p>}
-      {success && <p className="alert-success text-sm">{success}</p>}
+      <AdminToast
+        message={
+          error
+            ? { type: "error", text: error }
+            : success
+              ? { type: "success", text: success }
+              : null
+        }
+        onDismiss={() => {
+          setError(null);
+          setSuccess(null);
+        }}
+      />
 
       {loading ? (
         <p className="text-sm text-brand-500">Cargando usuarios…</p>

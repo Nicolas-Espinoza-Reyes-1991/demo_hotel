@@ -8,6 +8,7 @@ vi.mock("@/lib/availability", () => ({
     daysInMonth: 30,
     rooms: [],
     reservations: [],
+    roomBlocks: [],
   }),
 }));
 
