@@ -18,7 +18,7 @@ export type MobileCalendarReservation = {
   guestBirthDate?: string | null;
   checkIn: string;
   checkOut: string;
-  paymentStatus: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+  paymentStatus: "PENDING" | "PARTIAL" | "PAID" | "CANCELLED" | "REFUNDED";
   historical?: boolean;
   updatedAt?: string;
 };
