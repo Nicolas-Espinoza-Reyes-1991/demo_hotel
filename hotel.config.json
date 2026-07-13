@@ -12,8 +12,9 @@
     "locale": "es_CL"
   },
   "hero": {
-    "eyebrow": "Hotel de Turismo · Futrono · Los Ríos",
-    "tagline": "Un refugio de calma en el sur"
+    "eyebrow": "Hotel en Futrono · Lago Ranco · Los Ríos",
+    "tagline": "Un refugio de calma en el sur",
+    "lead": "Hotel boutique en Futrono, entre bosque nativo y Lago Ranco. Descanso honesto, madera cálida y una hospitalidad que invita a quedarse."
   },
   "contact": {
     "phoneDisplay": "+56 9 9821 8978",
@@ -42,14 +43,15 @@
     "reservas": "https://lacasonadefutrono.cl/reservas"
   },
   "seo": {
-    "title": "La Casona de Futrono | Hotel Boutique · Lago Ranco",
-    "description": "Hotel boutique en Futrono, Lago Ranco. Casona de madera nativa, desayuno campestre y reserva directa online.",
-    "keywords": "hotel Futrono, hotel Lago Ranco, alojamiento Futrono, casona boutique Los Ríos, hospedaje sur de Chile, hotel madera nativa, turismo Futrono, Región Los Ríos",
-    "ogTitle": "La Casona de Futrono | Hotel Boutique · Lago Ranco",
-    "ogDescription": "Hotel boutique en Futrono a orillas del Lago Ranco. Madera nativa y reserva directa online.",
-    "twitterTitle": "La Casona de Futrono | Hotel Boutique Futrono",
-    "twitterDescription": "Hotel boutique en Futrono, Lago Ranco. Casona de madera nativa y reserva directa.",
-    "jsonLdDescription": "Hotel boutique en Futrono, Región de Los Ríos. Casona de madera nativa frente al Lago Ranco. Habitaciones cálidas, desayuno campestre y reserva directa online.",
+    "title": "Hotel en Futrono | La Casona de Futrono · Lago Ranco",
+    "description": "Hotel en Futrono, Región de Los Ríos. La Casona de Futrono: hotel boutique cerca del Lago Ranco, habitaciones en madera nativa, desayuno y reserva directa online.",
+    "keywords": "hotel Futrono, hoteles Futrono, hotel en Futrono, hoteles en Futrono, alojamiento Futrono, hotel Lago Ranco, hospedaje Futrono, hotel boutique Futrono, La Casona de Futrono, turismo Futrono Los Ríos",
+    "ogTitle": "Hotel en Futrono | La Casona de Futrono · Lago Ranco",
+    "ogDescription": "Hotel en Futrono cerca del Lago Ranco. La Casona de Futrono: madera nativa, desayuno y reserva directa online.",
+    "twitterTitle": "Hotel en Futrono | La Casona de Futrono",
+    "twitterDescription": "Hotel en Futrono, Lago Ranco. Hotel boutique con madera nativa, desayuno y reserva directa.",
+    "jsonLdDescription": "Hotel en Futrono, Región de Los Ríos. La Casona de Futrono: hotel boutique cerca del Lago Ranco, habitaciones en madera nativa, desayuno campestre y reserva directa online.",
+    "alternateNames": ["Casona Futrono", "Hotel La Casona de Futrono"],
     "ogImageAlt": "Fachada de La Casona de Futrono con jardín y árboles nativos",
     "priceRange": "$$",
     "starRating": "4.7",

@@ -80,7 +80,7 @@ export function buildRootMetadata(): Metadata {
   return {
     metadataBase: new URL(`${reservasOrigin}/`),
     title: {
-      default: `${HOTEL_NAME} | Reservas directas online`,
+      default: `Reservas | Hotel en Futrono — ${HOTEL_NAME}`,
       template: `%s | ${HOTEL_NAME}`,
     },
     description: hotelConfig.seo.description,

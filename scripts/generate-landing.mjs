@@ -184,7 +184,9 @@ function buildHead() {
       "@context": "https://schema.org",
       "@type": ["Hotel", "LodgingBusiness"],
       "name": ${jsonld(cfg.brand.name)},
+      "alternateName": ${jsonld(s.alternateNames ?? ["Casona Futrono", "Hotel " + cfg.brand.name])},
       "description": ${jsonld(s.jsonLdDescription)},
+      "keywords": ${jsonld(s.keywords)},
       "url": "${site}/",
       "telephone": ${jsonld(cfg.contact.phoneE164)},
       "email": ${jsonld(cfg.contact.email)},
@@ -339,6 +341,10 @@ function applyBody(html) {
     [
       /<p class="casona-hero__tagline">Un refugio de calma en el sur<\/p>/g,
       `<p class="casona-hero__tagline">${cfg.hero.tagline}</p>`,
+    ],
+    [
+      /<p class="casona-hero__lead">\s*[\s\S]*?<\/p>/,
+      `<p class="casona-hero__lead">\n            ${cfg.hero.lead || "Hotel boutique en Futrono, entre bosque nativo y Lago Ranco. Descanso honesto, madera cálida y una hospitalidad que invita a quedarse."}\n          </p>`,
     ],
     [/<a href="#nosotros">La Casona<\/a>/g, `<a href="#nosotros">${b.shortName}</a>`],
     // Copyright (año + nombre) antes del reemplazo global del nombre
