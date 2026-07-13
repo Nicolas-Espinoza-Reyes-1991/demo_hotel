@@ -203,7 +203,15 @@ export async function checkRoomAvailability(
     orderBy: { createdAt: "desc" },
   });
 
-  const pricing = calculateStayPricing(Number(room.pricePerNight), start, end, overlappingPriceRules);
+  const pricing = calculateStayPricing(
+    Number(room.pricePerNight),
+    start,
+    end,
+    overlappingPriceRules.map((rule) => ({
+      ...rule,
+      pricePerNight: Number(rule.pricePerNight),
+    }))
+  );
 
   return {
     available: conflicts.length === 0,

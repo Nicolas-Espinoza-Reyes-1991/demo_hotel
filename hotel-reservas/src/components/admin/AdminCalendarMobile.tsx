@@ -24,7 +24,7 @@ export type MobileCalendarReservation = {
 };
 
 type PaymentBadge = {
-  variant: "paid" | "pending" | "cancelled" | "refunded";
+  variant: "paid" | "partial" | "pending" | "cancelled" | "refunded";
   label: string;
 };
 
