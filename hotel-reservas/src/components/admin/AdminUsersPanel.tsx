@@ -260,7 +260,7 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
           </AdminHintLabel>
           <p className="mt-1 max-w-2xl text-sm text-brand-500">{ADMIN_MODULE_HELP.users}</p>
         </div>
-        <button type="button" onClick={openCreate} className="btn-primary hidden sm:inline-flex">
+        <button type="button" onClick={openCreate} className="btn-primary hidden md:inline-flex">
           + Nuevo usuario
         </button>
       </div>

@@ -556,7 +556,7 @@ export function AdminExperiencesPanel() {
             type="button"
             onClick={() => openCreateExperience()}
             disabled={partners.length === 0}
-            className="btn-primary hidden min-h-10 px-4 sm:inline-flex"
+            className="btn-primary hidden min-h-10 px-4 md:inline-flex"
           >
             + Actividad
           </button>

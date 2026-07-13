@@ -493,7 +493,7 @@ export function AdminMenuPanel() {
             type="button"
             onClick={() => openCreateItem()}
             disabled={categories.length === 0}
-            className="btn-primary hidden min-h-10 px-4 sm:inline-flex"
+            className="btn-primary hidden min-h-10 px-4 md:inline-flex"
           >
             + Producto
           </button>
