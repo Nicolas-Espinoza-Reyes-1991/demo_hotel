@@ -24,10 +24,12 @@ function getPrismaClient(): PrismaClient {
     const client = existing as PrismaClient & {
       roomPriceRule?: unknown;
       bankTransferSettings?: unknown;
+      adminAuditLog?: unknown;
     };
     const schemaOk =
       typeof client.roomPriceRule !== "undefined" &&
-      typeof client.bankTransferSettings !== "undefined";
+      typeof client.bankTransferSettings !== "undefined" &&
+      typeof client.adminAuditLog !== "undefined";
     if (process.env.NODE_ENV === "production" || schemaOk) {
       return existing;
     }

@@ -5,6 +5,11 @@ import { apiPath } from "@/lib/api-path";
 import { ADMIN_BANK_HELP, ADMIN_MODULE_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { AdminToast } from "@/components/admin/AdminToast";
+import {
+  AdminAuditRecentList,
+  formatLastEditLabel,
+} from "@/components/admin/AdminAuditRecentList";
+import type { PublicAdminAuditLog } from "@/types/admin-audit";
 
 type BankFormState = {
   enabled: boolean;
@@ -64,6 +69,9 @@ export function AdminBankTransferPanel() {
   const [success, setSuccess] = useState<string | null>(null);
   const [source, setSource] = useState<"database" | "environment">("environment");
   const [persisted, setPersisted] = useState(false);
+  const [updatedBy, setUpdatedBy] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [recentActivity, setRecentActivity] = useState<PublicAdminAuditLog[]>([]);
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -90,6 +98,9 @@ export function AdminBankTransferPanel() {
       });
       setSource(data.source === "database" ? "database" : "environment");
       setPersisted(Boolean(data.persisted));
+      setUpdatedBy(data.updatedBy ?? null);
+      setUpdatedAt(data.updatedAt ?? null);
+      setRecentActivity(Array.isArray(data.recentActivity) ? data.recentActivity : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar datos bancarios.");
     } finally {
@@ -137,6 +148,9 @@ export function AdminBankTransferPanel() {
       setSuccess(data.message ?? "Datos bancarios actualizados.");
       setSource("database");
       setPersisted(true);
+      setUpdatedBy(data.updatedBy ?? null);
+      setUpdatedAt(data.updatedAt ?? null);
+      setRecentActivity(Array.isArray(data.recentActivity) ? data.recentActivity : []);
 
       const settings = data.settings ?? {};
       setForm({
@@ -166,6 +180,8 @@ export function AdminBankTransferPanel() {
     form.accountNumber.trim().length > 0 &&
     form.accountType.trim().length > 0;
 
+  const lastEdit = formatLastEditLabel(updatedBy, updatedAt);
+
   return (
     <section className="space-y-4">
       <div>
@@ -173,6 +189,7 @@ export function AdminBankTransferPanel() {
           Datos bancarios
         </AdminHintLabel>
         <p className="mt-1 max-w-2xl text-sm text-brand-500">{ADMIN_MODULE_HELP.bank}</p>
+        {lastEdit && <p className="mt-1 text-xs text-brand-500">{lastEdit}</p>}
       </div>
 
       <AdminToast
@@ -329,6 +346,14 @@ export function AdminBankTransferPanel() {
             </button>
           </div>
         </form>
+      )}
+
+      {!loading && (
+        <AdminAuditRecentList
+          title="Cambios de transferencia"
+          logs={recentActivity}
+          emptyText="Todavía no hay cambios de transferencia registrados."
+        />
       )}
     </section>
   );

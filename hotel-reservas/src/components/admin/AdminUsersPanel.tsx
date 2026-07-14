@@ -8,10 +8,13 @@ import type { PublicStaffUser, StaffRoleCode } from "@/types/staff";
 import { ADMIN_MODULE_HELP, ADMIN_USERS_HELP } from "@/components/admin/admin-help";
 import { AdminHintLabel } from "@/components/admin/AdminHintLabel";
 import { AdminToast } from "@/components/admin/AdminToast";
+import { AdminAuditRecentList } from "@/components/admin/AdminAuditRecentList";
 import { SortableTh } from "@/components/admin/SortableTableHeader";
 import { AdminMobileSheet } from "@/components/admin/mobile/AdminMobileSheet";
 import { PasswordFields, isPasswordFormValid } from "@/components/admin/PasswordFields";
 import { AdminMobileFab } from "@/components/admin/mobile/AdminMobileFab";
+import type { PublicAdminAuditLog } from "@/types/admin-audit";
+import { AUDIT_ACTIONS } from "@/types/admin-audit";
 
 type FormMode = "create" | "edit" | "password" | null;
 type UserSortKey = "username" | "fullName" | "role" | "active" | "lastLoginAt";
@@ -47,6 +50,7 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
   const [active, setActive] = useState(true);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordActivity, setPasswordActivity] = useState<PublicAdminAuditLog[]>([]);
   const {
     sortKey: userSortKey,
     sortDirection: userSortDirection,
@@ -75,6 +79,19 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
     [users, sortUserRows]
   );
 
+  const loadPasswordActivity = useCallback(async () => {
+    try {
+      const response = await fetch(
+        apiPath(`/api/admin/audit-logs?action=${encodeURIComponent(AUDIT_ACTIONS.USER_PASSWORD_CHANGE)}&limit=10`)
+      );
+      const data = await response.json();
+      if (!response.ok) return;
+      setPasswordActivity(Array.isArray(data.logs) ? data.logs : []);
+    } catch {
+      /* silencioso: la lista de usuarios sigue operativa */
+    }
+  }, []);
+
   const loadUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -83,12 +100,13 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "No se pudieron cargar los usuarios.");
       setUsers(data.users ?? []);
+      void loadPasswordActivity();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar usuarios.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadPasswordActivity]);
 
   useEffect(() => {
     void loadUsers();
@@ -434,6 +452,14 @@ export function AdminUsersPanel({ onUsersChanged }: { onUsersChanged?: () => voi
       )}
 
       <AdminMobileFab label="Nuevo usuario" onClick={openCreate} />
+
+      {!loading && (
+        <AdminAuditRecentList
+          title="Cambios de contraseña"
+          logs={passwordActivity}
+          emptyText="Todavía no hay cambios de contraseña registrados."
+        />
+      )}
 
       <AdminMobileSheet
         open={mode !== null}

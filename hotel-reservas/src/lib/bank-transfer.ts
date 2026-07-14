@@ -124,16 +124,22 @@ export type BankTransferAdminPayload = {
   notes?: string | null;
 };
 
-export async function getBankTransferAdminState(): Promise<{
+export type BankTransferAdminState = {
   settings: BankTransferAdminPayload;
   source: "database" | "environment";
   persisted: boolean;
-}> {
+  updatedBy: string | null;
+  updatedAt: string | null;
+};
+
+export async function getBankTransferAdminState(): Promise<BankTransferAdminState> {
   const stored = await getStoredBankTransferSettings();
   if (stored) {
     return {
       persisted: true,
       source: "database",
+      updatedBy: stored.updatedBy,
+      updatedAt: stored.updatedAt.toISOString(),
       settings: {
         enabled: stored.enabled,
         bankName: stored.bankName,
@@ -155,6 +161,8 @@ export async function getBankTransferAdminState(): Promise<{
   return {
     persisted: false,
     source: "environment",
+    updatedBy: null,
+    updatedAt: null,
     settings: {
       enabled: Boolean(fromEnv),
       bankName: fromEnv?.bankName ?? process.env.BANK_NAME?.trim() ?? "",
@@ -174,11 +182,93 @@ export async function getBankTransferAdminState(): Promise<{
   };
 }
 
+export type BankTransferActor = {
+  userId?: string | null;
+  username: string;
+};
+
+function serializeAdminPayload(row: {
+  enabled: boolean;
+  bankName: string;
+  accountHolder: string;
+  accountNumber: string;
+  accountType: string;
+  taxId: string | null;
+  cbu: string | null;
+  alias: string | null;
+  swift: string | null;
+  contactEmail: string | null;
+  deadlineHours: number;
+  notes: string | null;
+}): BankTransferAdminPayload {
+  return {
+    enabled: row.enabled,
+    bankName: row.bankName,
+    accountHolder: row.accountHolder,
+    accountNumber: row.accountNumber,
+    accountType: row.accountType,
+    taxId: row.taxId,
+    cbu: row.cbu,
+    alias: row.alias,
+    swift: row.swift,
+    contactEmail: row.contactEmail,
+    deadlineHours: row.deadlineHours,
+    notes: row.notes,
+  };
+}
+
+function collectChangedFields(
+  previous: BankTransferAdminPayload | null,
+  next: BankTransferAdminPayload
+): string[] {
+  if (!previous) {
+    return [
+      "enabled",
+      "bankName",
+      "accountHolder",
+      "accountNumber",
+      "accountType",
+      "taxId",
+      "contactEmail",
+      "deadlineHours",
+      "notes",
+    ];
+  }
+
+  const keys: (keyof BankTransferAdminPayload)[] = [
+    "enabled",
+    "bankName",
+    "accountHolder",
+    "accountNumber",
+    "accountType",
+    "taxId",
+    "cbu",
+    "alias",
+    "swift",
+    "contactEmail",
+    "deadlineHours",
+    "notes",
+  ];
+
+  return keys.filter((key) => {
+    const before = previous[key] ?? null;
+    const after = next[key] ?? null;
+    return String(before ?? "") !== String(after ?? "");
+  });
+}
+
 export async function upsertBankTransferSettings(
-  data: BankTransferAdminPayload
-): Promise<BankTransferAdminPayload> {
+  data: BankTransferAdminPayload,
+  actor?: BankTransferActor
+): Promise<BankTransferAdminPayload & { updatedBy: string | null; updatedAt: string }> {
   const deadlineHours =
     Number.isFinite(data.deadlineHours) && data.deadlineHours > 0 ? Math.round(data.deadlineHours) : 48;
+
+  const previousRow = await getStoredBankTransferSettings();
+  const previous = previousRow ? serializeAdminPayload(previousRow) : null;
+
+  const actorName = actor?.username.trim() || null;
+  const actorId = actor?.userId?.trim() || null;
 
   const row = await prisma.bankTransferSettings.upsert({
     where: { id: BANK_TRANSFER_SETTINGS_ID },
@@ -196,6 +286,8 @@ export async function upsertBankTransferSettings(
       contactEmail: optionalTrim(data.contactEmail) ?? null,
       deadlineHours,
       notes: optionalTrim(data.notes) ?? null,
+      updatedBy: actorName,
+      updatedById: actorId,
     },
     update: {
       enabled: data.enabled,
@@ -210,22 +302,40 @@ export async function upsertBankTransferSettings(
       contactEmail: optionalTrim(data.contactEmail) ?? null,
       deadlineHours,
       notes: optionalTrim(data.notes) ?? null,
+      updatedBy: actorName,
+      updatedById: actorId,
     },
   });
 
+  const settings = serializeAdminPayload(row);
+  const changedFields = collectChangedFields(previous, settings);
+
+  if (actorName) {
+    const { AUDIT_ACTIONS, writeAdminAudit } = await import("@/lib/admin-audit");
+    await writeAdminAudit({
+      action: AUDIT_ACTIONS.BANK_TRANSFER_UPDATE,
+      actor: { username: actorName, userId: actorId },
+      targetType: "bank_transfer",
+      targetId: BANK_TRANSFER_SETTINGS_ID,
+      summary: `${actorName} actualizó datos de transferencia (${settings.bankName} · ${settings.accountNumber})`,
+      metadata: {
+        enabled: settings.enabled,
+        bankName: settings.bankName,
+        accountHolder: settings.accountHolder,
+        accountNumber: settings.accountNumber,
+        accountType: settings.accountType,
+        taxId: settings.taxId,
+        contactEmail: settings.contactEmail,
+        deadlineHours: settings.deadlineHours,
+        changedFields,
+      },
+    });
+  }
+
   return {
-    enabled: row.enabled,
-    bankName: row.bankName,
-    accountHolder: row.accountHolder,
-    accountNumber: row.accountNumber,
-    accountType: row.accountType,
-    taxId: row.taxId,
-    cbu: row.cbu,
-    alias: row.alias,
-    swift: row.swift,
-    contactEmail: row.contactEmail,
-    deadlineHours: row.deadlineHours,
-    notes: row.notes,
+    ...settings,
+    updatedBy: row.updatedBy,
+    updatedAt: row.updatedAt.toISOString(),
   };
 }
 

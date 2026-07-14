@@ -6,6 +6,7 @@ import {
   getBankTransferAdminState,
   upsertBankTransferSettings,
 } from "@/lib/bank-transfer";
+import { AUDIT_ACTIONS, listAdminAuditLogs } from "@/lib/admin-audit";
 
 export const runtime = "nodejs";
 
@@ -44,8 +45,11 @@ const updateSchema = z.object({
 export async function GET() {
   try {
     await requireAdminSession();
-    const state = await getBankTransferAdminState();
-    return jsonOk(state);
+    const [state, recentActivity] = await Promise.all([
+      getBankTransferAdminState(),
+      listAdminAuditLogs({ action: AUDIT_ACTIONS.BANK_TRANSFER_UPDATE, limit: 10 }),
+    ]);
+    return jsonOk({ ...state, recentActivity });
   } catch (error) {
     return handleApiError(error);
   }
@@ -53,18 +57,30 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    await requireAdminSession();
+    const session = await requireAdminSession();
     const body = await request.json();
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) {
       return jsonError("Datos bancarios inválidos.", 400, parsed.error.flatten());
     }
 
-    const settings = await upsertBankTransferSettings(parsed.data);
+    const saved = await upsertBankTransferSettings(parsed.data, {
+      username: session.username,
+      userId: session.userId || null,
+    });
+    const { updatedBy, updatedAt, ...settings } = saved;
+    const recentActivity = await listAdminAuditLogs({
+      action: AUDIT_ACTIONS.BANK_TRANSFER_UPDATE,
+      limit: 10,
+    });
+
     return jsonOk({
       settings,
       source: "database" as const,
       persisted: true,
+      updatedBy,
+      updatedAt,
+      recentActivity,
       message: "Datos bancarios actualizados.",
     });
   } catch (error) {

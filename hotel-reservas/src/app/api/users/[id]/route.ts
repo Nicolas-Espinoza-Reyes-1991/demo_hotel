@@ -56,6 +56,20 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         where: { id },
         data: { passwordHash },
       });
+
+      const { AUDIT_ACTIONS, writeAdminAudit } = await import("@/lib/admin-audit");
+      await writeAdminAudit({
+        action: AUDIT_ACTIONS.USER_PASSWORD_CHANGE,
+        actor: { username: session.username, userId: session.userId || null },
+        targetType: "staff_user",
+        targetId: user.id,
+        summary: `${session.username} cambió la contraseña de ${user.username}`,
+        metadata: {
+          targetUsername: user.username,
+          targetUserId: user.id,
+        },
+      });
+
       return jsonOk({ user: toPublicStaffUser(user), message: "Contraseña actualizada." });
     }
 

@@ -319,8 +319,29 @@ model BankTransferSettings {
   contactEmail  String?
   deadlineHours Int      @default(48)
   notes         String?
+  /// Username del admin que guardó por última vez
+  updatedBy     String?
+  updatedById   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@map("bank_transfer_settings")
+}
+
+/// Auditoría de acciones sensibles del panel (solo ADMIN)
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  actorId    String?
+  actorName  String
+  targetType String?
+  targetId   String?
+  summary    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([actorName, createdAt])
+  @@map("admin_audit_logs")
 }

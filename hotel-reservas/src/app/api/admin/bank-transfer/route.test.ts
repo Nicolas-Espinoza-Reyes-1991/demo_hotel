@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
-const { mockRequireAdmin, mockGetState, mockUpsert } = vi.hoisted(() => ({
+const { mockRequireAdmin, mockGetState, mockUpsert, mockListAudit } = vi.hoisted(() => ({
   mockRequireAdmin: vi.fn(),
   mockGetState: vi.fn(),
   mockUpsert: vi.fn(),
+  mockListAudit: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -16,6 +17,14 @@ vi.mock("@/lib/bank-transfer", () => ({
   upsertBankTransferSettings: mockUpsert,
 }));
 
+vi.mock("@/lib/admin-audit", () => ({
+  AUDIT_ACTIONS: {
+    USER_PASSWORD_CHANGE: "user.password_change",
+    BANK_TRANSFER_UPDATE: "bank_transfer.update",
+  },
+  listAdminAuditLogs: mockListAudit,
+}));
+
 import { GET, PUT } from "./route";
 
 describe("/api/admin/bank-transfer", () => {
@@ -25,6 +34,8 @@ describe("/api/admin/bank-transfer", () => {
     mockGetState.mockResolvedValue({
       persisted: false,
       source: "environment",
+      updatedBy: null,
+      updatedAt: null,
       settings: {
         enabled: true,
         bankName: "Banco Santander",
@@ -37,7 +48,12 @@ describe("/api/admin/bank-transfer", () => {
         notes: null,
       },
     });
-    mockUpsert.mockImplementation(async (data) => data);
+    mockListAudit.mockResolvedValue([]);
+    mockUpsert.mockImplementation(async (data, actor) => ({
+      ...data,
+      updatedBy: actor?.username ?? null,
+      updatedAt: "2026-07-14T12:00:00.000Z",
+    }));
   });
 
   it("GET retorna estado bancario para ADMIN", async () => {
@@ -45,10 +61,11 @@ describe("/api/admin/bank-transfer", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.settings.bankName).toBe("Banco Santander");
+    expect(body.recentActivity).toEqual([]);
     expect(mockRequireAdmin).toHaveBeenCalled();
   });
 
-  it("PUT guarda datos bancarios válidos", async () => {
+  it("PUT guarda datos bancarios válidos con actor", async () => {
     const request = new NextRequest("http://localhost", {
       method: "PUT",
       body: JSON.stringify({
@@ -67,7 +84,11 @@ describe("/api/admin/bank-transfer", () => {
     const body = await response.json();
     expect(response.status).toBe(200);
     expect(body.persisted).toBe(true);
-    expect(mockUpsert).toHaveBeenCalled();
+    expect(body.updatedBy).toBe("admin");
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({ bankName: "Banco Santander" }),
+      expect.objectContaining({ username: "admin", userId: "u1" })
+    );
   });
 
   it("PUT rechaza payload incompleto", async () => {
@@ -82,7 +103,9 @@ describe("/api/admin/bank-transfer", () => {
 
   it("exige sesión ADMIN", async () => {
     const { AppError } = await import("@/lib/api-response");
-    mockRequireAdmin.mockRejectedValue(new AppError("Solo el administrador puede realizar esta acción.", 403, "FORBIDDEN"));
+    mockRequireAdmin.mockRejectedValue(
+      new AppError("Solo el administrador puede realizar esta acción.", 403, "FORBIDDEN")
+    );
 
     const response = await GET();
     expect(response.status).toBe(403);

@@ -119,7 +119,7 @@ Valores iniciales en `.env` (fallback):
 - `BANK_TRANSFER_DEADLINE_HOURS` — plazo para transferir (default 48 h)
 - `BANK_TRANSFER_ENABLED=false` — desactiva la opción (kill switch)
 
-En producción, el **administrador** puede editarlos desde el panel → **Transferencia**. Al guardar, la base de datos tiene prioridad sobre el `.env`.
+En producción, el **administrador** puede editarlos desde el panel → **Transferencia**. Al guardar, la base de datos tiene prioridad sobre el `.env`. Los cambios quedan auditados (quién / cuándo) en el historial del panel.
 
 El admin marca la reserva como **Pagado** cuando recibe la transferencia.
 
