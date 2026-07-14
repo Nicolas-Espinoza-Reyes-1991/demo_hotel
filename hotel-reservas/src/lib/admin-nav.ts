@@ -9,6 +9,7 @@ export const ADMIN_TAB_IDS: AdminNavId[] = [
   "experiences",
   "menu",
   "reports",
+  "bank",
   "users",
 ];
 

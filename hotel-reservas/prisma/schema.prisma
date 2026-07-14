@@ -302,3 +302,25 @@ model Experience {
   @@index([featured])
   @@map("experiences")
 }
+
+/// Datos de transferencia bancaria (singleton; editable solo por ADMIN)
+model BankTransferSettings {
+  /// Fila única; siempre "default"
+  id            String   @id @default("default")
+  enabled       Boolean  @default(true)
+  bankName      String
+  accountHolder String
+  accountNumber String
+  accountType   String   @default("Cuenta corriente")
+  taxId         String?
+  cbu           String?
+  alias         String?
+  swift         String?
+  contactEmail  String?
+  deadlineHours Int      @default(48)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("bank_transfer_settings")
+}

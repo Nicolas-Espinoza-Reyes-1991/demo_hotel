@@ -10,6 +10,7 @@ import { AdminComingSoonPanel } from "@/components/admin/AdminComingSoonPanel";
 import { AdminExperiencesPanel } from "@/components/admin/AdminExperiencesPanel";
 import { AdminMenuPanel } from "@/components/admin/AdminMenuPanel";
 import { AdminUsersPanel } from "@/components/admin/AdminUsersPanel";
+import { AdminBankTransferPanel } from "@/components/admin/AdminBankTransferPanel";
 import { AdminShell } from "@/components/admin/AdminShell";
 import type { AdminNavId } from "@/components/admin/AdminNav";
 import { parseAdminTab } from "@/lib/admin-nav";
@@ -67,7 +68,7 @@ function AdminPageInner() {
   const isAdmin = role === "ADMIN";
 
   function selectTab(next: AdminNavId) {
-    if (next === "users" && !isAdmin) return;
+    if ((next === "users" || next === "bank") && !isAdmin) return;
     replaceAdminQuery((params) => {
       params.set("tab", next);
       params.delete("focus");
@@ -94,7 +95,7 @@ function AdminPageInner() {
   }, [replaceAdminQuery]);
 
   useEffect(() => {
-    if (tab === "users" && role === "STAFF") {
+    if ((tab === "users" || tab === "bank") && role === "STAFF") {
       replaceAdminQuery((params) => {
         params.set("tab", "calendar");
         params.delete("focus");
@@ -140,6 +141,7 @@ function AdminPageInner() {
       {tab === "reports" && reportsOn && <AdminReportsPanel />}
       {tab === "menu" && menuOn && <AdminMenuPanel />}
       {tab === "experiences" && experiencesOn && <AdminExperiencesPanel />}
+      {tab === "bank" && isAdmin && <AdminBankTransferPanel />}
       {tab === "users" && isAdmin && <AdminUsersPanel onUsersChanged={refreshSession} />}
       {locked && (
         <AdminComingSoonPanel

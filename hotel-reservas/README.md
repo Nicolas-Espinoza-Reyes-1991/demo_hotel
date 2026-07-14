@@ -111,13 +111,15 @@ Flujo: reserva pendiente → el cliente elige **pago online** (Mercado Pago) o *
 
 ### Transferencia bancaria
 
-Configura en `.env`:
+Valores iniciales en `.env` (fallback):
 
 - `BANK_NAME`, `BANK_ACCOUNT_HOLDER`, `BANK_ACCOUNT_NUMBER`
 - `BANK_CBU` / `BANK_ALIAS` (opcional, según país)
 - `BANK_CONTACT_EMAIL` — email para recibir comprobantes
 - `BANK_TRANSFER_DEADLINE_HOURS` — plazo para transferir (default 48 h)
-- `BANK_TRANSFER_ENABLED=false` — desactiva la opción
+- `BANK_TRANSFER_ENABLED=false` — desactiva la opción (kill switch)
+
+En producción, el **administrador** puede editarlos desde el panel → **Transferencia**. Al guardar, la base de datos tiene prioridad sobre el `.env`.
 
 El admin marca la reserva como **Pagado** cuando recibe la transferencia.
 

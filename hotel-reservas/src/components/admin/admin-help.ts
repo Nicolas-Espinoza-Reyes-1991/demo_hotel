@@ -13,6 +13,8 @@ export const ADMIN_MODULE_HELP = {
     "Bloqueos por fechas para sacar habitaciones de la venta (mantenimiento, eventos, cierres temporales).",
   users:
     "Mantenedor de accesos al panel. Solo el administrador puede crear usuarios y cambiar contraseñas.",
+  bank:
+    "Datos de la cuenta para transferencia bancaria. Solo el administrador puede verlos y editarlos; se muestran a los huéspedes al pagar.",
   experiences:
     "Partners de turismo local y sus actividades. Lo publicado se ve en /experiencias para que el huésped contacte al operador.",
   menu: "Administrá categorías y productos de la carta digital. Lo publicado se ve en /carta para huéspedes.",
@@ -23,6 +25,12 @@ export const ADMIN_USERS_HELP = {
   section:
     "Administrá quién puede entrar al panel. Administradores gestionan usuarios; trabajadores operan el día a día.",
   form: "Completá los datos del usuario. La contraseña debe cumplir todas las reglas de seguridad.",
+} as const;
+
+export const ADMIN_BANK_HELP = {
+  section:
+    "Cuenta bancaria que ven los huéspedes al elegir pago por transferencia. Los cambios aplican de inmediato en la web y en los emails.",
+  form: "Completá banco, titular y número de cuenta. El email de comprobantes es a dónde debe enviar el huésped el voucher.",
 } as const;
 
 export const ADMIN_CALENDAR_HELP = {

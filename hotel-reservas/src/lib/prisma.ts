@@ -21,8 +21,14 @@ function createPrismaClient() {
 function getPrismaClient(): PrismaClient {
   const existing = globalForPrisma.prisma;
   if (existing) {
-    const hasPriceRules = typeof (existing as PrismaClient & { roomPriceRule?: unknown }).roomPriceRule !== "undefined";
-    if (process.env.NODE_ENV === "production" || hasPriceRules) {
+    const client = existing as PrismaClient & {
+      roomPriceRule?: unknown;
+      bankTransferSettings?: unknown;
+    };
+    const schemaOk =
+      typeof client.roomPriceRule !== "undefined" &&
+      typeof client.bankTransferSettings !== "undefined";
+    if (process.env.NODE_ENV === "production" || schemaOk) {
       return existing;
     }
     void existing.$disconnect().catch(() => undefined);

@@ -62,6 +62,10 @@ const TITLE: Record<AdminNavId, { title: string; subtitle: string }> = {
     title: "Reportes",
     subtitle: "Elegí el reporte, el período y generá el resultado",
   },
+  bank: {
+    title: "Transferencia",
+    subtitle: "Datos de cuenta para pagos por transferencia",
+  },
   users: {
     title: "Usuarios",
     subtitle: "Administradores y trabajadores",

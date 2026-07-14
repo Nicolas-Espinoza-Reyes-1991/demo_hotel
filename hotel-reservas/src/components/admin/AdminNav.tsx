@@ -12,6 +12,7 @@ export type AdminNavId =
   | "experiences"
   | "menu"
   | "reports"
+  | "bank"
   | "users";
 
 export type AdminNavGroupId = "daily" | "inventory" | "insights" | "services" | "system";
@@ -142,6 +143,22 @@ function IconUsers({ className }: IconProps) {
   );
 }
 
+function IconBank({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M4 10h16v9H4v-9Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path d="M3 10 12 4l9 6" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
+      <path d="M8 14v2.5M12 14v2.5M16 14v2.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <path d="M4 19h16" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export type AdminNavItem = {
   id: AdminNavId;
   label: string;
@@ -211,6 +228,14 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     Icon: IconMenu,
   },
   {
+    id: "bank",
+    label: "Transferencia",
+    description: "Datos de cuenta bancaria",
+    group: "system",
+    adminOnly: true,
+    Icon: IconBank,
+  },
+  {
     id: "users",
     label: "Usuarios",
     description: "Accesos al panel",
@@ -229,7 +254,7 @@ export const ADMIN_NAV_GROUPS: {
   { id: "inventory", label: "Inventario" },
   { id: "insights", label: "Análisis" },
   { id: "services", label: "Servicios" },
-  { id: "system", label: "Accesos" },
+  { id: "system", label: "Sistema" },
 ];
 
 export function AdminNavButton({

@@ -14,7 +14,7 @@ export async function GET() {
     const simulatedAllowed = isSimulatedPaymentAllowed() && !mercadoPagoConfigured;
     const onlinePaymentEnabled = isOnlinePaymentEnabled();
     const onlineActive = onlinePaymentEnabled && (mercadoPagoConfigured || simulatedAllowed);
-    const bankTransfer = getBankTransferConfig();
+    const bankTransfer = await getBankTransferConfig();
 
     return jsonOk({
       currency: getMercadoPagoCurrency(),

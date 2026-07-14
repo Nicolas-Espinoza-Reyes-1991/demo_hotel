@@ -1,13 +1,28 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+const { mockFindUnique } = vi.hoisted(() => ({
+  mockFindUnique: vi.fn(),
+}));
+
+vi.mock("@/lib/prisma", () => ({
+  default: {
+    bankTransferSettings: {
+      findUnique: mockFindUnique,
+    },
+  },
+}));
+
 import { GET } from "./route";
 
 describe("GET /api/payments/config", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    mockFindUnique.mockReset();
   });
 
   // Happy path: expone configuración de métodos de pago.
   it("retorna configuración de pagos", async () => {
+    mockFindUnique.mockResolvedValue(null);
     vi.stubEnv("MERCADOPAGO_ACCESS_TOKEN", "");
     vi.stubEnv("NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY", "");
     vi.stubEnv("NODE_ENV", "development");
@@ -28,6 +43,7 @@ describe("GET /api/payments/config", () => {
   });
 
   it("marca pago online como pronto cuando no está habilitado", async () => {
+    mockFindUnique.mockResolvedValue(null);
     vi.stubEnv("MERCADOPAGO_ACCESS_TOKEN", "");
     vi.stubEnv("NEXT_PUBLIC_MERCADOPAGO_PUBLIC_KEY", "");
     vi.stubEnv("ONLINE_PAYMENT_ENABLED", "");
@@ -45,6 +61,7 @@ describe("GET /api/payments/config", () => {
   });
 
   it("habilita pago online cuando ONLINE_PAYMENT_ENABLED=true y hay demo", async () => {
+    mockFindUnique.mockResolvedValue(null);
     vi.stubEnv("ONLINE_PAYMENT_ENABLED", "true");
     vi.stubEnv("ALLOW_SIMULATED_PAYMENT", "true");
     vi.stubEnv("MERCADOPAGO_ACCESS_TOKEN", "");
@@ -59,6 +76,7 @@ describe("GET /api/payments/config", () => {
   });
 
   it("expone emailEnabled cuando SMTP está configurado", async () => {
+    mockFindUnique.mockResolvedValue(null);
     vi.stubEnv("SMTP_HOST", "smtp.test.com");
     vi.stubEnv("SMTP_FROM", "Hotel <reservas@test.com>");
 
