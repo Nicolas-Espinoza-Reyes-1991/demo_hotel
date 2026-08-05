@@ -11,6 +11,7 @@ import { AdminExperiencesPanel } from "@/components/admin/AdminExperiencesPanel"
 import { AdminMenuPanel } from "@/components/admin/AdminMenuPanel";
 import { AdminUsersPanel } from "@/components/admin/AdminUsersPanel";
 import { AdminBankTransferPanel } from "@/components/admin/AdminBankTransferPanel";
+import { AdminBillingNotice } from "@/components/admin/AdminBillingNotice";
 import { AdminShell } from "@/components/admin/AdminShell";
 import type { AdminNavId } from "@/components/admin/AdminNav";
 import { parseAdminTab } from "@/lib/admin-nav";
@@ -118,39 +119,42 @@ function AdminPageInner() {
   const reportsOn = isFeatureEnabled("reports");
 
   return (
-    <AdminShell
-      activeTab={tab}
-      onSelectTab={selectTab}
-      onOpenReservationAlert={openReservation}
-      role={role}
-      username={username}
-      mobileOpen={mobileOpen}
-      onMobileOpenChange={setMobileOpen}
-    >
-      {tab === "calendar" && <AdminCalendar key={calendarKey} onOpenReservation={openReservation} />}
-      {tab === "reservations" && (
-        <AdminReservationsPanel
-          focusReservationId={focusReservationId}
-          focusCode={focusCode}
-          onFocusConsumed={clearReservationFocus}
-        />
-      )}
-      {tab === "rooms" && <AdminRoomsPanel />}
-      {tab === "rates" && <AdminPriceRulesPanel />}
-      {tab === "blocks" && <AdminRoomBlocksPanel />}
-      {tab === "reports" && reportsOn && <AdminReportsPanel />}
-      {tab === "menu" && menuOn && <AdminMenuPanel />}
-      {tab === "experiences" && experiencesOn && <AdminExperiencesPanel />}
-      {tab === "bank" && isAdmin && <AdminBankTransferPanel />}
-      {tab === "users" && isAdmin && <AdminUsersPanel onUsersChanged={refreshSession} />}
-      {locked && (
-        <AdminComingSoonPanel
-          title={locked.title}
-          summary={locked.summary}
-          highlights={locked.highlights}
-        />
-      )}
-    </AdminShell>
+    <>
+      <AdminBillingNotice />
+      <AdminShell
+        activeTab={tab}
+        onSelectTab={selectTab}
+        onOpenReservationAlert={openReservation}
+        role={role}
+        username={username}
+        mobileOpen={mobileOpen}
+        onMobileOpenChange={setMobileOpen}
+      >
+        {tab === "calendar" && <AdminCalendar key={calendarKey} onOpenReservation={openReservation} />}
+        {tab === "reservations" && (
+          <AdminReservationsPanel
+            focusReservationId={focusReservationId}
+            focusCode={focusCode}
+            onFocusConsumed={clearReservationFocus}
+          />
+        )}
+        {tab === "rooms" && <AdminRoomsPanel />}
+        {tab === "rates" && <AdminPriceRulesPanel />}
+        {tab === "blocks" && <AdminRoomBlocksPanel />}
+        {tab === "reports" && reportsOn && <AdminReportsPanel />}
+        {tab === "menu" && menuOn && <AdminMenuPanel />}
+        {tab === "experiences" && experiencesOn && <AdminExperiencesPanel />}
+        {tab === "bank" && isAdmin && <AdminBankTransferPanel />}
+        {tab === "users" && isAdmin && <AdminUsersPanel onUsersChanged={refreshSession} />}
+        {locked && (
+          <AdminComingSoonPanel
+            title={locked.title}
+            summary={locked.summary}
+            highlights={locked.highlights}
+          />
+        )}
+      </AdminShell>
+    </>
   );
 }
 
