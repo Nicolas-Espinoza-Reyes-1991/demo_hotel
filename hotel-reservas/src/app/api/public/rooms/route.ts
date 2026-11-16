@@ -44,10 +44,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
     const rooms = await prisma.room.findMany({
       where: {
         ...(parsed.data.status ? { status: parsed.data.status } : {}),
         ...(parsed.data.type ? { type: parsed.data.type } : {}),
+      },
+      include: {
+        // Solo temporadas vigentes o futuras: el "desde" no debe usar tarifas ya vencidas.
+        priceRules: {
+          where: { endDate: { gte: today } },
+          select: { pricePerNight: true },
+        },
       },
       orderBy: [{ floor: "asc" }, { code: "asc" }],
     });
@@ -55,7 +65,17 @@ export async function GET(request: NextRequest) {
     return withCorsHeaders(
       jsonOk({
         count: rooms.length,
-        rooms: rooms.map(serializeRoom),
+        rooms: rooms.map(({ priceRules, ...room }) => {
+          const prices = [
+            Number(room.pricePerNight),
+            ...(priceRules ?? []).map((rule) => Number(rule.pricePerNight)),
+          ].filter((price) => Number.isFinite(price) && price > 0);
+          return {
+            ...serializeRoom(room),
+            // Precio más bajo del año (base o temporada): base para mostrar "Desde $X".
+            fromPricePerNight: prices.length ? Math.min(...prices) : Number(room.pricePerNight),
+          };
+        }),
       })
     );
   } catch (error) {

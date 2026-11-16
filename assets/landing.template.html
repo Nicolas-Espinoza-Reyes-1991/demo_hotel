@@ -1208,13 +1208,14 @@
             mediaWrap.appendChild(buildCarousel(photos, room.name || ("Habitación " + room.code), fallbackSrc));
 
             /* ── Precio badge (top-left sobre imagen) ── */
-            var priceStr = formatCLP(room.pricePerNight);
+            var priceStr = formatCLP(room.fromPricePerNight || room.pricePerNight);
             if (priceStr) {
               var priceBadge = document.createElement("div");
               priceBadge.className = "casona-room-card__price-badge";
               priceBadge.innerHTML =
+                '<span class="casona-room-card__price-sub">Desde</span>' +
                 '<span class="casona-room-card__price-main">' + priceStr + '</span>' +
-                '<span class="casona-room-card__price-sub">/ noche</span>';
+                '<span class="casona-room-card__price-sub">/ noche · varía por temporada</span>';
               mediaWrap.appendChild(priceBadge);
             }
 

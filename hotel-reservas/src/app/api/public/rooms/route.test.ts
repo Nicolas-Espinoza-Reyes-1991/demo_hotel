@@ -53,6 +53,45 @@ describe("/api/public/rooms", () => {
     expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
   });
 
+  // "Desde": el precio más bajo entre base y temporadas vigentes.
+  it("calcula fromPricePerNight con el mínimo entre base y temporadas", async () => {
+    mockDb.room.findMany.mockResolvedValue([
+      {
+        id: "r1",
+        code: "101",
+        name: "Coihue",
+        type: RoomType.STANDARD,
+        pricePerNight: 60000,
+        maxGuests: 2,
+        status: RoomStatus.AVAILABLE,
+        beds: [],
+        bathrooms: [],
+        amenities: [],
+        priceRules: [{ pricePerNight: 90000 }, { pricePerNight: 75000 }],
+      },
+      {
+        id: "r2",
+        code: "102",
+        name: "Ulmo",
+        type: RoomType.STANDARD,
+        pricePerNight: 60000,
+        maxGuests: 2,
+        status: RoomStatus.AVAILABLE,
+        beds: [],
+        bathrooms: [],
+        amenities: [],
+        priceRules: [{ pricePerNight: 50000 }],
+      },
+    ]);
+
+    const response = await GET(new NextRequest("http://localhost/api/public/rooms"));
+    const body = await response.json();
+
+    expect(body.rooms[0].fromPricePerNight).toBe(60000);
+    expect(body.rooms[1].fromPricePerNight).toBe(50000);
+    expect(body.rooms[0].priceRules).toBeUndefined();
+  });
+
   // Zod: filtro de tipo inválido.
   it("rechaza filtros inválidos", async () => {
     const response = await GET(new NextRequest("http://localhost/api/public/rooms?type=INVALID"));
